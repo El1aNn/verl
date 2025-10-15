@@ -1,8 +1,11 @@
 #!/usr/bin/env bash
 set -xeuo pipefail
 
+export WANDB_API_KEY="f408d6f1e1f982b94e6034176c0cd1f72cf9ab62"
+
+HOME_DIR=${HOME_DIR:-"/root/autodl-tmp"}
 project_name='DAPO'
-exp_name='DAPO-Qwen2.5-32B'
+exp_name='DAPO-Qwen2.5-0.5B'
 
 adv_estimator=grpo
 
@@ -24,23 +27,23 @@ loss_agg_mode="token-mean"
 
 enable_filter_groups=True
 filter_groups_metric=acc
-max_num_gen_batches=10
-train_prompt_bsz=512
+max_num_gen_batches=0
+train_prompt_bsz=16
 gen_prompt_bsz=$((train_prompt_bsz * 3))
-n_resp_per_prompt=16
-train_prompt_mini_bsz=32
+n_resp_per_prompt=8
+train_prompt_mini_bsz=8
 
 # Ray
 RAY_ADDRESS=${RAY_ADDRESS:-"http://localhost:8265"}
 WORKING_DIR=${WORKING_DIR:-"${PWD}"}
-RUNTIME_ENV=${RUNTIME_ENV:-"${WORKING_DIR}/verl/trainer/runtime_env.yaml"}
-NNODES=${NNODES:-16}
+RUNTIME_ENV=${RUNTIME_ENV:-"/root/autodl-tmp/verl/verl/trainer/runtime_env.yaml"}
+NNODES=${NNODES:-1}
 # Paths
-RAY_DATA_HOME=${RAY_DATA_HOME:-"${HOME}/verl"}
-MODEL_PATH=${MODEL_PATH:-"${RAY_DATA_HOME}/models/Qwen2.5-32B"}
+RAY_DATA_HOME=${RAY_DATA_HOME:-"${HOME_DIR}/verl"}
+MODEL_PATH=${MODEL_PATH:-"/root/.cache/modelscope/hub/models/Qwen/Qwen2.5-0.5B-Instruct"}
 CKPTS_DIR=${CKPTS_DIR:-"${RAY_DATA_HOME}/ckpts/${project_name}/${exp_name}"}
-TRAIN_FILE=${TRAIN_FILE:-"${RAY_DATA_HOME}/data/dapo-math-17k.parquet"}
-TEST_FILE=${TEST_FILE:-"${RAY_DATA_HOME}/data/aime-2024.parquet"}
+TRAIN_FILE=${TRAIN_FILE:-"${HOME_DIR}/data/dapo-math-17k.parquet"}
+TEST_FILE=${TEST_FILE:-"${HOME_DIR}/data/aime-2024.parquet"}
 
 # Algorithm
 temperature=1.0
@@ -49,14 +52,20 @@ top_k=-1 # 0 for HF rollout, -1 for vLLM rollout
 val_top_p=0.7
 
 # Performance Related Parameter
-sp_size=8
+sp_size=1 # sequence parallel size 和 GPU数量有关，单卡建议设为1
 use_dynamic_bsz=True
 actor_ppo_max_token_len=$((max_prompt_length + max_response_length))
 infer_ppo_max_token_len=$((max_prompt_length + max_response_length))
 offload=True
-gen_tp=4
+gen_tp=1 # generation tensor parallel size， 单卡建议设为1
 
-ray job submit --no-wait --runtime-env="${RUNTIME_ENV}" \
+# Create a directory for logs if it doesn't exist
+LOG_DIR="${HOME_DIR}/verl/logs"
+mkdir -p "${LOG_DIR}"
+LOG_FILE="${LOG_DIR}/${project_name}-${exp_name}-$(date +'%Y%m%d-%H%M%S').log"
+
+# Submit the job and capture the submission ID
+submission_output=$(ray job submit --no-wait --address="${RAY_ADDRESS}" --runtime-env="${RUNTIME_ENV}" \
     --working-dir "${WORKING_DIR}" \
     -- python3 -m recipe.dapo.main_dapo \
     data.train_files="${TRAIN_FILE}" \
@@ -121,11 +130,28 @@ ray job submit --no-wait --runtime-env="${RUNTIME_ENV}" \
     trainer.logger='["console","wandb"]' \
     trainer.project_name="${project_name}" \
     trainer.experiment_name="${exp_name}" \
-    trainer.n_gpus_per_node=8 \
+    trainer.n_gpus_per_node=1 \
     trainer.nnodes="${NNODES}" \
     trainer.val_before_train=True \
     trainer.test_freq=5 \
     trainer.save_freq=5 \
     trainer.total_epochs=1 \
     trainer.default_local_dir="${CKPTS_DIR}" \
-    trainer.resume_mode=auto
+    trainer.resume_mode=auto)
+
+# Extract the submission ID and clean it from ANSI color codes
+submission_id_raw=$(echo "$submission_output" | grep -o "raysubmit_[^']*" | tail -n 1)
+submission_id=$(echo "$submission_id_raw" | sed 's/\x1b\[[0-9;]*m//g')
+
+if [ -n "$submission_id" ]; then
+    echo "Job submitted with ID: ${submission_id}"
+    echo "Streaming logs to ${LOG_FILE}"
+    # Run the log streaming in the background
+    ray job logs "${submission_id}" --follow > "${LOG_FILE}" 2>&1 &
+    echo "Logs are being written in the background. You can check the file: ${LOG_FILE}"
+else
+    echo "Failed to get submission ID."
+    echo "Submission output:"
+    echo "$submission_output"
+fi
+

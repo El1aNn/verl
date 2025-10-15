@@ -20,7 +20,7 @@ import os
 import re
 
 import datasets
-
+from huggingface_hub import login
 from verl.utils.hdfs_io import copy, makedirs
 
 
@@ -40,14 +40,17 @@ if __name__ == "__main__":
     parser.add_argument(
         "--local_save_dir", default="~/data/gsm8k", help="The save directory for the preprocessed dataset."
     )
+    parser.add_argument("--hf_token", type=str, default=None, help="The Hugging Face token to use for authentication.")
 
     args = parser.parse_args()
+    if args.hf_token:
+        login(token=args.hf_token)
     local_dataset_path = args.local_dataset_path
 
     data_source = "openai/gsm8k"
 
     if local_dataset_path is not None:
-        dataset = datasets.load_dataset(local_dataset_path, "main")
+        dataset = datasets.load_dataset(local_dataset_path, "default")
     else:
         dataset = datasets.load_dataset(data_source, "main")
 

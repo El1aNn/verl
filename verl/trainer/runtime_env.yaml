@@ -1,5 +1,6 @@
 working_dir: ./
-excludes: ["/.git/"]
+excludes: [".git//*","checkpoints//","**/.whl","data//*","/pycache//*","/.log","**/.tmp","**/*.swp"]
 env_vars:
   TORCH_NCCL_AVOID_RECORD_STREAMS: "1"
   CUDA_DEVICE_MAX_CONNECTIONS: "1"
+  WANDB_API_KEY: "f408d6f1e1f982b94e6034176c0cd1f72cf9ab62"

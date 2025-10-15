@@ -99,16 +99,34 @@ class ResourcePoolManager:
         """Get the number of gpus in this cluster."""
         return sum([n_gpus for process_on_nodes in self.resource_pool_spec.values() for n_gpus in process_on_nodes])
 
+    # def _check_resource_available(self):
+    #     """Check if the resource pool can be satisfied in this ray cluster."""
+    #     node_available_resources = ray._private.state.available_resources_per_node()
+    #     node_available_gpus = {
+    #         node: node_info.get("GPU", 0) if "GPU" in node_info else node_info.get("NPU", 0)
+    #         for node, node_info in node_available_resources.items()
+    #     }
+
+    #     # check total required gpus can be satisfied
+    #     total_available_gpus = sum(node_available_gpus.values())
+    #     total_required_gpus = sum(
+    #         [n_gpus for process_on_nodes in self.resource_pool_spec.values() for n_gpus in process_on_nodes]
+    #     )
+    #     if total_available_gpus < total_required_gpus:
+    #         raise ValueError(
+    #             f"Total available GPUs {total_available_gpus} is less than total desired GPUs {total_required_gpus}"
+    #         )
     def _check_resource_available(self):
         """Check if the resource pool can be satisfied in this ray cluster."""
-        node_available_resources = ray._private.state.available_resources_per_node()
-        node_available_gpus = {
-            node: node_info.get("GPU", 0) if "GPU" in node_info else node_info.get("NPU", 0)
-            for node, node_info in node_available_resources.items()
-        }
+        nodes = ray.nodes()
+        node_available_resources = [node["Resources"] for node in nodes if node["Alive"]]
+        node_available_gpus = [
+            node_info.get("GPU", 0) if "GPU" in node_info else node_info.get("NPU", 0)
+            for node_info in node_available_resources
+        ]
 
         # check total required gpus can be satisfied
-        total_available_gpus = sum(node_available_gpus.values())
+        total_available_gpus = sum(node_available_gpus)
         total_required_gpus = sum(
             [n_gpus for process_on_nodes in self.resource_pool_spec.values() for n_gpus in process_on_nodes]
         )

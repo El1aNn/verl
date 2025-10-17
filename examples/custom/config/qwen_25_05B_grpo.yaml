@@ -1,0 +1,76 @@
+defaults:
+  - /ppo_trainer
+  - _self_
+
+# ============= 路径配置 =============
+# 方便统一管理所有路径
+paths:
+  model_base: /root/.cache/modelscope/hub/models
+  model_name: Qwen/Qwen2.5-0.5B-Instruct
+  data_base: /root/autodl-tmp/gsm8k/data/data_preprocessed
+  train_file: train.parquet
+  val_file: test.parquet
+
+# ============= 算法配置 =============
+algorithm:
+  adv_estimator: grpo
+  use_kl_in_reward: false
+
+# ============= 数据配置 =============
+data:
+  train_files: ${paths.data_base}/${paths.train_file}
+  val_files: ${paths.data_base}/${paths.val_file}
+  train_batch_size: 16
+  max_prompt_length: 512
+  max_response_length: 512
+  filter_overlong_prompts: true
+  truncation: 'error'
+
+# ============= 模型和训练配置 =============
+actor_rollout_ref:
+  model:
+    path: ${paths.model_base}/${paths.model_name}
+    use_remove_padding: true
+    enable_gradient_checkpointing: true
+  
+  actor:
+    optim:
+      lr: 1e-6
+    ppo_mini_batch_size: 4
+    ppo_micro_batch_size_per_gpu: 20
+    use_kl_loss: true
+    kl_loss_coef: 0.001
+    kl_loss_type: low_var_kl
+    entropy_coeff: 0
+    fsdp_config:
+      param_offload: false
+      optimizer_offload: false
+  
+  rollout:
+    log_prob_micro_batch_size_per_gpu: 160
+    tensor_model_parallel_size: 1
+    name: vllm
+    gpu_memory_utilization: 0.6
+    n: 5
+  
+  ref:
+    log_prob_micro_batch_size_per_gpu: 160
+    fsdp_config:
+      param_offload: true
+
+# ============= 训练器配置 =============
+trainer:
+  critic_warmup: 0
+  logger: wandb
+  project_name: 'verl_grpo_example_gsm8k'
+  experiment_name: 'qwen_function_rm'
+  n_gpus_per_node: 1
+  nnodes: 1
+  log_val_generations: 1
+  save_freq: 20
+  test_freq: 5
+  total_epochs: 1
+
+# ============= WandB配置 =============
+wandb:
+  api_key: f408d6f1e1f982b94e6034176c0cd1f72cf9ab62

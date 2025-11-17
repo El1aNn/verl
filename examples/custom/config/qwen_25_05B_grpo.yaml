@@ -7,7 +7,7 @@ defaults:
 paths:
   model_base: /root/.cache/modelscope/hub/models
   model_name: Qwen/Qwen2.5-0.5B-Instruct
-  data_base: /root/autodl-tmp/gsm8k/data/data_preprocessed
+  data_base: /root/autodl-tmp/verl/data/gsm8k/main
   train_file: train.parquet
   val_file: test.parquet
 
@@ -62,7 +62,7 @@ actor_rollout_ref:
 trainer:
   critic_warmup: 0
   logger: wandb
-  project_name: 'verl_grpo_example_gsm8k'
+  project_name: 'verl_grpo_gsm8k'
   experiment_name: 'qwen_function_rm'
   n_gpus_per_node: 1
   nnodes: 1

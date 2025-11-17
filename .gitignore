@@ -23,6 +23,7 @@ tensorflow/my_graph/*
 .Python
 env/
 build/
+ckpts/
 develop-eggs/
 dist/
 downloads/

@@ -7,20 +7,29 @@ export WANDB_API_KEY="f408d6f1e1f982b94e6034176c0cd1f72cf9ab62"
 # 基础路径与实验信息（来自 YAML）
 HOME_DIR=${HOME_DIR:-"/root/autodl-tmp"}
 project_name='verl_grpo_dsr_sub'
-exp_name='1_shot_qwen_25_05B_dsr_grpo'
+exp_name='1_shot_qwen_25_05B_dsr_grpo_multi_val'
 
 # Ray 相关（按需修改）
 RAY_ADDRESS=${RAY_ADDRESS:-"http://localhost:8265"}
 WORKING_DIR=${WORKING_DIR:-"${PWD}"}
 RUNTIME_ENV=${RUNTIME_ENV:-"/root/autodl-tmp/verl/verl/trainer/runtime_env.yaml"}
+
+# 自动检测 GPU 数量作为每节点的 GPU 数
+N_GPUS=$(nvidia-smi --query-gpu=name --format=csv,noheader | wc -l)
 NNODES=${NNODES:-1}
+
+echo "Detected ${N_GPUS} GPUs. Setting trainer.n_gpus_per_node=${N_GPUS}"
 
 # 路径（来自 YAML 的 paths.*）
 RAY_DATA_HOME=${RAY_DATA_HOME:-"${HOME_DIR}/verl"}
 MODEL_PATH=${MODEL_PATH:-"/root/.cache/modelscope/hub/models/Qwen/Qwen2.5-0.5B-Instruct"}
 DATA_BASE=${DATA_BASE:-"/root/autodl-tmp/verl/data/gsm8k"}
 TRAIN_FILE=${TRAIN_FILE:-"${DATA_BASE}/train.parquet"}
-VAL_FILE=${VAL_FILE:-"${DATA_BASE}/test.parquet"}
+
+# 定义多个验证集文件
+# 注意：这里使用 Python 列表格式的字符串，Hydra 可以解析
+VAL_FILES="['${DATA_BASE}/test.parquet', '/root/autodl-tmp/verl/data/aime2025_processed/test.parquet', '/root/autodl-tmp/verl/data/math500_processed/test.parquet']"
+
 CKPTS_DIR=${CKPTS_DIR:-"${RAY_DATA_HOME}/ckpts/${project_name}/${exp_name}"}
 
 # 数据与算法（来自 YAML）
@@ -67,11 +76,12 @@ mkdir -p "${LOG_DIR}"
 LOG_FILE="${LOG_DIR}/${project_name}-${exp_name}-$(date +'%Y%m%d-%H%M%S').log"
 
 # 提交 Ray 任务（使用 Hydra 覆盖键，等价于 YAML 中的配置）
+# 注意：data.val_files 使用了双引号包裹的列表字符串
 submission_output=$(ray job submit --no-wait --address="${RAY_ADDRESS}" --runtime-env="${RUNTIME_ENV}" \
     --working-dir "${WORKING_DIR}" \
     -- python3 -m verl.trainer.main_ppo \
     data.train_files="${TRAIN_FILE}" \
-    data.val_files="${VAL_FILE}" \
+    data.val_files="${VAL_FILES}" \
     data.filter_overlong_prompts=${filter_overlong_prompts} \
     data.truncation=${truncation} \
     data.max_prompt_length=${max_prompt_length} \
@@ -101,7 +111,7 @@ submission_output=$(ray job submit --no-wait --address="${RAY_ADDRESS}" --runtim
     trainer.logger=${logger} \
     trainer.project_name="${project_name}" \
     trainer.experiment_name="${exp_name}" \
-    trainer.n_gpus_per_node=1 \
+    trainer.n_gpus_per_node=${N_GPUS} \
     trainer.nnodes="${NNODES}" \
     trainer.critic_warmup=${critic_warmup} \
     trainer.log_val_generations=${log_val_generations} \

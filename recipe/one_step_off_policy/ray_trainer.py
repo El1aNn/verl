@@ -502,6 +502,7 @@ class OneStepOffRayTrainer(RayPPOTrainer):
                         reward_tensor = self.rm_wg.compute_rm_score(batch)
                         batch = batch.union(reward_tensor)
 
+                    
                     # Use the pre-launched future reward if available
                     if self.config.reward_model.launch_reward_fn_async:
                         # future_reward was already started in _async_gen_next_batch

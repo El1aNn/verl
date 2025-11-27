@@ -95,13 +95,26 @@ class NaiveRewardManager(AbstractRewardManager):
 
             if isinstance(score, dict):
                 reward = score["score"]
-                # Store the information including original reward
+                # Update existing keys
+                for key in reward_extra_info.keys():
+                    if key in score:
+                        reward_extra_info[key].append(score[key])
+                    else:
+                        reward_extra_info[key].append(None)
+                
+                # Add new keys
                 for key, value in score.items():
-                    reward_extra_info[key].append(value)
+                    if key not in reward_extra_info:
+                        # Backfill None for previous samples in this batch
+                        reward_extra_info[key] = [None] * i
+                        reward_extra_info[key].append(value)
             else:
                 reward = score
+                # Append None for all existing keys
+                for key in reward_extra_info.keys():
+                    reward_extra_info[key].append(None)
 
-            reward_tensor[i, valid_response_length - 1] = reward
+            reward_tensor[i] = reward
 
             if data_source not in already_print_data_sources:
                 already_print_data_sources[data_source] = 0

@@ -7,7 +7,7 @@ export WANDB_API_KEY="f408d6f1e1f982b94e6034176c0cd1f72cf9ab62"
 # 基础路径与实验信息（来自 YAML）
 HOME_DIR=${HOME_DIR:-"/root/autodl-tmp"}
 project_name='verl_grpo_dsr_sub'
-exp_name='1_shot_qwen_25_05B_dsr_grpo_multi_val'
+exp_name='1_shot_qwen_25_05B_dsr_grpo_multi_val_debug_retry'
 
 # Ray 相关（按需修改）
 RAY_ADDRESS=${RAY_ADDRESS:-"http://localhost:8265"}
@@ -20,22 +20,65 @@ NNODES=${NNODES:-1}
 
 echo "Detected ${N_GPUS} GPUs. Setting trainer.n_gpus_per_node=${N_GPUS}"
 
+# 获取 ray 命令路径
+RAY_CMD=$(which ray || true)
+if [ -z "$RAY_CMD" ]; then
+    PYTHON_PATH=$(which python3 || true)
+    if [ -n "$PYTHON_PATH" ]; then
+        RAY_CMD=$(dirname "$PYTHON_PATH")/ray
+    fi
+    # Fallback to known path if still not found
+    if [ -z "$RAY_CMD" ] || [ ! -x "$RAY_CMD" ]; then
+        RAY_CMD="/root/miniconda3/envs/verl_debug/bin/ray"
+    fi
+fi
+
+if [ ! -x "$RAY_CMD" ]; then
+    echo "Error: ray command not found. Please ensure ray is installed and in PATH."
+    exit 1
+fi
+
+# 检查 Ray 是否运行，如果没有则启动
+if ! $RAY_CMD status --address "$RAY_ADDRESS" > /dev/null 2>&1; then
+    echo "Ray is not running at $RAY_ADDRESS. Starting local Ray cluster..."
+    # 清理可能存在的残留进程
+    $RAY_CMD stop --force || true
+    $RAY_CMD start --head --port 6379 --dashboard-port 8265 --num-gpus ${N_GPUS} --disable-usage-stats
+else
+    echo "Ray is running at $RAY_ADDRESS."
+fi
+
 # 路径（来自 YAML 的 paths.*）
 RAY_DATA_HOME=${RAY_DATA_HOME:-"${HOME_DIR}/verl"}
 MODEL_PATH=${MODEL_PATH:-"/root/.cache/modelscope/hub/models/Qwen/Qwen2.5-0.5B-Instruct"}
-DATA_BASE=${DATA_BASE:-"/root/autodl-tmp/verl/data/gsm8k"}
-TRAIN_FILE=${TRAIN_FILE:-"${DATA_BASE}/train.parquet"}
+DATA_BASE=${DATA_BASE:-"/root/autodl-tmp/verl/data"}
+TRAIN_FILE=${TRAIN_FILE:-"${DATA_BASE}/dsr_sub/train.parquet"}
+VAL_PATH=${VAL_PATH:-"${DATA_BASE}/testset"}
 
-# 定义多个验证集文件
-# 注意：这里使用 Python 列表格式的字符串，Hydra 可以解析
-VAL_FILES="['${DATA_BASE}/test.parquet', '/root/autodl-tmp/verl/data/aime2025_processed/test.parquet', '/root/autodl-tmp/verl/data/math500_processed/test.parquet']"
+# 动态获取 VAL_PATH 下所有 parquet 文件
+# 使用 find 命令查找所有 .parquet 文件
+val_files_list=$(find "${VAL_PATH}" -type f -name "*.parquet")
+
+# 将文件列表转换为 Python 列表格式的字符串: ['file1', 'file2', ...]
+if [ -z "$val_files_list" ]; then
+    VAL_FILES="[]"
+    echo "Warning: No parquet files found in ${VAL_PATH}"
+else
+    formatted_val_files=$(echo "$val_files_list" | sed "s|^|'|;s|$|'|" | paste -sd, -)
+    VAL_FILES="[${formatted_val_files}]"
+fi
+echo "VAL_FILES set to: ${VAL_FILES}"
 
 CKPTS_DIR=${CKPTS_DIR:-"${RAY_DATA_HOME}/ckpts/${project_name}/${exp_name}"}
 
 # 数据与算法（来自 YAML）
-train_batch_size=16
-max_prompt_length=512
-max_response_length=512
+#train_batch_size÷ppo_mini_batch_size=整数
+# 您的配置: 
+# 8 ÷ 4 = 2
+# 结果: 每次采集数据后，会进行 2 次参数更新步骤。
+train_batch_size=8
+max_prompt_length=1024
+max_response_length=1024
 filter_overlong_prompts=true
 truncation='error'
 
@@ -45,7 +88,7 @@ use_kl_in_reward=false
 # 模型/训练细节（来自 YAML）
 lr=1e-6
 ppo_mini_batch_size=4
-ppo_micro_batch_size_per_gpu=20
+ppo_micro_batch_size_per_gpu=2
 use_kl_loss=true
 kl_loss_coef=0.001
 kl_loss_type=low_var_kl
@@ -56,9 +99,12 @@ actor_optimizer_offload=false
 # rollout / ref（来自 YAML）
 rollout_log_prob_micro_bsz=160
 ref_log_prob_micro_bsz=160
-tp_size=1
+#((ppo_mini_batch_size × rollout_n)/ DP size) (mod ppo_micro_batch_size_per_gpu)==0
+
+tp_size=2 #gpu数
 rollout_name=vllm
-gpu_mem_util=0.6
+gpu_mem_util=0.7
+#每个 GPU 的样本数÷ppo_micro_batch_size_per_gpu=整数
 rollout_n=5
 ref_param_offload=true
 
@@ -77,6 +123,9 @@ LOG_FILE="${LOG_DIR}/${project_name}-${exp_name}-$(date +'%Y%m%d-%H%M%S').log"
 
 # 提交 Ray 任务（使用 Hydra 覆盖键，等价于 YAML 中的配置）
 # 注意：data.val_files 使用了双引号包裹的列表字符串
+# 设置 PYTHONPATH 确保优先加载本地代码
+export PYTHONPATH="${WORKING_DIR}:${PYTHONPATH:-}"
+
 submission_output=$(ray job submit --no-wait --address="${RAY_ADDRESS}" --runtime-env="${RUNTIME_ENV}" \
     --working-dir "${WORKING_DIR}" \
     -- python3 -m verl.trainer.main_ppo \

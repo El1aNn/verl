@@ -436,6 +436,12 @@ def process_validation_metrics(
     for data_source, uid2var2vals in data_src2uid2var2vals.items():
         for uid, var2vals in uid2var2vals.items():
             for var_name, var_vals in var2vals.items():
+                # Filter out None values
+                var_vals = [v for v in var_vals if v is not None]
+                
+                if not var_vals:
+                    continue
+
                 if isinstance(var_vals[0], str):
                     continue
 

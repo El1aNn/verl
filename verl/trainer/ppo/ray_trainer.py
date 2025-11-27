@@ -620,10 +620,38 @@ class RayPPOTrainer:
 
             reward_extra_infos_dict["reward"].extend(scores)
             print(f"len reward_extra_infos_dict['reward']: {len(reward_extra_infos_dict['reward'])}")
-            if "reward_extra_info" in result:
-                for key, lst in result["reward_extra_info"].items():
-                    reward_extra_infos_dict[key].extend(lst)
-                    print(f"len reward_extra_infos_dict['{key}']: {len(reward_extra_infos_dict[key])}")
+            
+            batch_extra_info = result.get("reward_extra_info", {})
+            current_batch_keys = set(batch_extra_info.keys())
+            
+            print(f"DEBUG: Processing batch. len(scores)={len(scores)}. len(sample_scores)={len(sample_scores)}")
+            print(f"DEBUG: Current batch keys: {current_batch_keys}")
+            print(f"DEBUG: Existing keys in dict: {list(reward_extra_infos_dict.keys())}")
+
+            # 1. Handle new keys (backfill) and update with current batch data
+            for key, lst in batch_extra_info.items():
+                if key not in reward_extra_infos_dict:
+                    # Backfill with None for all previous samples
+                    num_previous_samples = len(sample_scores) - len(scores)
+                    reward_extra_infos_dict[key] = [None] * num_previous_samples
+                    print(f"DEBUG: Backfilled {key} with {num_previous_samples} Nones")
+                
+                # Defensive: If lst is shorter than batch size (len(scores)), pad it with None
+                # This handles cases where the RewardManager (e.g. naive.py) produces inconsistent lengths
+                if len(lst) < len(scores):
+                    print(f"DEBUG: Key {key} has length {len(lst)} < batch size {len(scores)}. Padding with None.")
+                    lst = list(lst) + [None] * (len(scores) - len(lst))
+                
+                reward_extra_infos_dict[key].extend(lst)
+                print(f"len reward_extra_infos_dict['{key}']: {len(reward_extra_infos_dict[key])}")
+
+            # 2. Handle missing keys (forward fill)
+            for key in list(reward_extra_infos_dict.keys()):
+                if key == "reward": continue
+                if key not in current_batch_keys:
+                    reward_extra_infos_dict[key].extend([None] * len(scores))
+                    print(f"len reward_extra_infos_dict['{key}'] (filled None): {len(reward_extra_infos_dict[key])}")
+
 
             # collect num_turns of each prompt
             if "__num_turns__" in test_batch.non_tensor_batch:
@@ -947,6 +975,7 @@ class RayPPOTrainer:
 
         from verl.utils.tracking import Tracking
 
+        # 初始化日志记录器 (例如 WandB, TensorBoard)
         logger = Tracking(
             project_name=self.config.trainer.project_name,
             experiment_name=self.config.trainer.experiment_name,
@@ -956,11 +985,12 @@ class RayPPOTrainer:
 
         self.global_steps = 0
 
-        # load checkpoint before doing anything
+        # 在开始之前加载检查点
         self._load_checkpoint()
 
-        # perform validation before training
-        # currently, we only support validation using the reward_function.
+        # 在训练前执行验证
+        # 目前，我们仅支持使用 reward_function 进行验证。
+        # breakpoint()
         if self.val_reward_fn is not None and self.config.trainer.get("val_before_train", True):
             val_metrics = self._validate()
             assert val_metrics, f"{val_metrics=}"
@@ -973,10 +1003,10 @@ class RayPPOTrainer:
             rollout_skip = RolloutSkip(self.config, self.actor_rollout_wg)
             rollout_skip.wrap_generate_sequences()
 
-        # add tqdm
+        # 添加进度条
         progress_bar = tqdm(total=self.total_training_steps, initial=self.global_steps, desc="Training Progress")
 
-        # we start from step 1
+        # 我们从第 1 步开始
         self.global_steps += 1
         last_val_metrics = None
         self.max_steps_duration = 0
@@ -989,33 +1019,43 @@ class RayPPOTrainer:
         )
         next_step_profile = False
 
+        # ----------------------------------------------------------------------
+        # 主训练循环
+        # ----------------------------------------------------------------------
         for epoch in range(self.config.trainer.total_epochs):
             for batch_dict in self.train_dataloader:
                 metrics = {}
                 timing_raw = {}
 
+                # 如果当前步骤启用了性能分析，则开始分析
                 with marked_timer("start_profile", timing_raw):
                     self._start_profiling(
                         not prev_step_profile and curr_step_profile
                         if self.config.global_profiler.profile_continuous_steps
                         else curr_step_profile
                     )
+                
+                # 1. 准备批次数据
+                # 将批次字典转换为 DataProto 对象
                 batch: DataProto = DataProto.from_single_dict(batch_dict)
 
-                # add uid to batch
+                # 为批次添加 uid，用于跟踪和优势计算
                 batch.non_tensor_batch["uid"] = np.array(
                     [str(uuid.uuid4()) for _ in range(len(batch.batch))], dtype=object
                 )
 
+                # 提取生成批次 (input_ids, attention_mask 等)
                 gen_batch = self._get_gen_batch(batch)
 
-                # pass global_steps to trace
+                # 传递 global_steps 以进行跟踪
                 gen_batch.meta_info["global_steps"] = self.global_steps
+                # 重复批次以进行每个提示的多次 rollout (n)
                 gen_batch = gen_batch.repeat(repeat_times=self.config.actor_rollout_ref.rollout.n, interleave=True)
 
                 is_last_step = self.global_steps >= self.total_training_steps
                 with marked_timer("step", timing_raw):
-                    # generate a batch
+                    # 2. Rollout (生成)
+                    # 使用 Actor 模型生成序列
                     with marked_timer("gen", timing_raw, color="red"):
                         if not self.async_rollout_mode:
                             gen_batch_output = self.actor_rollout_wg.generate_sequences(gen_batch)
@@ -1025,6 +1065,7 @@ class RayPPOTrainer:
                         timing_raw.update(gen_batch_output.meta_info["timing"])
                         gen_batch_output.meta_info.pop("timing", None)
 
+                    # 3. 优势估计 (REMAX 特有)
                     if self.config.algorithm.adv_estimator == AdvantageEstimator.REMAX:
                         if self.reward_fn is None:
                             raise ValueError("A reward_fn is required for REMAX advantage estimation.")
@@ -1045,25 +1086,30 @@ class RayPPOTrainer:
                             batch.batch["reward_baselines"] = reward_baseline_tensor
 
                             del gen_baseline_batch, gen_baseline_output
-                    # repeat to align with repeated responses in rollout
+                    
+                    # 将原始批次与生成的输出合并
+                    # 重复以与 rollout 中的重复响应对齐
                     batch = batch.repeat(repeat_times=self.config.actor_rollout_ref.rollout.n, interleave=True)
                     batch = batch.union(gen_batch_output)
 
                     if "response_mask" not in batch.batch.keys():
                         batch.batch["response_mask"] = compute_response_mask(batch)
-                    # Balance the number of valid tokens across DP ranks.
-                    # NOTE: This usually changes the order of data in the `batch`,
-                    # which won't affect the advantage calculation (since it's based on uid),
-                    # but might affect the loss calculation (due to the change of mini-batching).
-                    # TODO: Decouple the DP balancing and mini-batching.
+                    
+                    # 平衡 DP rank 之间的有效 token 数量。
+                    # 注意：这通常会改变 `batch` 中数据的顺序，
+                    # 这不会影响优势计算（因为它是基于 uid 的），
+                    # 但可能会影响损失计算（由于 mini-batching 的变化）。
+                    # TODO: 解耦 DP 平衡和 mini-batching。
                     if self.config.trainer.balance_batch:
                         self._balance_batch(batch, metrics=metrics)
 
-                    # compute global_valid tokens
+                    # 计算全局有效 token 数
                     batch.meta_info["global_token_num"] = torch.sum(batch.batch["attention_mask"], dim=-1).tolist()
+                    breakpoint()
 
+                    # 4. 奖励计算
                     with marked_timer("reward", timing_raw, color="yellow"):
-                        # compute reward model score
+                        # 计算奖励模型分数
                         if self.use_rm and "rm_scores" not in batch.batch.keys():
                             reward_tensor = self.rm_wg.compute_rm_score(batch)
                             batch = batch.union(reward_tensor)
@@ -1073,7 +1119,8 @@ class RayPPOTrainer:
                         else:
                             reward_tensor, reward_extra_infos_dict = compute_reward(batch, self.reward_fn)
 
-                    # recompute old_log_probs
+                    # 5. 旧对数概率计算
+                    # 重新计算旧的 log_probs
                     with marked_timer("old_log_prob", timing_raw, color="blue"):
                         old_log_prob = self.actor_rollout_wg.compute_log_prob(batch)
                         entropys = old_log_prob.batch["entropys"]
@@ -1086,13 +1133,14 @@ class RayPPOTrainer:
                         batch = batch.union(old_log_prob)
 
                         if "rollout_log_probs" in batch.batch.keys():
-                            # TODO: we may want to add diff of probs too.
+                            # TODO: 我们可能也想添加概率的差异。
                             from verl.utils.debug.metrics import calculate_debug_metrics
 
                             metrics.update(calculate_debug_metrics(batch))
 
+                    # 6. 参考策略对数概率
                     if self.use_reference_policy:
-                        # compute reference log_prob
+                        # 计算参考 log_prob
                         with marked_timer("ref", timing_raw, color="olive"):
                             if not self.ref_in_actor:
                                 ref_log_prob = self.ref_policy_wg.compute_ref_log_prob(batch)
@@ -1100,14 +1148,16 @@ class RayPPOTrainer:
                                 ref_log_prob = self.actor_rollout_wg.compute_ref_log_prob(batch)
                             batch = batch.union(ref_log_prob)
 
-                    # compute values
+                    # 7. Critic 价值计算
+                    # 计算价值
                     if self.use_critic:
                         with marked_timer("values", timing_raw, color="cyan"):
                             values = self.critic_wg.compute_values(batch)
                             batch = batch.union(values)
 
+                    # 8. 优势计算
                     with marked_timer("adv", timing_raw, color="brown"):
-                        # we combine with rule-based rm
+                        # 我们结合基于规则的 RM
                         reward_extra_infos_dict: dict[str, list]
                         if self.config.reward_model.launch_reward_fn_async:
                             reward_tensor, reward_extra_infos_dict = ray.get(future_reward)
@@ -1116,7 +1166,7 @@ class RayPPOTrainer:
                         if reward_extra_infos_dict:
                             batch.non_tensor_batch.update({k: np.array(v) for k, v in reward_extra_infos_dict.items()})
 
-                        # compute rewards. apply_kl_penalty if available
+                        # 计算奖励。如果可用，应用 KL 惩罚
                         if self.config.algorithm.use_kl_in_reward:
                             batch, kl_metrics = apply_kl_penalty(
                                 batch, kl_ctrl=self.kl_ctrl_in_reward, kl_penalty=self.config.algorithm.kl_penalty
@@ -1125,10 +1175,10 @@ class RayPPOTrainer:
                         else:
                             batch.batch["token_level_rewards"] = batch.batch["token_level_scores"]
 
-                        # compute advantages, executed on the driver process
+                        # 计算优势，在驱动进程上执行
                         norm_adv_by_std_in_grpo = self.config.algorithm.get(
                             "norm_adv_by_std_in_grpo", True
-                        )  # GRPO adv normalization factor
+                        )  # GRPO 优势归一化因子
 
                         batch = compute_advantage(
                             batch,
@@ -1140,28 +1190,31 @@ class RayPPOTrainer:
                             config=self.config.algorithm,
                         )
 
-                    # update critic
+                    # 9. Critic 更新
+                    # 更新 critic
                     if self.use_critic:
                         with marked_timer("update_critic", timing_raw, color="pink"):
                             critic_output = self.critic_wg.update_critic(batch)
                         critic_output_metrics = reduce_metrics(critic_output.meta_info["metrics"])
                         metrics.update(critic_output_metrics)
 
-                    # implement critic warmup
+                    # 10. Actor 更新
+                    # 实现 critic 预热
                     if self.config.trainer.critic_warmup <= self.global_steps:
-                        # update actor
+                        # 更新 actor
                         with marked_timer("update_actor", timing_raw, color="red"):
                             batch.meta_info["multi_turn"] = self.config.actor_rollout_ref.rollout.multi_turn.enable
                             actor_output = self.actor_rollout_wg.update_actor(batch)
                         actor_output_metrics = reduce_metrics(actor_output.meta_info["metrics"])
                         metrics.update(actor_output_metrics)
 
-                    # Log rollout generations if enabled
+                    # 如果启用，记录 rollout 生成
                     rollout_data_dir = self.config.trainer.get("rollout_data_dir", None)
                     if rollout_data_dir:
                         self._log_rollout_data(batch, reward_extra_infos_dict, timing_raw, rollout_data_dir)
 
-                # validate
+                # 11. 验证
+                # 验证
                 if (
                     self.val_reward_fn is not None
                     and self.config.trainer.test_freq > 0
@@ -1173,18 +1226,19 @@ class RayPPOTrainer:
                             last_val_metrics = val_metrics
                     metrics.update(val_metrics)
 
-                # Check if the ESI (Elastic Server Instance)/training plan is close to expiration.
+                # 12. 检查点保存
+                # 检查 ESI (弹性服务器实例)/训练计划是否接近过期。
                 esi_close_to_expiration = should_save_ckpt_esi(
                     max_steps_duration=self.max_steps_duration,
                     redundant_time=self.config.trainer.esi_redundant_time,
                 )
-                # Check if the conditions for saving a checkpoint are met.
-                # The conditions include a mandatory condition (1) and
-                # one of the following optional conditions (2/3/4):
-                # 1. The save frequency is set to a positive value.
-                # 2. It's the last training step.
-                # 3. The current step number is a multiple of the save frequency.
-                # 4. The ESI(Elastic Server Instance)/training plan is close to expiration.
+                # 检查是否满足保存检查点的条件。
+                # 条件包括一个强制条件 (1) 和
+                # 以下可选条件之一 (2/3/4):
+                # 1. 保存频率设置为正值。
+                # 2. 这是最后一个训练步骤。
+                # 3. 当前步骤数是保存频率的倍数。
+                # 4. ESI (弹性服务器实例)/训练计划接近过期。
                 if self.config.trainer.save_freq > 0 and (
                     is_last_step or self.global_steps % self.config.trainer.save_freq == 0 or esi_close_to_expiration
                 ):
@@ -1210,25 +1264,25 @@ class RayPPOTrainer:
                 steps_duration = timing_raw["step"]
                 self.max_steps_duration = max(self.max_steps_duration, steps_duration)
 
-                # training metrics
+                # 训练指标
                 metrics.update(
                     {
                         "training/global_step": self.global_steps,
                         "training/epoch": epoch,
                     }
                 )
-                # collect metrics
+                # 收集指标
                 metrics.update(compute_data_metrics(batch=batch, use_critic=self.use_critic))
                 metrics.update(compute_timing_metrics(batch=batch, timing_raw=timing_raw))
-                # TODO: implement actual tflpo and theoretical tflpo
+                # TODO: 实现实际的 tflpo 和理论上的 tflpo
                 n_gpus = self.resource_pool_manager.get_n_gpus()
                 metrics.update(compute_throughout_metrics(batch=batch, timing_raw=timing_raw, n_gpus=n_gpus))
 
-                # this is experimental and may be changed/removed in the future in favor of a general-purpose one
+                # 这是实验性的，将来可能会更改/删除，以支持通用的采样器
                 if isinstance(self.train_dataloader.sampler, AbstractCurriculumSampler):
                     self.train_dataloader.sampler.update(batch=batch)
 
-                # TODO: make a canonical logger that supports various backend
+                # TODO: 制作一个支持各种后端的规范记录器
                 logger.log(data=metrics, step=self.global_steps)
 
                 progress_bar.update(1)
@@ -1247,8 +1301,8 @@ class RayPPOTrainer:
                     progress_bar.close()
                     return
 
-                # this is experimental and may be changed/removed in the future
-                # in favor of a general-purpose data buffer pool
+                # 这是实验性的，将来可能会更改/删除
+                # 以支持通用的数据缓冲池
                 if hasattr(self.train_dataset, "on_batch_end"):
-                    # The dataset may be changed after each training batch
+                    # 每次训练批次后数据集可能会更改
                     self.train_dataset.on_batch_end(batch=batch)

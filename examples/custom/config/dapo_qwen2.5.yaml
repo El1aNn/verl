@@ -1,0 +1,144 @@
+defaults:
+  - /ppo_trainer
+  - _self_
+
+# ============= 项目配置 =============
+project:
+  name: 'DAPO'
+  experiment_name: 'DAPO-Qwen2.5-0.5B'
+
+# ============= 路径配置 =============
+paths:
+  home_dir: /root/autodl-tmp
+  ray_data_home: ${paths.home_dir}/verl
+  model_path: /root/.cache/modelscope/hub/models/Qwen/Qwen2.5-0.5B-Instruct
+  ckpts_dir: ${paths.ray_data_home}/ckpts/${project.name}/${project.experiment_name}
+  train_file: ${paths.home_dir}/data/dapo-math-17k.parquet
+  test_file: ${paths.home_dir}/data/aime-2024.parquet
+  log_dir: ${paths.home_dir}/verl/logs
+
+# ============= WandB配置 =============
+wandb:
+  api_key: f408d6f1e1f982b94e6034176c0cd1f72cf9ab62
+
+# ============= Ray配置 =============
+ray:
+  address: http://localhost:8265
+  working_dir: ${oc.env:PWD}
+  runtime_env: /root/autodl-tmp/verl/verl/trainer/runtime_env.yaml
+  nnodes: 1
+
+# ============= 数据配置 =============
+data:
+  train_files: ${paths.train_file}
+  val_files: ${paths.test_file}
+  prompt_key: prompt
+  truncation: 'left'
+  max_prompt_length: 2048  # 1024 * 2
+  max_response_length: 20480  # 1024 * 20
+  gen_batch_size: 48  # train_prompt_bsz * 3
+  train_batch_size: 16
+
+# ============= 算法配置 =============
+algorithm:
+  adv_estimator: grpo
+  use_kl_in_reward: false
+  kl_ctrl:
+    kl_coef: 0.0
+  filter_groups:
+    enable: true
+    max_num_gen_batches: 10
+    metric: acc
+
+# ============= 模型和训练配置 =============
+actor_rollout_ref:
+  model:
+    path: ${paths.model_path}
+    use_remove_padding: true
+    enable_gradient_checkpointing: true
+
+  actor:
+    # 优化器配置
+    optim:
+      lr: 1e-6
+      lr_warmup_steps: 10
+      weight_decay: 0.1
+    
+    # PPO 训练配置
+    ppo_mini_batch_size: 8
+    ppo_max_token_len_per_gpu: 22528  # max_prompt_length + max_response_length
+    use_dynamic_bsz: true
+    
+    # KL 散度配置
+    use_kl_loss: false
+    kl_loss_coef: 0.0
+    
+    # Clip 配置
+    clip_ratio_low: 0.2
+    clip_ratio_high: 0.28
+    clip_ratio_c: 10.0
+    
+    # 其他训练参数
+    entropy_coeff: 0
+    grad_clip: 1.0
+    loss_agg_mode: "token-mean"
+    ulysses_sequence_parallel_size: 1
+    
+    # FSDP 配置
+    fsdp_config:
+      param_offload: true
+      optimizer_offload: true
+      fsdp_size: -1
+
+  rollout:
+    # 生成配置
+    n: 8  # n_resp_per_prompt
+    name: vllm
+    tensor_model_parallel_size: 1
+    gpu_memory_utilization: 0.80
+    enable_chunked_prefill: true
+    max_num_batched_tokens: 22528
+    log_prob_use_dynamic_bsz: true
+    log_prob_max_token_len_per_gpu: 22528
+    
+    # 采样参数
+    temperature: 1.0
+    top_p: 1.0
+    top_k: -1  # -1 for vLLM rollout
+    
+    # 验证时的采样参数
+    val_kwargs:
+      temperature: 1.0
+      top_p: 0.7
+      top_k: -1
+      do_sample: true
+      n: 1
+
+  ref:
+    log_prob_use_dynamic_bsz: true
+    log_prob_max_token_len_per_gpu: 22528
+    ulysses_sequence_parallel_size: 1
+    fsdp_config:
+      param_offload: true
+
+# ============= 奖励模型配置 =============
+reward_model:
+  reward_manager: dapo
+  overlong_buffer:
+    enable: true
+    len: 4096  # 1024 * 4
+    penalty_factor: 1.0
+
+# ============= 训练器配置 =============
+trainer:
+  logger: '["console","wandb"]'
+  project_name: ${project.name}
+  experiment_name: ${project.experiment_name}
+  n_gpus_per_node: 1
+  nnodes: ${ray.nnodes}
+  val_before_train: true
+  test_freq: 5
+  save_freq: 5
+  total_epochs: 1
+  default_local_dir: ${paths.ckpts_dir}
+  resume_mode: auto

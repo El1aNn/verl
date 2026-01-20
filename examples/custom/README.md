@@ -1,0 +1,2 @@
+部分参数说明：
+actor_rollout_ref.rollout.tensor_model_parallel_size=1 #与推理的gpu数量一致

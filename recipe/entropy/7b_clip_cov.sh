@@ -1,11 +1,13 @@
 #!/usr/bin/env bash
 set -xeuo pipefail
 
-export WANDB_API_KEY=YOUR_WANDB_API_KEY
+
+export SWANLAB_API_KEY="B2gwMFDhC9KMZAu6T8UXL"  
+
 # export VLLM_USE_V1=1
 
-project_name='Qwen2.5-7B'
-exp_name='clipcov'
+project_name='verl_grpo_dsr_sub_baseline'
+exp_name=${EXP_NAME:-"qwen_math_25_15B_dsr_grpo_1_shot_kl_cov_$(date +%Y%m%d-%H%M%S)"}
 
 adv_estimator=grpo
 

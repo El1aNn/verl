@@ -17,6 +17,7 @@ Note that we don't combine the main with ray_trainer as ray_trainer is used by o
 
 import hydra
 import ray
+import os
 from omegaconf import OmegaConf
 
 from .entropy_ray_trainer import RayEntropyTrainer
@@ -31,6 +32,7 @@ def main(config):
 def run_ppo(config) -> None:
     if not ray.is_initialized():
         # this is for local ray cluster
+        os.environ["RAY_OVERRIDE_JOB_RUNTIME_ENV"] = "1"
         default_runtime_env = {
             "env_vars": {
                 "TOKENIZERS_PARALLELISM": "true",

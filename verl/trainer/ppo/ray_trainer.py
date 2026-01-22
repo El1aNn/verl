@@ -635,9 +635,9 @@ class RayPPOTrainer:
             reward_min = reward_tensor.masked_fill(response_mask == 0, float("inf")).min(-1).values
             reward_max = reward_tensor.masked_fill(response_mask == 0, float("-inf")).max(-1).values
 
-            # Use per-token mean as the canonical "reward" metric in validation.
-            # This keeps reward-related metrics comparable across different response lengths.
-            scores = reward_mean.detach().cpu().tolist()
+            # Use reward_sum (sequence-level) as the canonical "reward" metric in validation.
+            # For math problems, this makes reward consistent with acc (both are 0.0 or 1.0).
+            scores = reward_sum.detach().cpu().tolist()
             valid_cpu = valid.detach().cpu().tolist()
             sample_scores.extend(scores)
 

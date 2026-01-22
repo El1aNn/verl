@@ -429,7 +429,15 @@ def _infer_correct_mask_from_values(vals: "np.ndarray") -> "np.ndarray | None":
     vmin = float(np.min(finite_vals))
     vmax = float(np.max(finite_vals))
     if 0.0 <= vmin and vmax <= 1.0:
-        return vals > 0.9
+        # Check if values are close to binary (e.g., from bool to float conversion)
+        # Allow small floating point errors (< 0.01)
+        is_near_binary = all(abs(v - round(v)) < 0.01 for v in finite_vals)
+        if is_near_binary:
+            # For binary-like metrics (e.g., math problem correctness), use 0.5 threshold
+            return vals > 0.5
+        else:
+            # For true continuous metrics in [0,1], use 0.9 threshold
+            return vals > 0.9
 
     return None
 

@@ -110,10 +110,13 @@ class DAPORewardManager(AbstractRewardManager):
                 score = result["score"]
                 # Store the information including original reward
                 for key, value in result.items():
+                    # Ensure acc is always stored as float for consistency
+                    if key == "acc":
+                        value = float(value) if value is not None else value
                     reward_extra_info[key].append(value)
             else:
                 score = result
-                reward_extra_info["acc"].append(score)
+                reward_extra_info["acc"].append(float(score))
 
             reward = score
 

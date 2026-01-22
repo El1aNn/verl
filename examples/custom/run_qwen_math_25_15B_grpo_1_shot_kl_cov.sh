@@ -2,13 +2,12 @@
 set -xeuo pipefail
 
 # 可选：如需 WandB，请在此设置（或依赖外部已导出）
-export WANDB_API_KEY="f408d6f1e1f982b94e6034176c0cd1f72cf9ab62"
-export SWANLAB_API_KEY="B2gwMFDhC9KMZAu6T8UXL"  # 添加这一行
+export SWANLAB_API_KEY="B2gwMFDhC9KMZAu6T8UXL"  
 ray stop
 # 基础路径与实验信息（来自 YAML）
 HOME_DIR=${HOME_DIR:-"/root/rl"}
 project_name='verl_grpo_dsr_sub_baseline'
-exp_name=${EXP_NAME:-"qwen_math_25_15B_dsr_grpo_1_shot_entropy_$(date +%Y%m%d-%H%M%S)"}
+exp_name=${EXP_NAME:-"qwen_math_25_15B_dsr_grpo_1_shot_kl_cov_$(date +%Y%m%d-%H%M%S)"}
 
 # Ray 相关（按需修改）
 # 说明：
@@ -98,7 +97,7 @@ fi
 
 # 路径（来自 YAML 的 paths.*）
 RAY_DATA_HOME=${RAY_DATA_HOME:-"${HOME_DIR}/verl"}
-MODEL_PATH=${MODEL_PATH:-"/root/.cache/modelscope/hub/models/Qwen/Qwen2.5-Math-1.5B-Instruct"}
+MODEL_PATH=${MODEL_PATH:-"/root/.cache/modelscope/hub/models/Qwen/Qwen2.5-Math-1.5B"}
 DATA_BASE=${DATA_BASE:-"${HOME_DIR}/verl/data"}
 TRAIN_FILE=${TRAIN_FILE:-"${DATA_BASE}/dsr_sub/pi1_one_ans.parquet"}
 VAL_PATH=${VAL_PATH:-"${DATA_BASE}/testset"}
@@ -154,9 +153,14 @@ fi
 
 # 1.5B 模型显存占用小，可以适当增大 micro_batch 以加速
 ppo_micro_batch_size_per_gpu=4
-use_kl_loss=true
-kl_loss_coef=0.001
+use_kl_loss=false
+kl_loss_coef=0.0
 kl_loss_type=low_var_kl
+# kl-cov settings
+loss_mode="kl_cov"
+kl_cov_ratio=0.0002
+ppo_kl_coef=1.0
+
 # 0 表示不使用熵正则化
 entropy_coeff=0.001
 actor_param_offload=false
@@ -198,7 +202,7 @@ export PYTHONPATH="${WORKING_DIR}:${PYTHONPATH:-}"
 
 submission_output=$("$RAY_CMD" job submit --no-wait --address="${RAY_DASHBOARD_ADDRESS}" --runtime-env="${RUNTIME_ENV}" \
     --working-dir "${WORKING_DIR}" \
-    -- python3 -m verl.trainer.main_ppo \
+    -- python3 -m recipe.entropy.main_entropy \
     data.train_files="${TRAIN_FILE}" \
     data.val_files="${VAL_FILES}" \
     data.filter_overlong_prompts=${filter_overlong_prompts} \
@@ -217,6 +221,9 @@ submission_output=$("$RAY_CMD" job submit --no-wait --address="${RAY_DASHBOARD_A
     actor_rollout_ref.actor.use_kl_loss=${use_kl_loss} \
     actor_rollout_ref.actor.kl_loss_coef=${kl_loss_coef} \
     actor_rollout_ref.actor.kl_loss_type=${kl_loss_type} \
+    actor_rollout_ref.actor.policy_loss.loss_mode=${loss_mode} \
+    actor_rollout_ref.actor.policy_loss.kl_cov_ratio=${kl_cov_ratio} \
+    actor_rollout_ref.actor.policy_loss.ppo_kl_coef=${ppo_kl_coef} \
     actor_rollout_ref.actor.entropy_coeff=${entropy_coeff} \
     actor_rollout_ref.actor.fsdp_config.param_offload=${actor_param_offload} \
     actor_rollout_ref.actor.fsdp_config.optimizer_offload=${actor_optimizer_offload} \

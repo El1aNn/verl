@@ -98,7 +98,7 @@ fi
 
 # 路径（来自 YAML 的 paths.*）
 RAY_DATA_HOME=${RAY_DATA_HOME:-"${HOME_DIR}/verl"}
-MODEL_PATH=${MODEL_PATH:-"/root/.cache/modelscope/hub/models/Qwen/Qwen2.5-Math-1.5B-Instruct"}
+MODEL_PATH=${MODEL_PATH:-"/root/.cache/modelscope/hub/models/Qwen/Qwen2.5-Math-1.5B"}
 DATA_BASE=${DATA_BASE:-"${HOME_DIR}/verl/data"}
 TRAIN_FILE=${TRAIN_FILE:-"${DATA_BASE}/dsr_sub/pi1_one_ans.parquet"}
 VAL_PATH=${VAL_PATH:-"${DATA_BASE}/testset"}

@@ -957,14 +957,24 @@ class ActorRolloutRefWorker(Worker, DistProfilerExtension):
         data.meta_info["micro_batch_size"] = self.config.rollout.log_prob_micro_batch_size_per_gpu
         data.meta_info["max_token_len"] = self.config.rollout.log_prob_max_token_len_per_gpu
         data.meta_info["use_dynamic_bsz"] = self.config.rollout.log_prob_use_dynamic_bsz
-        data.meta_info["temperature"] = self.config.rollout.temperature
+        temperature = data.meta_info.get("temperature", self.config.rollout.temperature)
+        data.meta_info["temperature"] = temperature
+        return_distribution_diagnostics = bool(data.meta_info.get("return_distribution_diagnostics", False))
         # perform recompute log_prob
         with self.ulysses_sharding_manager:
             with adapter_ctx:
-                output, entropys = self.actor.compute_log_prob(data=data, calculate_entropy=True)
+                extra_tensors = {}
+                if return_distribution_diagnostics and hasattr(self.actor, "compute_log_prob_with_diagnostics"):
+                    output, entropys, extra_tensors = self.actor.compute_log_prob_with_diagnostics(
+                        data=data, calculate_entropy=True
+                    )
+                else:
+                    output, entropys = self.actor.compute_log_prob(data=data, calculate_entropy=True)
+                    if return_distribution_diagnostics and torch.distributed.get_rank() == 0:
+                        print("Warning: distribution diagnostics requested but actor does not provide them on this path.")
             output = DataProto.from_dict(
-                tensors={"old_log_probs": output, "entropys": entropys},
-                meta_info={"temperature": self.config.rollout.temperature},
+                tensors={"old_log_probs": output, "entropys": entropys, **extra_tensors},
+                meta_info={"temperature": temperature},
             )
 
         output = output.to("cpu")

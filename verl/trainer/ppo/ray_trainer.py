@@ -18,6 +18,7 @@ PPO Trainer with Ray-based single controller.
 This trainer supports model-agonistic model initialization with huggingface
 """
 
+import hashlib
 import json
 import os
 import uuid
@@ -25,7 +26,7 @@ from collections import defaultdict
 from copy import deepcopy
 from dataclasses import dataclass, field
 from pprint import pprint
-from typing import Optional
+from typing import Any, Optional
 
 import numpy as np
 import ray
@@ -347,6 +348,8 @@ class RayPPOTrainer:
             project_name=self.config.trainer.project_name,
             experiment_name=self.config.trainer.experiment_name,
         )
+        self._prev_validation_diag_state: dict[str, dict[str, float | int]] = {}
+        self._warned_missing_validation_distribution = False
 
         # if ref_in_actor is True, the reference policy will be actor without lora applied
         self.ref_in_actor = config.actor_rollout_ref.model.get("lora_rank", 0) > 0
@@ -357,6 +360,413 @@ class RayPPOTrainer:
             self.kl_ctrl_in_reward = core_algos.get_kl_controller(self.config.algorithm.kl_ctrl)
 
         self._create_dataloader(train_dataset, val_dataset, collate_fn, train_sampler)
+
+    def _get_validation_diagnostics_cfg(self):
+        return self.config.trainer.get("validation_diagnostics", {}) or {}
+
+    def _validation_diagnostics_enabled(self) -> bool:
+        return bool(self._get_validation_diagnostics_cfg().get("enabled", False))
+
+    def _validation_distribution_requested(self) -> bool:
+        cfg = self._get_validation_diagnostics_cfg()
+        if not cfg.get("enabled", False):
+            return False
+        return bool(cfg.get("track_eos_probability", True)) or int(cfg.get("token_distribution_topk", 0)) > 0
+
+    @staticmethod
+    def _safe_non_tensor_value(values, idx: int, default=None):
+        if values is None:
+            return default
+        try:
+            value = values[idx]
+        except Exception:
+            return default
+
+        if isinstance(value, np.generic):
+            return value.item()
+        return value
+
+    def _build_stable_validation_uid(self, batch: DataProto, idx: int) -> str:
+        data_source = str(self._safe_non_tensor_value(batch.non_tensor_batch.get("data_source"), idx, "unknown"))
+        index = self._safe_non_tensor_value(batch.non_tensor_batch.get("index"), idx, None)
+        reward_model = self._safe_non_tensor_value(batch.non_tensor_batch.get("reward_model"), idx, {})
+        ground_truth = reward_model.get("ground_truth", None) if isinstance(reward_model, dict) else None
+        raw_prompt_ids = self._safe_non_tensor_value(batch.non_tensor_batch.get("raw_prompt_ids"), idx, None)
+
+        prompt_ids_for_hash = raw_prompt_ids
+        if prompt_ids_for_hash is None:
+            prompt_ids_for_hash = batch.batch["input_ids"][idx].detach().cpu().tolist()
+        elif isinstance(prompt_ids_for_hash, np.ndarray):
+            prompt_ids_for_hash = prompt_ids_for_hash.tolist()
+
+        payload = {
+            "data_source": data_source,
+            "index": index,
+            "ground_truth": ground_truth,
+            "prompt_ids": prompt_ids_for_hash,
+        }
+        payload_str = json.dumps(payload, ensure_ascii=False, sort_keys=True, default=str)
+        digest = hashlib.sha1(payload_str.encode("utf-8")).hexdigest()[:16]
+
+        if index is not None:
+            return f"val::{data_source}::{index}::{digest}"
+        return f"val::{data_source}::{digest}"
+
+    def _ensure_validation_uids(self, batch: DataProto):
+        existing_uids = batch.non_tensor_batch.get("uid", None)
+        if existing_uids is not None:
+            batch.non_tensor_batch["uid"] = np.asarray([str(uid) for uid in existing_uids], dtype=object)
+            return
+
+        uids = [self._build_stable_validation_uid(batch, idx) for idx in range(len(batch))]
+        batch.non_tensor_batch["uid"] = np.asarray(uids, dtype=object)
+
+    @staticmethod
+    def _compute_token_trend(values: torch.Tensor) -> float:
+        if values.numel() <= 1:
+            return 0.0
+
+        positions = torch.arange(values.numel(), dtype=torch.float32)
+        centered_positions = positions - positions.mean()
+        denom = torch.sum(centered_positions.square()).item()
+        if denom <= 0:
+            return 0.0
+        slope = torch.sum(centered_positions * values.to(torch.float32)).item() / denom
+        return float(slope)
+
+    @staticmethod
+    def _extend_validation_infos(
+        aggregated_infos: dict[str, list],
+        batch_infos: dict[str, list],
+        batch_size: int,
+        num_previous_samples: int,
+        reserved_keys: Optional[set[str]] = None,
+    ):
+        reserved_keys = reserved_keys or set()
+        current_batch_keys = set(batch_infos.keys())
+
+        for key, values in batch_infos.items():
+            if key in reserved_keys:
+                continue
+            if key not in aggregated_infos:
+                aggregated_infos[key] = [None] * num_previous_samples
+
+            values = list(values)
+            if len(values) < batch_size:
+                values = values + [None] * (batch_size - len(values))
+            aggregated_infos[key].extend(values[:batch_size])
+
+        for key in list(aggregated_infos.keys()):
+            if key in reserved_keys:
+                continue
+            if key not in current_batch_keys:
+                aggregated_infos[key].extend([None] * batch_size)
+
+    def _compute_validation_token_diagnostics(
+        self,
+        batch: DataProto,
+        log_prob_batch: DataProto,
+        next_validation_diag_state: dict[str, dict[str, float | int]],
+    ) -> tuple[dict[str, list], list[dict[str, Any]]]:
+        cfg = self._get_validation_diagnostics_cfg()
+        if not cfg.get("enabled", False):
+            return {}, [{} for _ in range(len(batch))]
+
+        response_mask = batch.batch["response_mask"].detach().cpu().bool()
+        response_ids = batch.batch["responses"].detach().cpu()
+        policy_log_probs = log_prob_batch.batch["old_log_probs"].detach().cpu().to(torch.float32)
+        entropys = log_prob_batch.batch["entropys"].detach().cpu().to(torch.float32)
+        rollout_log_probs = None
+        if "rollout_log_probs" in batch.batch.keys():
+            rollout_log_probs = batch.batch["rollout_log_probs"].detach().cpu().to(torch.float32)
+        eos_probs = log_prob_batch.batch["dist_eos_probs"].detach().cpu().to(torch.float32) if "dist_eos_probs" in log_prob_batch.batch.keys() else None
+        top1_token_ids = (
+            log_prob_batch.batch["dist_top1_token_ids"].detach().cpu().to(torch.int64)
+            if "dist_top1_token_ids" in log_prob_batch.batch.keys()
+            else None
+        )
+        top1_token_probs = (
+            log_prob_batch.batch["dist_top1_token_probs"].detach().cpu().to(torch.float32)
+            if "dist_top1_token_probs" in log_prob_batch.batch.keys()
+            else None
+        )
+        topk_token_ids = (
+            log_prob_batch.batch["dist_topk_token_ids"].detach().cpu().to(torch.int64)
+            if "dist_topk_token_ids" in log_prob_batch.batch.keys()
+            else None
+        )
+        topk_token_probs = (
+            log_prob_batch.batch["dist_topk_token_probs"].detach().cpu().to(torch.float32)
+            if "dist_topk_token_probs" in log_prob_batch.batch.keys()
+            else None
+        )
+        topk_mass = (
+            log_prob_batch.batch["dist_topk_mass"].detach().cpu().to(torch.float32)
+            if "dist_topk_mass" in log_prob_batch.batch.keys()
+            else None
+        )
+
+        compare_to_previous_eval = bool(cfg.get("compare_to_previous_eval", True))
+        low_conf_prob_threshold = float(cfg.get("low_confidence_prob_threshold", 0.2))
+        eos_high_prob_threshold = float(cfg.get("eos_high_prob_threshold", 0.1))
+        tail_tokens = max(1, int(cfg.get("tail_tokens", 32)))
+        max_tokens_per_sample = max(1, int(cfg.get("max_tokens_per_sample", 64)))
+        samples_to_dump_token_details = int(cfg.get("samples_to_dump_token_details", 0))
+        dump_token_details_unlimited = samples_to_dump_token_details < 0
+        eos_token_id = self.tokenizer.eos_token_id
+
+        if (
+            self._validation_distribution_requested()
+            and eos_probs is None
+            and topk_token_ids is None
+            and not self._warned_missing_validation_distribution
+        ):
+            print(
+                "Warning: validation token distribution diagnostics were requested, "
+                "but the actor did not return EOS/top-k distribution tensors on this path."
+            )
+            self._warned_missing_validation_distribution = True
+
+        diag_metric_keys = [
+            "response_length",
+            "token_logprob_mean",
+            "token_logprob_std",
+            "token_logprob_min",
+            "token_logprob_max",
+            "token_prob_mean",
+            "token_prob_min",
+            "token_entropy_mean",
+            "token_entropy_std",
+            "low_confidence_token_ratio",
+            "answer_tail_confidence",
+            "logprob_slope",
+            "entropy_slope",
+            "rollout_logprob_delta_mean",
+            "rollout_logprob_delta_abs_mean",
+            "traj_mean_logprob_delta_prev_eval",
+            "traj_tail_conf_delta_prev_eval",
+            "response_length_delta_prev_eval",
+            "eos_prob_mean",
+            "eos_prob_max",
+            "eos_prob_final",
+            "eos_prob_slope",
+            "eos_high_prob_ratio",
+            "eos_top1_ratio",
+            "top1_prob_mean",
+            "top1_prob_final",
+            "topk_mass_mean",
+            "topk_mass_final",
+            "eos_prob_delta_prev_eval",
+            "eos_prob_final_delta_prev_eval",
+        ]
+        diag_infos = {key: [] for key in diag_metric_keys}
+        sample_metadata: list[dict[str, Any]] = []
+        dumped_token_detail_samples = 0
+
+        for sample_idx in range(policy_log_probs.shape[0]):
+            uid = str(self._safe_non_tensor_value(batch.non_tensor_batch.get("uid"), sample_idx, f"row-{sample_idx}"))
+            mask = response_mask[sample_idx]
+            valid_len = int(mask.sum().item())
+
+            info: dict[str, Any] = {
+                "uid": uid,
+                "response_length": valid_len,
+            }
+
+            if valid_len > 0:
+                token_ids = response_ids[sample_idx][mask]
+                token_log_probs = policy_log_probs[sample_idx][mask]
+                token_probs = token_log_probs.exp()
+                token_entropys = entropys[sample_idx][mask]
+                tail_width = min(valid_len, tail_tokens)
+                sample_eos_probs = eos_probs[sample_idx][mask] if eos_probs is not None else None
+                sample_top1_token_ids = top1_token_ids[sample_idx][mask] if top1_token_ids is not None else None
+                sample_top1_token_probs = top1_token_probs[sample_idx][mask] if top1_token_probs is not None else None
+                sample_topk_token_ids = topk_token_ids[sample_idx][mask] if topk_token_ids is not None else None
+                sample_topk_token_probs = topk_token_probs[sample_idx][mask] if topk_token_probs is not None else None
+                sample_topk_mass = topk_mass[sample_idx][mask] if topk_mass is not None else None
+
+                info["token_logprob_mean"] = float(token_log_probs.mean().item())
+                info["token_logprob_std"] = float(token_log_probs.std(unbiased=False).item())
+                info["token_logprob_min"] = float(token_log_probs.min().item())
+                info["token_logprob_max"] = float(token_log_probs.max().item())
+                info["token_prob_mean"] = float(token_probs.mean().item())
+                info["token_prob_min"] = float(token_probs.min().item())
+                info["token_entropy_mean"] = float(token_entropys.mean().item())
+                info["token_entropy_std"] = float(token_entropys.std(unbiased=False).item())
+                info["low_confidence_token_ratio"] = float((token_probs < low_conf_prob_threshold).float().mean().item())
+                info["answer_tail_confidence"] = float(token_probs[-tail_width:].mean().item())
+                info["logprob_slope"] = self._compute_token_trend(token_log_probs)
+                info["entropy_slope"] = self._compute_token_trend(token_entropys)
+
+                if rollout_log_probs is not None:
+                    rollout_sample_log_probs = rollout_log_probs[sample_idx][mask]
+                    logprob_delta = token_log_probs - rollout_sample_log_probs
+                    info["rollout_logprob_delta_mean"] = float(logprob_delta.mean().item())
+                    info["rollout_logprob_delta_abs_mean"] = float(logprob_delta.abs().mean().item())
+
+                if sample_eos_probs is not None:
+                    info["eos_prob_mean"] = float(sample_eos_probs.mean().item())
+                    info["eos_prob_max"] = float(sample_eos_probs.max().item())
+                    info["eos_prob_final"] = float(sample_eos_probs[-1].item())
+                    info["eos_prob_slope"] = self._compute_token_trend(sample_eos_probs)
+                    info["eos_high_prob_ratio"] = float((sample_eos_probs > eos_high_prob_threshold).float().mean().item())
+
+                if sample_top1_token_probs is not None:
+                    info["top1_prob_mean"] = float(sample_top1_token_probs.mean().item())
+                    info["top1_prob_final"] = float(sample_top1_token_probs[-1].item())
+                if sample_top1_token_ids is not None and eos_token_id is not None:
+                    info["eos_top1_ratio"] = float((sample_top1_token_ids == eos_token_id).float().mean().item())
+                if sample_topk_mass is not None:
+                    info["topk_mass_mean"] = float(sample_topk_mass.mean().item())
+                    info["topk_mass_final"] = float(sample_topk_mass[-1].item())
+
+                prev_state = self._prev_validation_diag_state.get(uid, None)
+                if compare_to_previous_eval and prev_state is not None:
+                    prev_mean_logprob = float(prev_state.get("token_logprob_mean", info["token_logprob_mean"]))
+                    prev_tail_conf = float(prev_state.get("answer_tail_confidence", info["answer_tail_confidence"]))
+                    prev_response_length = int(prev_state.get("response_length", info["response_length"]))
+                    info["traj_mean_logprob_delta_prev_eval"] = info["token_logprob_mean"] - prev_mean_logprob
+                    info["traj_tail_conf_delta_prev_eval"] = info["answer_tail_confidence"] - prev_tail_conf
+                    info["response_length_delta_prev_eval"] = info["response_length"] - prev_response_length
+                    if sample_eos_probs is not None:
+                        prev_eos_prob_mean = float(prev_state.get("eos_prob_mean", info["eos_prob_mean"]))
+                        prev_eos_prob_final = float(prev_state.get("eos_prob_final", info["eos_prob_final"]))
+                        info["eos_prob_delta_prev_eval"] = info["eos_prob_mean"] - prev_eos_prob_mean
+                        info["eos_prob_final_delta_prev_eval"] = info["eos_prob_final"] - prev_eos_prob_final
+
+                next_validation_diag_state[uid] = {
+                    "token_logprob_mean": info["token_logprob_mean"],
+                    "answer_tail_confidence": info["answer_tail_confidence"],
+                    "response_length": info["response_length"],
+                }
+                if sample_eos_probs is not None:
+                    next_validation_diag_state[uid]["eos_prob_mean"] = info["eos_prob_mean"]
+                    next_validation_diag_state[uid]["eos_prob_final"] = info["eos_prob_final"]
+
+                should_dump_token_details = dump_token_details_unlimited or (
+                    dumped_token_detail_samples < samples_to_dump_token_details
+                )
+                if should_dump_token_details and samples_to_dump_token_details != 0:
+                    max_tokens = min(valid_len, max_tokens_per_sample)
+                    token_id_list = token_ids[:max_tokens].tolist()
+                    token_text_list = self.tokenizer.convert_ids_to_tokens(token_id_list)
+                    token_details = []
+                    for token_pos, (token_id, token_text) in enumerate(
+                        zip(token_id_list, token_text_list, strict=True)
+                    ):
+                        token_detail = {
+                            "position": token_pos,
+                            "token_id": int(token_id),
+                            "token": token_text,
+                            "text": self.tokenizer.decode([int(token_id)], skip_special_tokens=False),
+                            "logprob": float(token_log_probs[token_pos].item()),
+                            "prob": float(token_probs[token_pos].item()),
+                            "entropy": float(token_entropys[token_pos].item()),
+                        }
+                        if rollout_log_probs is not None:
+                            rollout_token_logprob = float(rollout_sample_log_probs[token_pos].item())
+                            token_detail["rollout_logprob"] = rollout_token_logprob
+                            token_detail["logprob_delta_from_rollout"] = float(
+                                token_log_probs[token_pos].item() - rollout_token_logprob
+                            )
+                        if sample_eos_probs is not None:
+                            token_detail["eos_prob"] = float(sample_eos_probs[token_pos].item())
+                        if sample_top1_token_ids is not None and sample_top1_token_probs is not None:
+                            top1_token_id = int(sample_top1_token_ids[token_pos].item())
+                            token_detail["top1_token_id"] = top1_token_id
+                            token_detail["top1_token"] = self.tokenizer.convert_ids_to_tokens([top1_token_id])[0]
+                            token_detail["top1_text"] = self.tokenizer.decode([top1_token_id], skip_special_tokens=False)
+                            token_detail["top1_prob"] = float(sample_top1_token_probs[token_pos].item())
+                        if sample_topk_token_ids is not None and sample_topk_token_probs is not None:
+                            step_topk_ids = sample_topk_token_ids[token_pos].tolist()
+                            step_topk_probs = sample_topk_token_probs[token_pos].tolist()
+                            step_topk_tokens = self.tokenizer.convert_ids_to_tokens(step_topk_ids)
+                            eos_rank_in_topk = None
+                            topk_entries = []
+                            for rank, (step_token_id, step_token, step_prob) in enumerate(
+                                zip(step_topk_ids, step_topk_tokens, step_topk_probs, strict=True),
+                                start=1,
+                            ):
+                                step_entry = {
+                                    "rank": rank,
+                                    "token_id": int(step_token_id),
+                                    "token": step_token,
+                                    "text": self.tokenizer.decode([int(step_token_id)], skip_special_tokens=False),
+                                    "prob": float(step_prob),
+                                }
+                                if eos_token_id is not None and int(step_token_id) == eos_token_id and eos_rank_in_topk is None:
+                                    eos_rank_in_topk = rank
+                                topk_entries.append(step_entry)
+                            token_detail["topk"] = topk_entries
+                            token_detail["eos_in_topk"] = eos_rank_in_topk is not None
+                            if eos_rank_in_topk is not None:
+                                token_detail["eos_rank_in_topk"] = eos_rank_in_topk
+                        token_details.append(token_detail)
+
+                    info["token_diagnostics"] = token_details
+                    info["token_diagnostics_total_tokens"] = valid_len
+                    info["token_diagnostics_truncated"] = valid_len > max_tokens
+                    dumped_token_detail_samples += 1
+
+            for key in diag_metric_keys:
+                diag_infos[key].append(info.get(key))
+
+            sample_metadata.append(info)
+
+        return diag_infos, sample_metadata
+
+    @staticmethod
+    def _attach_batch_extra_info_to_samples(sample_metadata: list[dict[str, Any]], batch_extra_info: dict[str, list]):
+        if not sample_metadata:
+            return
+
+        for key, values in batch_extra_info.items():
+            values = list(values)
+            if len(values) < len(sample_metadata):
+                values = values + [None] * (len(sample_metadata) - len(values))
+            for sample_info, value in zip(sample_metadata, values[: len(sample_metadata)], strict=True):
+                if isinstance(value, np.generic):
+                    value = value.item()
+                sample_info[key] = value
+
+    @staticmethod
+    def _format_validation_sample_annotation(sample_metadata: Optional[dict[str, Any]]) -> str:
+        if not sample_metadata:
+            return ""
+
+        parts = []
+        uid = sample_metadata.get("uid", None)
+        if uid:
+            parts.append(f"uid={str(uid).split('::')[-1]}")
+
+        if sample_metadata.get("acc", None) is not None:
+            parts.append(f"acc={float(sample_metadata['acc']):.3f}")
+        elif sample_metadata.get("reward", None) is not None:
+            parts.append(f"reward={float(sample_metadata['reward']):.3f}")
+
+        if sample_metadata.get("response_length", None) is not None:
+            parts.append(f"len={int(sample_metadata['response_length'])}")
+        if sample_metadata.get("answer_tail_confidence", None) is not None:
+            parts.append(f"tail_p={float(sample_metadata['answer_tail_confidence']):.3f}")
+        if sample_metadata.get("low_confidence_token_ratio", None) is not None:
+            parts.append(f"low_p={float(sample_metadata['low_confidence_token_ratio']):.3f}")
+        if sample_metadata.get("token_logprob_mean", None) is not None:
+            parts.append(f"logp={float(sample_metadata['token_logprob_mean']):.3f}")
+        if sample_metadata.get("token_entropy_mean", None) is not None:
+            parts.append(f"H={float(sample_metadata['token_entropy_mean']):.3f}")
+        if sample_metadata.get("traj_mean_logprob_delta_prev_eval", None) is not None:
+            parts.append(f"d_logp_prev={float(sample_metadata['traj_mean_logprob_delta_prev_eval']):+.3f}")
+        if sample_metadata.get("rollout_logprob_delta_mean", None) is not None:
+            parts.append(f"d_logp_roll={float(sample_metadata['rollout_logprob_delta_mean']):+.3f}")
+        if sample_metadata.get("eos_prob_final", None) is not None:
+            parts.append(f"eos_final={float(sample_metadata['eos_prob_final']):.3f}")
+        if sample_metadata.get("eos_prob_final_delta_prev_eval", None) is not None:
+            parts.append(f"d_eos_prev={float(sample_metadata['eos_prob_final_delta_prev_eval']):+.3f}")
+
+        if not parts:
+            return ""
+        return " | ".join(parts)
 
     def _create_dataloader(self, train_dataset, val_dataset, collate_fn, train_sampler: Optional[Sampler]):
         """
@@ -432,7 +842,16 @@ class RayPPOTrainer:
         except Exception as e:
             print(f"Warning: Could not set total_training_steps in config. Structure missing? Error: {e}")
 
-    def _dump_generations(self, inputs, outputs, gts, scores, reward_extra_infos_dict, dump_path):
+    def _dump_generations(
+        self,
+        inputs,
+        outputs,
+        gts,
+        scores,
+        reward_extra_infos_dict,
+        dump_path,
+        sample_metadata: Optional[list[dict[str, Any]]] = None,
+    ):
         """Dump rollout/validation samples as JSONL."""
         os.makedirs(dump_path, exist_ok=True)
         filename = os.path.join(dump_path, f"{self.global_steps}.jsonl")
@@ -453,6 +872,8 @@ class RayPPOTrainer:
         lines = []
         for i in range(n):
             entry = {k: v[i] for k, v in base_data.items()}
+            if sample_metadata is not None and i < len(sample_metadata) and sample_metadata[i]:
+                entry.update(sample_metadata[i])
             lines.append(json.dumps(entry, ensure_ascii=False))
 
         with open(filename, "w") as f:
@@ -492,7 +913,7 @@ class RayPPOTrainer:
                 dump_path=rollout_data_dir,
             )
 
-    def _maybe_log_val_generations(self, inputs, outputs, scores):
+    def _maybe_log_val_generations(self, inputs, outputs, scores, sample_metadata: Optional[list[dict[str, Any]]] = None):
         """Log a table of validation samples to the configured logger (wandb or swanlab)"""
 
         generations_to_log = self.config.trainer.log_val_generations
@@ -502,8 +923,15 @@ class RayPPOTrainer:
 
         import numpy as np
 
+        samples = []
+        for idx, (input_text, output_text, score) in enumerate(zip(inputs, outputs, scores, strict=True)):
+            sample_info = sample_metadata[idx] if sample_metadata is not None and idx < len(sample_metadata) else None
+            annotation = self._format_validation_sample_annotation(sample_info)
+            if annotation:
+                output_text = f"{output_text}\n\n[diag] {annotation}"
+            samples.append((input_text, output_text, score))
+
         # Create tuples of (input, output, score) and sort by input text
-        samples = list(zip(inputs, outputs, scores, strict=True))
         samples.sort(key=lambda x: x[0])  # Sort by input text
 
         # Use fixed random seed for deterministic shuffling
@@ -536,6 +964,7 @@ class RayPPOTrainer:
     def _validate(self):
         data_source_lst = []
         reward_extra_infos_dict: dict[str, list] = defaultdict(list)
+        core_reward_keys = {"reward", "reward_sum", "reward_token_std", "reward_token_min", "reward_token_max"}
 
         # Lists to collect samples for the table
         sample_inputs = []
@@ -544,14 +973,13 @@ class RayPPOTrainer:
         sample_scores = []
         sample_turns = []
         sample_uids = []
+        sample_metadata = []
+        next_validation_diag_state: dict[str, dict[str, float | int]] = {}
 
         for test_data in self.val_dataloader:
             test_batch = DataProto.from_single_dict(test_data)
 
-            if "uid" not in test_batch.non_tensor_batch:
-                test_batch.non_tensor_batch["uid"] = np.array(
-                    [str(uuid.uuid4()) for _ in range(len(test_batch.batch))], dtype=object
-                )
+            self._ensure_validation_uids(test_batch)
 
             # repeat test batch
             test_batch = test_batch.repeat(
@@ -609,6 +1037,26 @@ class RayPPOTrainer:
 
             test_batch = test_batch.union(test_output_gen_batch)
             test_batch.meta_info["validate"] = True
+            test_batch.meta_info["temperature"] = self.config.actor_rollout_ref.rollout.val_kwargs.temperature
+            if self._validation_distribution_requested():
+                test_batch.meta_info["return_distribution_diagnostics"] = True
+                test_batch.meta_info["distribution_topk"] = int(
+                    self._get_validation_diagnostics_cfg().get("token_distribution_topk", 0)
+                )
+                test_batch.meta_info["eos_token_id"] = self.tokenizer.eos_token_id
+
+            if "response_mask" not in test_batch.batch.keys():
+                test_batch.batch["response_mask"] = compute_response_mask(test_batch)
+
+            batch_diag_infos = {}
+            batch_sample_metadata = [{} for _ in range(len(test_batch))]
+            if self._validation_diagnostics_enabled():
+                val_log_prob = self.actor_rollout_wg.compute_log_prob(test_batch)
+                batch_diag_infos, batch_sample_metadata = self._compute_validation_token_diagnostics(
+                    batch=test_batch,
+                    log_prob_batch=val_log_prob,
+                    next_validation_diag_state=next_validation_diag_state,
+                )
 
             # evaluate using reward_function
             if self.val_reward_fn is None:
@@ -617,8 +1065,6 @@ class RayPPOTrainer:
             reward_tensor = result["reward_tensor"]
             # For validation display, we want token-granularity reward statistics.
             # Do NOT change reward assignment; only change how we aggregate/log it.
-            if "response_mask" not in test_batch.batch.keys():
-                test_batch.batch["response_mask"] = compute_response_mask(test_batch)
             response_mask = test_batch.batch["response_mask"].to(device=reward_tensor.device, dtype=reward_tensor.dtype)
 
             response_len = response_mask.sum(-1)
@@ -640,6 +1086,8 @@ class RayPPOTrainer:
             scores = reward_mean.detach().cpu().tolist()
             valid_cpu = valid.detach().cpu().tolist()
             sample_scores.extend(scores)
+            for sample_info, score in zip(batch_sample_metadata, scores, strict=True):
+                sample_info["reward"] = score
 
             reward_extra_infos_dict["reward"].extend([s if is_valid else None for s, is_valid in zip(scores, valid_cpu, strict=True)])
             reward_extra_infos_dict["reward_sum"].extend(
@@ -656,30 +1104,23 @@ class RayPPOTrainer:
             )
             
             batch_extra_info = result.get("reward_extra_info", {})
-            current_batch_keys = set(batch_extra_info.keys())
-            
-            # 1. Handle new keys (backfill) and update with current batch data
-            for key, lst in batch_extra_info.items():
-                if key in ["reward", "reward_sum", "reward_token_std", "reward_token_min", "reward_token_max"]:
-                    continue
-                if key not in reward_extra_infos_dict:
-                    # Backfill with None for all previous samples
-                    num_previous_samples = len(sample_scores) - len(scores)
-                    reward_extra_infos_dict[key] = [None] * num_previous_samples
-                
-                # Defensive: If lst is shorter than batch size (len(scores)), pad it with None
-                # This handles cases where the RewardManager (e.g. naive.py) produces inconsistent lengths
-                if len(lst) < len(scores):
-                    lst = list(lst) + [None] * (len(scores) - len(lst))
-                
-                reward_extra_infos_dict[key].extend(lst)
-
-            # 2. Handle missing keys (forward fill)
-            for key in list(reward_extra_infos_dict.keys()):
-                if key in ["reward", "reward_sum", "reward_token_std", "reward_token_min", "reward_token_max"]:
-                    continue
-                if key not in current_batch_keys:
-                    reward_extra_infos_dict[key].extend([None] * len(scores))
+            num_previous_samples = len(sample_scores) - len(scores)
+            self._extend_validation_infos(
+                aggregated_infos=reward_extra_infos_dict,
+                batch_infos=batch_extra_info,
+                batch_size=len(scores),
+                num_previous_samples=num_previous_samples,
+                reserved_keys=core_reward_keys,
+            )
+            self._extend_validation_infos(
+                aggregated_infos=reward_extra_infos_dict,
+                batch_infos=batch_diag_infos,
+                batch_size=len(scores),
+                num_previous_samples=num_previous_samples,
+                reserved_keys=core_reward_keys,
+            )
+            self._attach_batch_extra_info_to_samples(batch_sample_metadata, batch_extra_info)
+            sample_metadata.extend(batch_sample_metadata)
 
 
             # collect num_turns of each prompt
@@ -688,7 +1129,15 @@ class RayPPOTrainer:
 
             data_source_lst.append(test_batch.non_tensor_batch.get("data_source", ["unknown"] * reward_tensor.shape[0]))
 
-        self._maybe_log_val_generations(inputs=sample_inputs, outputs=sample_outputs, scores=sample_scores)
+        if self._validation_diagnostics_enabled():
+            self._prev_validation_diag_state = next_validation_diag_state
+
+        self._maybe_log_val_generations(
+            inputs=sample_inputs,
+            outputs=sample_outputs,
+            scores=sample_scores,
+            sample_metadata=sample_metadata,
+        )
 
         # dump generations
         val_data_dir = self.config.trainer.get("validation_data_dir", None)
@@ -700,6 +1149,7 @@ class RayPPOTrainer:
                 scores=sample_scores,
                 reward_extra_infos_dict=reward_extra_infos_dict,
                 dump_path=val_data_dir,
+                sample_metadata=sample_metadata,
             )
 
         for key_info, lst in reward_extra_infos_dict.items():

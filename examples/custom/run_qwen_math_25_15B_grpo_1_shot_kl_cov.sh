@@ -7,7 +7,8 @@ ray stop
 # 基础路径与实验信息（来自 YAML）
 HOME_DIR=${HOME_DIR:-"/root/rl"}
 project_name='verl_grpo_dsr_sub_baseline'
-exp_name=${EXP_NAME:-"qwen_math_25_15B_dsr_grpo_1_shot_kl_cov_$(date +%Y%m%d-%H%M%S)"}
+TRAIN_MODE=${TRAIN_MODE:-"oneshot"}
+exp_name=${EXP_NAME:-"qwen_math_25_15B_dsr_grpo_${TRAIN_MODE}_kl_cov_$(date +%Y%m%d-%H%M%S)"}
 
 # Ray 相关（按需修改）
 # 说明：
@@ -99,8 +100,24 @@ fi
 RAY_DATA_HOME=${RAY_DATA_HOME:-"${HOME_DIR}/verl"}
 MODEL_PATH=${MODEL_PATH:-"/root/.cache/modelscope/hub/models/Qwen/Qwen2.5-Math-1.5B"}
 DATA_BASE=${DATA_BASE:-"${HOME_DIR}/verl/data"}
-TRAIN_FILE=${TRAIN_FILE:-"${DATA_BASE}/dsr_sub/pi1_one_ans.parquet"}
+ONE_SHOT_TRAIN_FILE=${ONE_SHOT_TRAIN_FILE:-"${DATA_BASE}/dsr_sub/pi1_one_ans.parquet"}
+FULL_TRAIN_FILE=${FULL_TRAIN_FILE:-"${DATA_BASE}/dsr_sub/train.parquet"}
+if [ -z "${TRAIN_FILE:-}" ]; then
+    case "${TRAIN_MODE}" in
+        oneshot|1shot|1-shot)
+            TRAIN_FILE="${ONE_SHOT_TRAIN_FILE}"
+            ;;
+        full|all)
+            TRAIN_FILE="${FULL_TRAIN_FILE}"
+            ;;
+        *)
+            echo "Error: unsupported TRAIN_MODE='${TRAIN_MODE}'. Use oneshot or full."
+            exit 1
+            ;;
+    esac
+fi
 VAL_PATH=${VAL_PATH:-"${DATA_BASE}/testset"}
+echo "Using TRAIN_MODE=${TRAIN_MODE}, TRAIN_FILE=${TRAIN_FILE}"
 
 # 动态获取 VAL_PATH 下所有 parquet 文件
 # 使用 find 命令查找所有 .parquet 文件
@@ -183,9 +200,33 @@ val_temperature=1.0
 ref_param_offload=false
 
 # 训练器（来自 YAML）
-logger=swanlab
+# 1-shot 默认打开更完整的结果可视化与 token trace；如需减小产物体积可显式设为 false
+enable_paper_style_viz=${ENABLE_PAPER_STYLE_VIZ:-true}
+logger=${LOGGER:-swanlab}
+if [ "${enable_paper_style_viz}" = "true" ] && [ -z "${LOGGER:-}" ]; then
+    logger='["swanlab","file"]'
+fi
 critic_warmup=0
 log_val_generations=1
+enable_val_diagnostics=${ENABLE_VAL_DIAGNOSTICS:-true}
+rollout_calculate_log_probs=${ROLLOUT_CALCULATE_LOG_PROBS:-${enable_val_diagnostics}}
+val_diag_tail_tokens=${VAL_DIAG_TAIL_TOKENS:-32}
+val_diag_max_tokens_default=96
+val_diag_dump_samples_default=8
+val_diag_distribution_topk_default=5
+if [ "${enable_paper_style_viz}" = "true" ]; then
+    val_diag_max_tokens_default=192
+    val_diag_dump_samples_default=-1
+    val_diag_distribution_topk_default=64
+fi
+val_diag_max_tokens=${VAL_DIAG_MAX_TOKENS:-${val_diag_max_tokens_default}}
+val_diag_dump_samples=${VAL_DIAG_DUMP_SAMPLES:-${val_diag_dump_samples_default}}
+val_diag_low_conf_prob_threshold=${VAL_DIAG_LOW_CONF_PROB_THRESHOLD:-0.2}
+val_diag_track_eos_probability=${VAL_DIAG_TRACK_EOS_PROBABILITY:-true}
+val_diag_eos_high_prob_threshold=${VAL_DIAG_EOS_HIGH_PROB_THRESHOLD:-0.1}
+val_diag_distribution_topk=${VAL_DIAG_DISTRIBUTION_TOPK:-${val_diag_distribution_topk_default}}
+trace_top_samples=${TRACE_TOP_SAMPLES:-6}
+trace_uids_csv=${TRACE_UIDS:-""}
 save_freq=100
 test_freq=6
 total_epochs=10
@@ -194,6 +235,8 @@ total_epochs=10
 LOG_DIR="${HOME_DIR}/verl/logs"
 mkdir -p "${LOG_DIR}"
 LOG_FILE="${LOG_DIR}/${project_name}-${exp_name}-$(date +'%Y%m%d-%H%M%S').log"
+METRICS_DIR="${CKPTS_DIR}/metrics"
+REPORT_DIR="${CKPTS_DIR}/paper_viz"
 
 # 提交 Ray 任务（使用 Hydra 覆盖键，等价于 YAML 中的配置）
 # 注意：data.val_files 使用了双引号包裹的列表字符串
@@ -202,7 +245,7 @@ export PYTHONPATH="${WORKING_DIR}:${PYTHONPATH:-}"
 
 submission_output=$("$RAY_CMD" job submit --no-wait --address="${RAY_DASHBOARD_ADDRESS}" --runtime-env="${RUNTIME_ENV}" \
     --working-dir "${WORKING_DIR}" \
-    -- python3 -m recipe.entropy.main_entropy \
+    -- env VERL_FILE_LOGGER_ROOT="${METRICS_DIR}" python3 -m recipe.entropy.main_entropy \
     data.train_files="${TRAIN_FILE}" \
     data.val_files="${VAL_FILES}" \
     data.filter_overlong_prompts=${filter_overlong_prompts} \
@@ -231,6 +274,7 @@ submission_output=$("$RAY_CMD" job submit --no-wait --address="${RAY_DASHBOARD_A
     actor_rollout_ref.rollout.tensor_model_parallel_size=${tp_size} \
     actor_rollout_ref.rollout.name=${rollout_name} \
     actor_rollout_ref.rollout.gpu_memory_utilization=${gpu_mem_util} \
+    actor_rollout_ref.rollout.calculate_log_probs=${rollout_calculate_log_probs} \
     actor_rollout_ref.rollout.n=${rollout_n} \
     actor_rollout_ref.rollout.val_kwargs.n=${val_rollout_n} \
     actor_rollout_ref.rollout.val_kwargs.do_sample=${val_do_sample} \
@@ -249,6 +293,15 @@ submission_output=$("$RAY_CMD" job submit --no-wait --address="${RAY_DASHBOARD_A
     trainer.total_epochs=${total_epochs} \
     trainer.default_local_dir="${CKPTS_DIR}" \
     trainer.validation_data_dir="${CKPTS_DIR}/validation" \
+    trainer.validation_diagnostics.enabled=${enable_val_diagnostics} \
+    trainer.validation_diagnostics.compare_to_previous_eval=true \
+    trainer.validation_diagnostics.samples_to_dump_token_details=${val_diag_dump_samples} \
+    trainer.validation_diagnostics.max_tokens_per_sample=${val_diag_max_tokens} \
+    trainer.validation_diagnostics.tail_tokens=${val_diag_tail_tokens} \
+    trainer.validation_diagnostics.low_confidence_prob_threshold=${val_diag_low_conf_prob_threshold} \
+    trainer.validation_diagnostics.track_eos_probability=${val_diag_track_eos_probability} \
+    trainer.validation_diagnostics.eos_high_prob_threshold=${val_diag_eos_high_prob_threshold} \
+    trainer.validation_diagnostics.token_distribution_topk=${val_diag_distribution_topk} \
     ${RESUME_ARGS})
 
 # 提取提交 ID 并打印日志
@@ -260,6 +313,11 @@ if [ -n "$submission_id" ]; then
     echo "Streaming logs to ${LOG_FILE}"
     "$RAY_CMD" job logs --address="${RAY_DASHBOARD_ADDRESS}" "${submission_id}" --follow > "${LOG_FILE}" 2>&1 &
     echo "Logs are being written in the background. You can check the file: ${LOG_FILE}"
+    if [ "${enable_paper_style_viz}" = "true" ]; then
+        echo "1-shot report command:"
+        echo "CKPTS_DIR=\"${CKPTS_DIR}\" TRACE_TOP_SAMPLES=\"${trace_top_samples}\" TRACE_UIDS=\"${trace_uids_csv}\" bash examples/custom/render_qwen_math_25_15B_grpo_1_shot_report.sh"
+        echo "This will generate both the aggregate report and token_traces.html."
+    fi
 else
     echo "Failed to get submission ID."
     echo "Submission output:"

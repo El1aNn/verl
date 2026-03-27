@@ -17,6 +17,7 @@
 Single Process Actor
 """
 
+from collections import defaultdict
 import logging
 import os
 
@@ -82,10 +83,53 @@ class DataParallelPPOActor(BasePPOActor):
             else entropy_from_logits
         )
         self.device_name = get_device_name()
+        self._warned_distribution_diagnostics_unavailable = False
+
+    def _warn_distribution_diagnostics_unavailable(self):
+        if not self._warned_distribution_diagnostics_unavailable and torch.distributed.get_rank() == 0:
+            print("Warning: token distribution diagnostics require `use_fused_kernels=False` and will be skipped.")
+            self._warned_distribution_diagnostics_unavailable = True
+
+    @staticmethod
+    def _compute_distribution_tensors_from_logits(
+        logits: torch.Tensor, eos_token_id: int | None, distribution_topk: int
+    ) -> dict[str, torch.Tensor]:
+        if eos_token_id is None and distribution_topk <= 0:
+            return {}
+
+        logits_fp32 = logits.to(torch.float32)
+        log_norm = torch.logsumexp(logits_fp32, dim=-1, keepdim=True)
+
+        max_values, max_ids = torch.max(logits_fp32, dim=-1)
+        distribution_tensors = {
+            "dist_top1_token_ids": max_ids.to(torch.int64),
+            "dist_top1_token_probs": (max_values - log_norm.squeeze(-1)).exp().to(torch.float32),
+        }
+
+        if eos_token_id is not None:
+            eos_log_probs = logits_fp32[..., eos_token_id] - log_norm.squeeze(-1)
+            distribution_tensors["dist_eos_probs"] = eos_log_probs.exp().to(torch.float32)
+
+        if distribution_topk > 0:
+            topk = min(int(distribution_topk), logits_fp32.size(-1))
+            topk_values, topk_ids = torch.topk(logits_fp32, k=topk, dim=-1)
+            topk_log_probs = topk_values - log_norm
+            topk_probs = topk_log_probs.exp().to(torch.float32)
+            distribution_tensors["dist_topk_token_ids"] = topk_ids.to(torch.int64)
+            distribution_tensors["dist_topk_token_probs"] = topk_probs
+            distribution_tensors["dist_topk_mass"] = topk_probs.sum(dim=-1).to(torch.float32)
+
+        return distribution_tensors
 
     def _forward_micro_batch(
-        self, micro_batch, temperature, calculate_entropy=False
-    ) -> tuple[torch.Tensor, torch.Tensor]:
+        self,
+        micro_batch,
+        temperature,
+        calculate_entropy=False,
+        return_distribution_diagnostics=False,
+        distribution_topk=0,
+        eos_token_id=None,
+    ) -> tuple[torch.Tensor, torch.Tensor, dict[str, torch.Tensor]]:
         """
         Returns:
             entropy: # (bs, response_len)
@@ -104,6 +148,7 @@ class DataParallelPPOActor(BasePPOActor):
             attention_mask = micro_batch["attention_mask"]
             position_ids = micro_batch["position_ids"]
             entropy = None
+            distribution_tensors = {}
             if position_ids.dim() == 3:  # qwen2vl mrope
                 position_ids = position_ids.transpose(0, 1)  # (bsz, 4, seqlen) -> (4, bsz, seqlen)
 
@@ -179,10 +224,18 @@ class DataParallelPPOActor(BasePPOActor):
                 if self.use_fused_kernels:
                     log_probs = output.log_probs.squeeze(0)  # (total_nnz,)
                     entropy_rmpad = output.entropy.squeeze(0)  # (total_nnz,)
+                    if return_distribution_diagnostics:
+                        self._warn_distribution_diagnostics_unavailable()
 
                 else:
                     logits_rmpad = output.logits.squeeze(0)  # (total_nnz, vocab_size)
                     logits_rmpad.div_(temperature)
+                    if return_distribution_diagnostics:
+                        distribution_tensors = self._compute_distribution_tensors_from_logits(
+                            logits=logits_rmpad,
+                            eos_token_id=eos_token_id,
+                            distribution_topk=distribution_topk,
+                        )
 
                     # if use_sp: ((total_nnz / sp) + pad) ; if not use_sp: (batch, seqlen)
                     inplace_backward = True
@@ -219,6 +272,13 @@ class DataParallelPPOActor(BasePPOActor):
                             unpad_dim=0,
                             padding_size=pad_size,
                         )
+                    for key, value in distribution_tensors.items():
+                        distribution_tensors[key] = gather_outputs_and_unpad(
+                            value,
+                            gather_dim=0,
+                            unpad_dim=0,
+                            padding_size=pad_size,
+                        )
                 # pad back to (bsz, seqlen)
                 if calculate_entropy:
                     full_entropy = pad_input(
@@ -238,6 +298,22 @@ class DataParallelPPOActor(BasePPOActor):
                 if calculate_entropy:
                     entropy = full_entropy.squeeze(-1)[:, -response_length - 1 : -1]  # (bsz, response_length)
                 log_probs = full_log_probs.squeeze(-1)[:, -response_length - 1 : -1]  # (bsz, response_length)
+                for key, value in distribution_tensors.items():
+                    if value.dim() == 1:
+                        full_value = pad_input(
+                            hidden_states=value.unsqueeze(-1),
+                            indices=indices,
+                            batch=batch_size,
+                            seqlen=seqlen,
+                        ).squeeze(-1)
+                    else:
+                        full_value = pad_input(
+                            hidden_states=value,
+                            indices=indices,
+                            batch=batch_size,
+                            seqlen=seqlen,
+                        )
+                    distribution_tensors[key] = full_value[:, -response_length - 1 : -1, ...]
 
             else:  # not using rmpad and no ulysses sp
                 extra_args = {}
@@ -257,12 +333,20 @@ class DataParallelPPOActor(BasePPOActor):
                 if self.use_fused_kernels:
                     log_probs = output.log_probs[:, -response_length - 1 : -1]
                     entropy = output.entropy[:, -response_length - 1 : -1]  # (bsz, response_length)
+                    if return_distribution_diagnostics:
+                        self._warn_distribution_diagnostics_unavailable()
 
                 else:
                     logits = output.logits
 
                     logits.div_(temperature)
                     logits = logits[:, -response_length - 1 : -1, :]  # (bsz, response_length, vocab_size)
+                    if return_distribution_diagnostics:
+                        distribution_tensors = self._compute_distribution_tensors_from_logits(
+                            logits=logits,
+                            eos_token_id=eos_token_id,
+                            distribution_topk=distribution_topk,
+                        )
                     log_probs = logprobs_from_logits(logits, micro_batch["responses"])
                     if calculate_entropy:
                         if not self.config.entropy_checkpointing:
@@ -270,7 +354,7 @@ class DataParallelPPOActor(BasePPOActor):
                         else:
                             entropy = torch.utils.checkpoint.checkpoint(verl_F.entropy_from_logits, logits)
 
-            return entropy, log_probs
+            return entropy, log_probs, distribution_tensors
 
     def _optimizer_step(self):
         assert self.config.grad_clip is not None
@@ -294,7 +378,9 @@ class DataParallelPPOActor(BasePPOActor):
         return grad_norm
 
     @GPUMemoryLogger(role="dp actor", logger=logger)
-    def compute_log_prob(self, data: DataProto, calculate_entropy=False) -> torch.Tensor:
+    def _compute_log_prob_impl(
+        self, data: DataProto, calculate_entropy=False, return_distribution_diagnostics=False
+    ) -> tuple[torch.Tensor, torch.Tensor | None, dict[str, torch.Tensor]]:
         """Compute the log probability of the responses given input_ids, attention_mask and position_ids
 
         Args:
@@ -318,6 +404,8 @@ class DataParallelPPOActor(BasePPOActor):
         micro_batch_size = data.meta_info["micro_batch_size"]
         temperature = data.meta_info["temperature"]  # temperature must be in the data.meta_info to avoid silent error
         use_dynamic_bsz = data.meta_info["use_dynamic_bsz"]
+        distribution_topk = int(data.meta_info.get("distribution_topk", 0)) if return_distribution_diagnostics else 0
+        eos_token_id = data.meta_info.get("eos_token_id", None) if return_distribution_diagnostics else None
         has_multi_modal_inputs = "multi_modal_inputs" in data.non_tensor_batch.keys()
         select_keys = ["responses", "input_ids", "attention_mask", "position_ids"]
         non_tensor_select_keys = ["multi_modal_inputs"] if has_multi_modal_inputs else []
@@ -332,16 +420,24 @@ class DataParallelPPOActor(BasePPOActor):
 
         log_probs_lst = []
         entropy_lst = []
+        distribution_tensor_dict = defaultdict(list)
         for micro_batch in micro_batches:
             micro_batch = micro_batch.to(get_device_id())
             model_inputs = {**micro_batch.batch, **micro_batch.non_tensor_batch}
             with torch.no_grad():
-                entropy, log_probs = self._forward_micro_batch(
-                    model_inputs, temperature=temperature, calculate_entropy=calculate_entropy
+                entropy, log_probs, distribution_tensors = self._forward_micro_batch(
+                    model_inputs,
+                    temperature=temperature,
+                    calculate_entropy=calculate_entropy,
+                    return_distribution_diagnostics=return_distribution_diagnostics,
+                    distribution_topk=distribution_topk,
+                    eos_token_id=eos_token_id,
                 )
             log_probs_lst.append(log_probs)
             if calculate_entropy:
                 entropy_lst.append(entropy)
+            for key, value in distribution_tensors.items():
+                distribution_tensor_dict[key].append(value)
 
         log_probs = torch.concat(log_probs_lst, dim=0)
         entropys = None
@@ -352,8 +448,36 @@ class DataParallelPPOActor(BasePPOActor):
             log_probs = restore_dynamic_batch(log_probs, batch_idx_list)
             if calculate_entropy:
                 entropys = restore_dynamic_batch(entropys, batch_idx_list)
+            for key, value in distribution_tensor_dict.items():
+                distribution_tensor_dict[key] = [restore_dynamic_batch(torch.concat(value, dim=0), batch_idx_list)]
 
+        distribution_outputs = {}
+        for key, value in distribution_tensor_dict.items():
+            if len(value) == 0:
+                continue
+            if isinstance(value, list):
+                distribution_outputs[key] = torch.concat(value, dim=0)
+            else:
+                distribution_outputs[key] = value
+
+        return log_probs, entropys, distribution_outputs
+
+    @GPUMemoryLogger(role="dp actor", logger=logger)
+    def compute_log_prob(self, data: DataProto, calculate_entropy=False) -> torch.Tensor:
+        log_probs, entropys, _ = self._compute_log_prob_impl(
+            data=data,
+            calculate_entropy=calculate_entropy,
+            return_distribution_diagnostics=False,
+        )
         return log_probs, entropys
+
+    @GPUMemoryLogger(role="dp actor", logger=logger)
+    def compute_log_prob_with_diagnostics(self, data: DataProto, calculate_entropy=False):
+        return self._compute_log_prob_impl(
+            data=data,
+            calculate_entropy=calculate_entropy,
+            return_distribution_diagnostics=True,
+        )
 
     @GPUMemoryLogger(role="dp actor", logger=logger)
     def update_policy(self, data: DataProto):

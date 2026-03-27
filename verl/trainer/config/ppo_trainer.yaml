@@ -143,6 +143,18 @@ trainer:
   # Directory for logging validation data; no dump if null
   validation_data_dir: null
 
+  # Optional validation-time reasoning diagnostics for inspecting token confidence trends.
+  validation_diagnostics:
+    enabled: False
+    compare_to_previous_eval: True
+    samples_to_dump_token_details: 0
+    max_tokens_per_sample: 64
+    tail_tokens: 32
+    low_confidence_prob_threshold: 0.2
+    track_eos_probability: True
+    eos_high_prob_threshold: 0.1
+    token_distribution_topk: 0
+
   # Number of nodes used in the training
   nnodes: 1
 

@@ -3,8 +3,6 @@ excludes: [".git//*","checkpoints//","**/.whl","data//*","/pycache//*","/.log","
 env_vars:
   TORCH_NCCL_AVOID_RECORD_STREAMS: "1"
   CUDA_DEVICE_MAX_CONNECTIONS: "1"
-  WANDB_API_KEY: "f408d6f1e1f982b94e6034176c0cd1f72cf9ab62"
-  SWANLAB_API_KEY: "B2gwMFDhC9KMZAu6T8UXL"
   # Enable this only when you want Ray Distributed Debugger to pause on exceptions.
   # See docs/start/ray_debug_tutorial.rst
   RAY_DEBUG_POST_MORTEM: "0"

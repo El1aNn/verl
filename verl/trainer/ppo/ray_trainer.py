@@ -21,6 +21,7 @@ This trainer supports model-agonistic model initialization with huggingface
 import hashlib
 import json
 import os
+import time
 import uuid
 from collections import defaultdict
 from copy import deepcopy
@@ -373,6 +374,20 @@ class RayPPOTrainer:
             return False
         return bool(cfg.get("track_eos_probability", True)) or int(cfg.get("token_distribution_topk", 0)) > 0
 
+    def _get_validation_diag_max_samples(self) -> Optional[int]:
+        cfg = self._get_validation_diagnostics_cfg()
+        if not cfg.get("enabled", False):
+            return 0
+
+        max_samples = cfg.get("max_samples", -1)
+        if max_samples is None:
+            return None
+
+        max_samples = int(max_samples)
+        if max_samples < 0:
+            return None
+        return max_samples
+
     @staticmethod
     def _safe_non_tensor_value(values, idx: int, default=None):
         if values is None:
@@ -444,6 +459,7 @@ class RayPPOTrainer:
     ):
         reserved_keys = reserved_keys or set()
         current_batch_keys = set(batch_infos.keys())
+        target_len = num_previous_samples + batch_size
 
         for key, values in batch_infos.items():
             if key in reserved_keys:
@@ -454,13 +470,22 @@ class RayPPOTrainer:
             values = list(values)
             if len(values) < batch_size:
                 values = values + [None] * (batch_size - len(values))
-            aggregated_infos[key].extend(values[:batch_size])
+
+            if len(aggregated_infos[key]) < num_previous_samples:
+                aggregated_infos[key].extend([None] * (num_previous_samples - len(aggregated_infos[key])))
+            if len(aggregated_infos[key]) < target_len:
+                aggregated_infos[key].extend([None] * (target_len - len(aggregated_infos[key])))
+
+            aggregated_infos[key][num_previous_samples:target_len] = values[:batch_size]
 
         for key in list(aggregated_infos.keys()):
             if key in reserved_keys:
                 continue
             if key not in current_batch_keys:
-                aggregated_infos[key].extend([None] * batch_size)
+                if len(aggregated_infos[key]) < num_previous_samples:
+                    aggregated_infos[key].extend([None] * (num_previous_samples - len(aggregated_infos[key])))
+                if len(aggregated_infos[key]) < target_len:
+                    aggregated_infos[key].extend([None] * (target_len - len(aggregated_infos[key])))
 
     def _compute_validation_token_diagnostics(
         self,
@@ -975,6 +1000,11 @@ class RayPPOTrainer:
         sample_uids = []
         sample_metadata = []
         next_validation_diag_state: dict[str, dict[str, float | int]] = {}
+        val_diag_max_samples = self._get_validation_diag_max_samples()
+        analyzed_val_diag_samples = 0
+        if self._validation_diagnostics_enabled():
+            limit_msg = "all validation samples" if val_diag_max_samples is None else str(val_diag_max_samples)
+            print(f"Validation diagnostics sample budget: {limit_msg}")
 
         for test_data in self.val_dataloader:
             test_batch = DataProto.from_single_dict(test_data)
@@ -1051,12 +1081,26 @@ class RayPPOTrainer:
             batch_diag_infos = {}
             batch_sample_metadata = [{} for _ in range(len(test_batch))]
             if self._validation_diagnostics_enabled():
-                val_log_prob = self.actor_rollout_wg.compute_log_prob(test_batch)
-                batch_diag_infos, batch_sample_metadata = self._compute_validation_token_diagnostics(
-                    batch=test_batch,
-                    log_prob_batch=val_log_prob,
-                    next_validation_diag_state=next_validation_diag_state,
-                )
+                remaining_diag_budget = None
+                if val_diag_max_samples is not None:
+                    remaining_diag_budget = max(0, val_diag_max_samples - analyzed_val_diag_samples)
+
+                diag_batch_size = len(test_batch) if remaining_diag_budget is None else min(len(test_batch), remaining_diag_budget)
+                if diag_batch_size > 0:
+                    diag_test_batch = test_batch[:diag_batch_size]
+                    val_log_prob = self.actor_rollout_wg.compute_log_prob(diag_test_batch)
+                    diag_infos_subset, diag_sample_metadata_subset = self._compute_validation_token_diagnostics(
+                        batch=diag_test_batch,
+                        log_prob_batch=val_log_prob,
+                        next_validation_diag_state=next_validation_diag_state,
+                    )
+                    analyzed_val_diag_samples += diag_batch_size
+                    if diag_batch_size < len(test_batch):
+                        pad_size = len(test_batch) - diag_batch_size
+                        batch_diag_infos = {key: values + [None] * pad_size for key, values in diag_infos_subset.items()}
+                    else:
+                        batch_diag_infos = diag_infos_subset
+                    batch_sample_metadata[:diag_batch_size] = diag_sample_metadata_subset
 
             # evaluate using reward_function
             if self.val_reward_fn is None:
@@ -1131,6 +1175,7 @@ class RayPPOTrainer:
 
         if self._validation_diagnostics_enabled():
             self._prev_validation_diag_state = next_validation_diag_state
+            print(f"Validation diagnostics analyzed {analyzed_val_diag_samples} samples in this eval pass")
 
         self._maybe_log_val_generations(
             inputs=sample_inputs,
@@ -1157,7 +1202,13 @@ class RayPPOTrainer:
 
         data_sources = np.concatenate(data_source_lst, axis=0)
 
+        validation_metric_start = time.time()
+        print(
+            "Processing validation metrics: "
+            f"samples={len(sample_scores)}, uids={len(set(sample_uids))}, vars={len(reward_extra_infos_dict)}"
+        )
         data_src2var2metric2val = process_validation_metrics(data_sources, sample_uids, reward_extra_infos_dict)
+        print(f"Finished validation metric aggregation in {time.time() - validation_metric_start:.2f}s")
         metric_dict = {}
         for data_source, var2metric2val in data_src2var2metric2val.items():
             core_var = "acc" if "acc" in var2metric2val else "reward"

@@ -16,7 +16,6 @@ Metrics related to the PPO trainer.
 """
 
 from collections import defaultdict
-from functools import partial
 from typing import Any, Callable
 
 import numpy as np
@@ -462,14 +461,15 @@ def process_validation_metrics(
         }
 
         Where metric_name includes:
-        - "mean@N": Mean value across N samples
-        - "std@N": Standard deviation across N samples
-        - "best@N/mean": Mean of the best values in bootstrap samples of size N
-        - "best@N/std": Standard deviation of the best values in bootstrap samples
-        - "worst@N/mean": Mean of the worst values in bootstrap samples
-        - "worst@N/std": Standard deviation of the worst values in bootstrap samples
-        - "maj@N/mean": Mean of majority voting results in bootstrap samples (if "pred" exists)
-        - "maj@N/std": Standard deviation of majority voting results (if "pred" exists)
+        - For all numeric metrics:
+          - "mean@N": Mean value across N samples
+          - "std@N": Standard deviation across N samples
+        - For core validation metrics ("acc", "reward") only:
+          - "best@N/mean": Mean of the best values in bootstrap samples of size N
+          - "best@N/std": Standard deviation of the best values in bootstrap samples
+          - "worst@N/mean": Mean of the worst values in bootstrap samples
+          - "worst@N/std": Standard deviation of the worst values in bootstrap samples
+          - "pass@N": pass@k-style success probability for binary-like values
 
     Example:
         >>> data_sources = ["source1", "source1", "source2"]
@@ -478,6 +478,8 @@ def process_validation_metrics(
         >>> result = process_validation_metrics(data_sources, sample_uids, infos_dict)
         >>> # result will contain statistics for each data source and variable
     """
+    core_validation_vars = {"acc", "reward"}
+
     # Group metrics by data source, prompt and variable
     data_src2uid2var2vals = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
     for sample_idx, data_source in enumerate(data_sources):
@@ -502,6 +504,7 @@ def process_validation_metrics(
 
                 metric = {}
                 n_resps = len(var_vals)
+                is_core_metric = var_name in core_validation_vars
                 try:
                     vals = np.asarray(var_vals, dtype=float)
                 except Exception:
@@ -510,43 +513,33 @@ def process_validation_metrics(
 
                 metric[f"mean@{n_resps}"] = float(np.mean(vals))
 
-                # pass@k only makes sense for binary-like metrics.
-                correct_mask = _infer_correct_mask_from_values(vals)
                 c: int | None = None
-                if correct_mask is not None:
-                    c = int(np.sum(correct_mask))
-                    metric["pass@1"] = float(c) / float(n_resps)
+                if is_core_metric:
+                    # pass@k only makes sense for binary-like core metrics.
+                    correct_mask = _infer_correct_mask_from_values(vals)
+                    if correct_mask is not None:
+                        c = int(np.sum(correct_mask))
+                        metric["pass@1"] = float(c) / float(n_resps)
 
                 if n_resps > 1:
                     metric[f"std@{n_resps}"] = float(np.std(vals))
 
-                    ns = []
-                    n = 2
-                    while n < n_resps:
-                        ns.append(n)
-                        n *= 2
-                    ns.append(n_resps)
+                    if is_core_metric:
+                        ns = []
+                        n = 2
+                        while n < n_resps:
+                            ns.append(n)
+                            n *= 2
+                        ns.append(n_resps)
 
-                    for n in ns:
-                        [(bon_mean, bon_std), (won_mean, won_std)] = bootstrap_metric(
-                            data=vals.tolist(), subset_size=n, reduce_fns=[np.max, np.min], seed=seed
-                        )
-                        metric[f"best@{n}/mean"], metric[f"best@{n}/std"] = bon_mean, bon_std
-                        metric[f"worst@{n}/mean"], metric[f"worst@{n}/std"] = won_mean, won_std
-                        if c is not None:
-                            metric[f"pass@{n}"] = float(compute_pass_at_k(n_resps, c, n))
-                        if var2vals.get("pred", None) is not None:
-                            vote_data = [
-                                {"val": float(val), "pred": pred}
-                                for val, pred in zip(vals.tolist(), var2vals["pred"], strict=True)
-                            ]
-                            [(maj_n_mean, maj_n_std)] = bootstrap_metric(
-                                data=vote_data,
-                                subset_size=n,
-                                reduce_fns=[partial(calc_maj_val, vote_key="pred", val_key="val")],
-                                seed=seed,
+                        for n in ns:
+                            [(bon_mean, bon_std), (won_mean, won_std)] = bootstrap_metric(
+                                data=vals.tolist(), subset_size=n, reduce_fns=[np.max, np.min], seed=seed
                             )
-                            metric[f"maj@{n}/mean"], metric[f"maj@{n}/std"] = maj_n_mean, maj_n_std
+                            metric[f"best@{n}/mean"], metric[f"best@{n}/std"] = bon_mean, bon_std
+                            metric[f"worst@{n}/mean"], metric[f"worst@{n}/std"] = won_mean, won_std
+                            if c is not None:
+                                metric[f"pass@{n}"] = float(compute_pass_at_k(n_resps, c, n))
 
                 data_src2uid2var2metric[data_source][uid][var_name] = metric
 

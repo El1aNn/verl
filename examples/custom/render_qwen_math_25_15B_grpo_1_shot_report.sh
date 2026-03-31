@@ -3,6 +3,7 @@ set -euo pipefail
 
 WORKING_DIR=${WORKING_DIR:-"${PWD}"}
 PYTHON_BIN=${PYTHON_BIN:-python3}
+HOME_DIR=${HOME_DIR:-/root/rl}
 
 if [ $# -ge 1 ] && [ -n "${1:-}" ]; then
     CKPTS_DIR="$1"
@@ -21,11 +22,14 @@ EXP_NAME=${EXP_NAME:-"$(basename "${CKPTS_DIR}")"}
 RUN_LABEL=${RUN_LABEL:-"${EXP_NAME}"}
 VALIDATION_DIR=${VALIDATION_DIR:-"${CKPTS_DIR}/validation"}
 METRICS_FILE=${METRICS_FILE:-"${CKPTS_DIR}/metrics/${PROJECT_NAME}/${EXP_NAME}.jsonl"}
-REPORT_DIR=${REPORT_DIR:-"${CKPTS_DIR}/paper_viz"}
+REPORT_ROOT=${REPORT_ROOT:-"${HOME_DIR}/verl/reports"}
+REPORT_DIR=${REPORT_DIR:-"${REPORT_ROOT}/${PROJECT_NAME}/${EXP_NAME}"}
 TRACE_TOP_SAMPLES=${TRACE_TOP_SAMPLES:-6}
 TRACE_UIDS=${TRACE_UIDS:-""}
 SELECTED_STEPS=${SELECTED_STEPS:-""}
 TOKEN_GROUP_SPECS=${TOKEN_GROUP_SPECS:-""}
+
+mkdir -p "${REPORT_DIR}"
 
 cmd=(
     "${PYTHON_BIN}" "scripts/validation_viz_report.py"
@@ -60,6 +64,7 @@ echo "Rendering 1-shot report from:"
 echo "  CKPTS_DIR=${CKPTS_DIR}"
 echo "  VALIDATION_DIR=${VALIDATION_DIR}"
 echo "  METRICS_FILE=${METRICS_FILE}"
+echo "  REPORT_ROOT=${REPORT_ROOT}"
 echo "  REPORT_DIR=${REPORT_DIR}"
 
 cd "${WORKING_DIR}"

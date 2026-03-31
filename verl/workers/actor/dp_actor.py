@@ -92,32 +92,60 @@ class DataParallelPPOActor(BasePPOActor):
 
     @staticmethod
     def _compute_distribution_tensors_from_logits(
-        logits: torch.Tensor, eos_token_id: int | None, distribution_topk: int
+        logits: torch.Tensor, eos_token_id: int | None, distribution_topk: int, chunk_size: int = 512
     ) -> dict[str, torch.Tensor]:
         if eos_token_id is None and distribution_topk <= 0:
             return {}
 
-        logits_fp32 = logits.to(torch.float32)
-        log_norm = torch.logsumexp(logits_fp32, dim=-1, keepdim=True)
+        leading_shape = logits.shape[:-1]
+        vocab_size = logits.size(-1)
+        flat_logits = logits.reshape(-1, vocab_size)
+        num_rows = flat_logits.size(0)
+        chunk_size = max(int(chunk_size), 1)
+        topk = min(int(distribution_topk), vocab_size) if distribution_topk > 0 else 0
 
-        max_values, max_ids = torch.max(logits_fp32, dim=-1)
+        top1_token_ids = torch.empty(num_rows, device=logits.device, dtype=torch.int64)
+        top1_token_probs = torch.empty(num_rows, device=logits.device, dtype=torch.float32)
+        eos_probs = (
+            torch.empty(num_rows, device=logits.device, dtype=torch.float32) if eos_token_id is not None else None
+        )
+        if topk > 0:
+            topk_token_ids = torch.empty((num_rows, topk), device=logits.device, dtype=torch.int64)
+            topk_token_probs = torch.empty((num_rows, topk), device=logits.device, dtype=torch.float32)
+            topk_mass = torch.empty(num_rows, device=logits.device, dtype=torch.float32)
+
+        for start in range(0, num_rows, chunk_size):
+            end = min(start + chunk_size, num_rows)
+            logits_chunk = flat_logits[start:end].to(torch.float32)
+            log_norm = torch.logsumexp(logits_chunk, dim=-1, keepdim=True)
+
+            max_values, max_ids = torch.max(logits_chunk, dim=-1)
+            top1_token_ids[start:end] = max_ids.to(torch.int64)
+            top1_token_probs[start:end] = (max_values - log_norm.squeeze(-1)).exp().to(torch.float32)
+
+            if eos_probs is not None:
+                eos_log_probs = logits_chunk[..., eos_token_id] - log_norm.squeeze(-1)
+                eos_probs[start:end] = eos_log_probs.exp().to(torch.float32)
+
+            if topk > 0:
+                topk_values, topk_ids_chunk = torch.topk(logits_chunk, k=topk, dim=-1)
+                topk_probs_chunk = (topk_values - log_norm).exp().to(torch.float32)
+                topk_token_ids[start:end] = topk_ids_chunk.to(torch.int64)
+                topk_token_probs[start:end] = topk_probs_chunk
+                topk_mass[start:end] = topk_probs_chunk.sum(dim=-1).to(torch.float32)
+
         distribution_tensors = {
-            "dist_top1_token_ids": max_ids.to(torch.int64),
-            "dist_top1_token_probs": (max_values - log_norm.squeeze(-1)).exp().to(torch.float32),
+            "dist_top1_token_ids": top1_token_ids.reshape(*leading_shape),
+            "dist_top1_token_probs": top1_token_probs.reshape(*leading_shape),
         }
 
-        if eos_token_id is not None:
-            eos_log_probs = logits_fp32[..., eos_token_id] - log_norm.squeeze(-1)
-            distribution_tensors["dist_eos_probs"] = eos_log_probs.exp().to(torch.float32)
+        if eos_probs is not None:
+            distribution_tensors["dist_eos_probs"] = eos_probs.reshape(*leading_shape)
 
-        if distribution_topk > 0:
-            topk = min(int(distribution_topk), logits_fp32.size(-1))
-            topk_values, topk_ids = torch.topk(logits_fp32, k=topk, dim=-1)
-            topk_log_probs = topk_values - log_norm
-            topk_probs = topk_log_probs.exp().to(torch.float32)
-            distribution_tensors["dist_topk_token_ids"] = topk_ids.to(torch.int64)
-            distribution_tensors["dist_topk_token_probs"] = topk_probs
-            distribution_tensors["dist_topk_mass"] = topk_probs.sum(dim=-1).to(torch.float32)
+        if topk > 0:
+            distribution_tensors["dist_topk_token_ids"] = topk_token_ids.reshape(*leading_shape, topk)
+            distribution_tensors["dist_topk_token_probs"] = topk_token_probs.reshape(*leading_shape, topk)
+            distribution_tensors["dist_topk_mass"] = topk_mass.reshape(*leading_shape)
 
         return distribution_tensors
 
@@ -551,7 +579,7 @@ class DataParallelPPOActor(BasePPOActor):
                     calculate_entropy = False
                     if entropy_coeff != 0:
                         calculate_entropy = True
-                    entropy, log_prob = self._forward_micro_batch(
+                    entropy, log_prob, _ = self._forward_micro_batch(
                         model_inputs, temperature=temperature, calculate_entropy=calculate_entropy
                     )
 

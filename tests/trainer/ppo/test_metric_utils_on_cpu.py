@@ -284,7 +284,7 @@ class TestProcessValidationMetrics(unittest.TestCase):
         data_sources = ["source1", "source1", "source2"]
         sample_inputs = ["prompt1", "prompt1", "prompt2"]
         infos_dict = {
-            "score": [0.8, 0.9, 0.7],
+            "aux_metric": [0.8, 0.9, 0.7],
         }
 
         result = process_validation_metrics(data_sources, sample_inputs, infos_dict, seed=42)
@@ -293,31 +293,35 @@ class TestProcessValidationMetrics(unittest.TestCase):
         self.assertIn("source1", result)
         self.assertIn("source2", result)
 
-        # Check that source1 has metrics for score
-        self.assertIn("score", result["source1"])
+        # Check that source1 has metrics for aux_metric
+        self.assertIn("aux_metric", result["source1"])
 
-        # Check that mean@2 is present for source1/score
-        self.assertIn("mean@2", result["source1"]["score"])
+        # Check that mean@2 is present for source1/aux_metric
+        self.assertIn("mean@2", result["source1"]["aux_metric"])
 
-        # Check the value of mean@2 for source1/score
-        self.assertAlmostEqual(result["source1"]["score"]["mean@2"], 0.85)
+        # Check the value of mean@2 for source1/aux_metric
+        self.assertAlmostEqual(result["source1"]["aux_metric"]["mean@2"], 0.85)
+        # Aux metrics should no longer emit best/worst/pass style aggregates.
+        self.assertNotIn("best@2/mean", result["source1"]["aux_metric"])
+        self.assertNotIn("worst@2/mean", result["source1"]["aux_metric"])
+        self.assertNotIn("pass@1", result["source1"]["aux_metric"])
 
-    def test_process_validation_metrics_with_pred(self):
-        """Test process_validation_metrics with prediction data."""
+    def test_process_validation_metrics_core_metric(self):
+        """Core validation metrics keep richer aggregation."""
         data_sources = ["source1", "source1", "source1"]
         sample_inputs = ["prompt1", "prompt1", "prompt1"]
         infos_dict = {
-            "score": [0.8, 0.9, 0.7],
-            "pred": ["A", "B", "A"],
+            "acc": [1.0, 0.0, 1.0],
         }
 
         result = process_validation_metrics(data_sources, sample_inputs, infos_dict, seed=42)
 
-        # Check that majority voting metrics are present
-        self.assertIn("maj@2/mean", result["source1"]["score"])
-
-        # For bootstrap with n=2, the majority vote could be either A or B
-        # depending on the random sampling, so we don't check the exact value
+        self.assertIn("mean@3", result["source1"]["acc"])
+        self.assertIn("std@3", result["source1"]["acc"])
+        self.assertIn("best@2/mean", result["source1"]["acc"])
+        self.assertIn("worst@2/mean", result["source1"]["acc"])
+        self.assertIn("pass@1", result["source1"]["acc"])
+        self.assertIn("pass@2", result["source1"]["acc"])
 
 
 if __name__ == "__main__":

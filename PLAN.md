@@ -641,3 +641,73 @@
 验证计划：
 - `python -m py_compile verl/trainer/ppo/metric_utils.py tests/trainer/ppo/test_metric_utils_on_cpu.py`
 - `python -m unittest tests.trainer.ppo.test_metric_utils_on_cpu.TestProcessValidationMetrics -v`
+
+---
+## 2026-03-31 记录 27：四次 validation 结果对比分析与初版报告
+
+目标：
+- 分析 `ALL_4_EXPERIMENTS_validation_only_20260331.zip` 中四次试验的 validation 结果。
+- 抽取关键指标并做图像化对比。
+- 产出初版分析报告，并补充一个可执行的 case 级别 LLM 打标方案。
+
+预计修改的文件或区域：
+- `PLAN.md`
+- `RESULT.md`
+- `analysis/exp4_validation_20260331/`（新增分析脚本、图表、报告）
+
+实现方案：
+- 解压总包与四个子包，识别每个实验中的指标文件与 case 明细文件。
+- 编写 Python 脚本统一读取四个实验数据，构建可比的指标表。
+- 生成整体对比图（总体指标）与分组图（case 粒度统计）。
+- 基于 case 明细抽样，形成问题模式并设计 LLM 打标 schema。
+- 输出初版报告（含结论、图表解读、case 诊断建议、后续实验建议）。
+
+验证计划：
+- 运行分析脚本并确认图表和报告成功生成。
+- 对比四个实验的样本量、字段覆盖和关键指标范围，确保无明显解析错误。
+
+---
+## 2026-03-31 记录 28：四种训练方式的 token 粒度影响分析
+
+目标：
+- 基于 `validation/*.jsonl` 中的 `token_diagnostics`，分析四种训练方式对 token 级行为的影响。
+- 对比 `step 0` 与 `step 180`，并补充 final step 的 token 级结构化结论。
+
+预计修改的文件或区域：
+- `PLAN.md`
+- `RESULT.md`
+- `analysis/exp4_validation_20260331/`（新增 token 分析脚本、表格、图表、补充报告）
+
+实现方案：
+- 流式读取 4 个实验在目标 step 的 `token_diagnostics`，聚合 token 级统计。
+- 输出整体 token 指标、按正确/错误分组的 token 指标、按归一化位置 bucket 的曲线。
+- 生成 token 级图表，并形成补充报告，说明训练对置信度、entropy、EOS 行为和输出结构的影响。
+
+验证计划：
+- 运行 token 分析脚本并确认表格、图像、报告成功生成。
+- 校验样本量与 token 总数是否合理，并检查 step0/final 的趋势是否与已有 response 级指标一致。
+
+---
+## 2026-03-31 记录 29：训练中低成本 token 监控实现
+
+目标：
+- 在训练期 validation diagnostics 中加入低成本、可持续的 token 级监控。
+- 支持稳定 probe 采样，并输出 step 级 token 聚合指标，而不依赖全量 raw token 明细。
+
+预计修改的文件或区域：
+- `PLAN.md`
+- `RESULT.md`
+- `verl/trainer/ppo/ray_trainer.py`
+- `verl/trainer/config/ppo_trainer.yaml`
+- `verl/trainer/config/ppo_megatron_trainer.yaml`
+- `tests/trainer/ppo/`（新增或补充 CPU 单测）
+
+实现方案：
+- 为 validation diagnostics 增加稳定 hash 采样配置，替代仅按顺序截前 N 条的监控方式。
+- 在 token diagnostics 计算阶段为被采样样本构建轻量级聚合 payload。
+- 在 validation 主循环中汇总 step 级 token 监控指标，并写入返回的 `metric_dict`。
+- 保留原有 raw token trace 导出逻辑，作为少量排障样本。
+
+验证计划：
+- 运行针对新 helper 的 CPU 单测。
+- 对修改后的 trainer 做语法检查，并确认新增 `val-token/...` 指标能够生成。

@@ -388,6 +388,257 @@ class RayPPOTrainer:
             return None
         return max_samples
 
+    def _get_validation_diag_sampling_strategy(self) -> str:
+        cfg = self._get_validation_diagnostics_cfg()
+        return str(cfg.get("sampling_strategy", "sequential")).lower()
+
+    def _get_validation_diag_sample_rate(self) -> float:
+        cfg = self._get_validation_diagnostics_cfg()
+        sample_rate = float(cfg.get("sample_rate", 1.0))
+        return max(0.0, min(1.0, sample_rate))
+
+    def _get_validation_diag_sample_seed(self) -> int:
+        cfg = self._get_validation_diagnostics_cfg()
+        return int(cfg.get("sample_seed", 0))
+
+    def _validation_token_aggregation_enabled(self) -> bool:
+        cfg = self._get_validation_diagnostics_cfg()
+        return bool(cfg.get("enabled", False)) and bool(cfg.get("aggregate_token_metrics", True))
+
+    def _get_validation_diag_position_buckets(self) -> int:
+        cfg = self._get_validation_diagnostics_cfg()
+        return max(1, int(cfg.get("aggregate_position_buckets", 10)))
+
+    @staticmethod
+    def _stable_unit_interval_from_key(key: str, seed: int = 0) -> float:
+        digest = hashlib.sha1(f"{seed}:{key}".encode("utf-8")).hexdigest()[:15]
+        numerator = int(digest, 16)
+        denominator = float((16**len(digest)) - 1)
+        if denominator <= 0:
+            return 0.0
+        return numerator / denominator
+
+    def _select_validation_diag_indices(self, batch: DataProto, remaining_budget: Optional[int]) -> list[int]:
+        if remaining_budget is not None and remaining_budget <= 0:
+            return []
+
+        batch_size = len(batch)
+        if batch_size <= 0:
+            return []
+
+        strategy = self._get_validation_diag_sampling_strategy()
+        if strategy == "sequential":
+            diag_batch_size = batch_size if remaining_budget is None else min(batch_size, remaining_budget)
+            return list(range(diag_batch_size))
+
+        if strategy != "hash":
+            raise ValueError(f"Unsupported validation diagnostics sampling strategy: {strategy}")
+
+        sample_rate = self._get_validation_diag_sample_rate()
+        if sample_rate <= 0:
+            return []
+
+        sample_seed = self._get_validation_diag_sample_seed()
+        candidate_pairs: list[tuple[int, float]] = []
+        uids = batch.non_tensor_batch.get("uid", [])
+        for idx, uid in enumerate(uids):
+            score = self._stable_unit_interval_from_key(str(uid), seed=sample_seed)
+            if score < sample_rate:
+                candidate_pairs.append((idx, score))
+
+        if remaining_budget is not None and len(candidate_pairs) > remaining_budget:
+            candidate_pairs = sorted(candidate_pairs, key=lambda item: (item[1], item[0]))[:remaining_budget]
+
+        candidate_pairs = sorted(candidate_pairs, key=lambda item: item[0])
+        return [idx for idx, _ in candidate_pairs]
+
+    @staticmethod
+    def _create_validation_token_aggregate_entry(position_bucket_count: int) -> dict[str, Any]:
+        return {
+            "analyzed_samples": 0,
+            "analyzed_tokens": 0,
+            "sum_response_length": 0.0,
+            "sum_logprob": 0.0,
+            "sum_prob": 0.0,
+            "sum_entropy": 0.0,
+            "sum_low_conf_tokens": 0,
+            "sum_abs_logprob_delta": 0.0,
+            "abs_logprob_delta_count": 0,
+            "sum_eos_prob": 0.0,
+            "eos_prob_count": 0,
+            "sum_eos_high_tokens": 0,
+            "sum_top1_prob": 0.0,
+            "top1_prob_count": 0,
+            "sum_topk_mass": 0.0,
+            "topk_mass_count": 0,
+            "sum_chosen_is_top1_tokens": 0,
+            "chosen_is_top1_count": 0,
+            "sum_eos_in_topk_tokens": 0,
+            "eos_in_topk_count": 0,
+            "sum_eos_top1_tokens": 0,
+            "eos_top1_count": 0,
+            "bucket_stats": [
+                {
+                    "count": 0,
+                    "sum_logprob": 0.0,
+                    "sum_entropy": 0.0,
+                    "sum_eos_prob": 0.0,
+                    "eos_prob_count": 0,
+                    "sum_top1_prob": 0.0,
+                    "top1_prob_count": 0,
+                }
+                for _ in range(position_bucket_count)
+            ],
+        }
+
+    @staticmethod
+    def _accumulate_validation_token_aggregate_payload(entry: dict[str, Any], payload: Optional[dict[str, Any]]):
+        if not payload or int(payload.get("token_count", 0)) <= 0:
+            return
+
+        entry["analyzed_samples"] += 1
+        entry["analyzed_tokens"] += int(payload["token_count"])
+        entry["sum_response_length"] += float(payload["response_length"])
+        entry["sum_logprob"] += float(payload["sum_logprob"])
+        entry["sum_prob"] += float(payload["sum_prob"])
+        entry["sum_entropy"] += float(payload["sum_entropy"])
+        entry["sum_low_conf_tokens"] += int(payload["low_conf_token_count"])
+
+        if payload.get("sum_abs_logprob_delta_from_rollout") is not None:
+            entry["sum_abs_logprob_delta"] += float(payload["sum_abs_logprob_delta_from_rollout"])
+            entry["abs_logprob_delta_count"] += int(payload["token_count"])
+        if payload.get("sum_eos_prob") is not None:
+            entry["sum_eos_prob"] += float(payload["sum_eos_prob"])
+            entry["eos_prob_count"] += int(payload["token_count"])
+            entry["sum_eos_high_tokens"] += int(payload.get("eos_high_token_count", 0))
+        if payload.get("sum_top1_prob") is not None:
+            entry["sum_top1_prob"] += float(payload["sum_top1_prob"])
+            entry["top1_prob_count"] += int(payload["token_count"])
+        if payload.get("sum_topk_mass") is not None:
+            entry["sum_topk_mass"] += float(payload["sum_topk_mass"])
+            entry["topk_mass_count"] += int(payload["token_count"])
+        if payload.get("chosen_is_top1_count") is not None:
+            entry["sum_chosen_is_top1_tokens"] += int(payload["chosen_is_top1_count"])
+            entry["chosen_is_top1_count"] += int(payload["token_count"])
+        if payload.get("eos_in_topk_count") is not None:
+            entry["sum_eos_in_topk_tokens"] += int(payload["eos_in_topk_count"])
+            entry["eos_in_topk_count"] += int(payload["token_count"])
+        if payload.get("eos_top1_count") is not None:
+            entry["sum_eos_top1_tokens"] += int(payload["eos_top1_count"])
+            entry["eos_top1_count"] += int(payload["token_count"])
+
+        bucket_payloads = payload.get("bucket_stats", [])
+        for bucket_entry, bucket_payload in zip(entry["bucket_stats"], bucket_payloads, strict=True):
+            bucket_count = int(bucket_payload.get("count", 0))
+            if bucket_count <= 0:
+                continue
+            bucket_entry["count"] += bucket_count
+            bucket_entry["sum_logprob"] += float(bucket_payload["sum_logprob"])
+            bucket_entry["sum_entropy"] += float(bucket_payload["sum_entropy"])
+            if bucket_payload.get("sum_eos_prob") is not None:
+                bucket_entry["sum_eos_prob"] += float(bucket_payload["sum_eos_prob"])
+                bucket_entry["eos_prob_count"] += bucket_count
+            if bucket_payload.get("sum_top1_prob") is not None:
+                bucket_entry["sum_top1_prob"] += float(bucket_payload["sum_top1_prob"])
+                bucket_entry["top1_prob_count"] += bucket_count
+
+    def _accumulate_validation_token_aggregates(
+        self,
+        aggregate_states: dict[str, dict[str, Any]],
+        data_sources: Any,
+        aggregate_payloads: list[Optional[dict[str, Any]]],
+    ):
+        if not aggregate_payloads:
+            return
+
+        position_bucket_count = self._get_validation_diag_position_buckets()
+        if data_sources is None:
+            data_sources = ["unknown"] * len(aggregate_payloads)
+
+        for data_source, payload in zip(list(data_sources), aggregate_payloads, strict=True):
+            if not payload:
+                continue
+            data_source = str(data_source)
+            for key in ("all", data_source):
+                if key not in aggregate_states:
+                    aggregate_states[key] = self._create_validation_token_aggregate_entry(position_bucket_count)
+                self._accumulate_validation_token_aggregate_payload(aggregate_states[key], payload)
+
+    @staticmethod
+    def _finalize_validation_token_aggregates(
+        aggregate_states: dict[str, dict[str, Any]], total_counts: dict[str, int]
+    ) -> dict[str, float]:
+        metric_dict: dict[str, float] = {}
+        for data_source, state in aggregate_states.items():
+            analyzed_samples = int(state.get("analyzed_samples", 0))
+            analyzed_tokens = int(state.get("analyzed_tokens", 0))
+            if analyzed_samples <= 0 or analyzed_tokens <= 0:
+                continue
+
+            prefix = f"val-token/{data_source}"
+            total_samples = max(1, int(total_counts.get(data_source, analyzed_samples)))
+            metric_dict[f"{prefix}/summary/analyzed_samples"] = float(analyzed_samples)
+            metric_dict[f"{prefix}/summary/analyzed_sample_fraction"] = float(analyzed_samples) / float(total_samples)
+            metric_dict[f"{prefix}/summary/analyzed_tokens"] = float(analyzed_tokens)
+            metric_dict[f"{prefix}/summary/response_length_mean"] = float(state["sum_response_length"]) / float(analyzed_samples)
+            metric_dict[f"{prefix}/summary/token_logprob_mean"] = float(state["sum_logprob"]) / float(analyzed_tokens)
+            metric_dict[f"{prefix}/summary/token_prob_mean"] = float(state["sum_prob"]) / float(analyzed_tokens)
+            metric_dict[f"{prefix}/summary/token_entropy_mean"] = float(state["sum_entropy"]) / float(analyzed_tokens)
+            metric_dict[f"{prefix}/summary/low_confidence_token_ratio"] = float(state["sum_low_conf_tokens"]) / float(
+                analyzed_tokens
+            )
+
+            if int(state["abs_logprob_delta_count"]) > 0:
+                metric_dict[f"{prefix}/summary/logprob_delta_abs_mean"] = float(state["sum_abs_logprob_delta"]) / float(
+                    state["abs_logprob_delta_count"]
+                )
+            if int(state["eos_prob_count"]) > 0:
+                metric_dict[f"{prefix}/summary/eos_prob_mean"] = float(state["sum_eos_prob"]) / float(
+                    state["eos_prob_count"]
+                )
+                metric_dict[f"{prefix}/summary/eos_high_prob_ratio"] = float(state["sum_eos_high_tokens"]) / float(
+                    state["eos_prob_count"]
+                )
+            if int(state["top1_prob_count"]) > 0:
+                metric_dict[f"{prefix}/summary/top1_prob_mean"] = float(state["sum_top1_prob"]) / float(
+                    state["top1_prob_count"]
+                )
+            if int(state["topk_mass_count"]) > 0:
+                metric_dict[f"{prefix}/summary/topk_mass_mean"] = float(state["sum_topk_mass"]) / float(
+                    state["topk_mass_count"]
+                )
+            if int(state["chosen_is_top1_count"]) > 0:
+                metric_dict[f"{prefix}/summary/chosen_is_top1_ratio"] = float(
+                    state["sum_chosen_is_top1_tokens"]
+                ) / float(state["chosen_is_top1_count"])
+            if int(state["eos_in_topk_count"]) > 0:
+                metric_dict[f"{prefix}/summary/eos_in_topk_ratio"] = float(state["sum_eos_in_topk_tokens"]) / float(
+                    state["eos_in_topk_count"]
+                )
+            if int(state["eos_top1_count"]) > 0:
+                metric_dict[f"{prefix}/summary/eos_top1_ratio"] = float(state["sum_eos_top1_tokens"]) / float(
+                    state["eos_top1_count"]
+                )
+
+            for bucket_idx, bucket_state in enumerate(state["bucket_stats"]):
+                bucket_count = int(bucket_state["count"])
+                if bucket_count <= 0:
+                    continue
+                bucket_prefix = f"{prefix}/bucket_{bucket_idx:02d}"
+                metric_dict[f"{bucket_prefix}/token_fraction"] = float(bucket_count) / float(analyzed_tokens)
+                metric_dict[f"{bucket_prefix}/token_logprob_mean"] = float(bucket_state["sum_logprob"]) / float(bucket_count)
+                metric_dict[f"{bucket_prefix}/token_entropy_mean"] = float(bucket_state["sum_entropy"]) / float(bucket_count)
+                if int(bucket_state["eos_prob_count"]) > 0:
+                    metric_dict[f"{bucket_prefix}/eos_prob_mean"] = float(bucket_state["sum_eos_prob"]) / float(
+                        bucket_state["eos_prob_count"]
+                    )
+                if int(bucket_state["top1_prob_count"]) > 0:
+                    metric_dict[f"{bucket_prefix}/top1_prob_mean"] = float(bucket_state["sum_top1_prob"]) / float(
+                        bucket_state["top1_prob_count"]
+                    )
+
+        return metric_dict
+
     @staticmethod
     def _safe_non_tensor_value(values, idx: int, default=None):
         if values is None:
@@ -492,10 +743,10 @@ class RayPPOTrainer:
         batch: DataProto,
         log_prob_batch: DataProto,
         next_validation_diag_state: dict[str, dict[str, float | int]],
-    ) -> tuple[dict[str, list], list[dict[str, Any]]]:
+    ) -> tuple[dict[str, list], list[dict[str, Any]], list[Optional[dict[str, Any]]]]:
         cfg = self._get_validation_diagnostics_cfg()
         if not cfg.get("enabled", False):
-            return {}, [{} for _ in range(len(batch))]
+            return {}, [{} for _ in range(len(batch))], [None for _ in range(len(batch))]
 
         response_mask = batch.batch["response_mask"].detach().cpu().bool()
         response_ids = batch.batch["responses"].detach().cpu()
@@ -538,6 +789,8 @@ class RayPPOTrainer:
         max_tokens_per_sample = max(1, int(cfg.get("max_tokens_per_sample", 64)))
         samples_to_dump_token_details = int(cfg.get("samples_to_dump_token_details", 0))
         dump_token_details_unlimited = samples_to_dump_token_details < 0
+        aggregate_token_metrics = self._validation_token_aggregation_enabled()
+        position_bucket_count = self._get_validation_diag_position_buckets()
         eos_token_id = self.tokenizer.eos_token_id
 
         if (
@@ -586,6 +839,7 @@ class RayPPOTrainer:
         ]
         diag_infos = {key: [] for key in diag_metric_keys}
         sample_metadata: list[dict[str, Any]] = []
+        aggregate_payloads: list[Optional[dict[str, Any]]] = []
         dumped_token_detail_samples = 0
 
         for sample_idx in range(policy_log_probs.shape[0]):
@@ -610,6 +864,7 @@ class RayPPOTrainer:
                 sample_topk_token_ids = topk_token_ids[sample_idx][mask] if topk_token_ids is not None else None
                 sample_topk_token_probs = topk_token_probs[sample_idx][mask] if topk_token_probs is not None else None
                 sample_topk_mass = topk_mass[sample_idx][mask] if topk_mass is not None else None
+                logprob_delta = None
 
                 info["token_logprob_mean"] = float(token_log_probs.mean().item())
                 info["token_logprob_std"] = float(token_log_probs.std(unbiased=False).item())
@@ -734,12 +989,89 @@ class RayPPOTrainer:
                     info["token_diagnostics_truncated"] = valid_len > max_tokens
                     dumped_token_detail_samples += 1
 
+                aggregate_payload = None
+                if aggregate_token_metrics:
+                    bucket_stats: list[dict[str, float | int | None]] = []
+                    positions = torch.arange(valid_len, dtype=torch.float32)
+                    bucket_ids = torch.clamp(
+                        (positions * float(position_bucket_count) / float(max(valid_len, 1))).floor().to(torch.int64),
+                        max=position_bucket_count - 1,
+                    )
+                    for bucket_idx in range(position_bucket_count):
+                        bucket_mask = bucket_ids == bucket_idx
+                        bucket_count = int(bucket_mask.sum().item())
+                        if bucket_count <= 0:
+                            bucket_stats.append(
+                                {
+                                    "count": 0,
+                                    "sum_logprob": 0.0,
+                                    "sum_entropy": 0.0,
+                                    "sum_eos_prob": None,
+                                    "sum_top1_prob": None,
+                                }
+                            )
+                            continue
+
+                        bucket_entry: dict[str, float | int | None] = {
+                            "count": bucket_count,
+                            "sum_logprob": float(token_log_probs[bucket_mask].sum().item()),
+                            "sum_entropy": float(token_entropys[bucket_mask].sum().item()),
+                            "sum_eos_prob": None,
+                            "sum_top1_prob": None,
+                        }
+                        if sample_eos_probs is not None:
+                            bucket_entry["sum_eos_prob"] = float(sample_eos_probs[bucket_mask].sum().item())
+                        if sample_top1_token_probs is not None:
+                            bucket_entry["sum_top1_prob"] = float(sample_top1_token_probs[bucket_mask].sum().item())
+                        bucket_stats.append(bucket_entry)
+
+                    aggregate_payload = {
+                        "response_length": valid_len,
+                        "token_count": valid_len,
+                        "sum_logprob": float(token_log_probs.sum().item()),
+                        "sum_prob": float(token_probs.sum().item()),
+                        "sum_entropy": float(token_entropys.sum().item()),
+                        "low_conf_token_count": int((token_probs < low_conf_prob_threshold).sum().item()),
+                        "sum_abs_logprob_delta_from_rollout": (
+                            float(logprob_delta.abs().sum().item()) if logprob_delta is not None else None
+                        ),
+                        "sum_eos_prob": float(sample_eos_probs.sum().item()) if sample_eos_probs is not None else None,
+                        "eos_high_token_count": (
+                            int((sample_eos_probs > eos_high_prob_threshold).sum().item())
+                            if sample_eos_probs is not None
+                            else None
+                        ),
+                        "sum_top1_prob": (
+                            float(sample_top1_token_probs.sum().item()) if sample_top1_token_probs is not None else None
+                        ),
+                        "sum_topk_mass": float(sample_topk_mass.sum().item()) if sample_topk_mass is not None else None,
+                        "chosen_is_top1_count": (
+                            int((token_ids == sample_top1_token_ids).sum().item())
+                            if sample_top1_token_ids is not None
+                            else None
+                        ),
+                        "eos_in_topk_count": (
+                            int((sample_topk_token_ids == eos_token_id).any(dim=-1).sum().item())
+                            if sample_topk_token_ids is not None and eos_token_id is not None
+                            else None
+                        ),
+                        "eos_top1_count": (
+                            int((sample_top1_token_ids == eos_token_id).sum().item())
+                            if sample_top1_token_ids is not None and eos_token_id is not None
+                            else None
+                        ),
+                        "bucket_stats": bucket_stats,
+                    }
+                aggregate_payloads.append(aggregate_payload)
+            else:
+                aggregate_payloads.append(None)
+
             for key in diag_metric_keys:
                 diag_infos[key].append(info.get(key))
 
             sample_metadata.append(info)
 
-        return diag_infos, sample_metadata
+        return diag_infos, sample_metadata, aggregate_payloads
 
     @staticmethod
     def _attach_batch_extra_info_to_samples(sample_metadata: list[dict[str, Any]], batch_extra_info: dict[str, list]):
@@ -1000,6 +1332,7 @@ class RayPPOTrainer:
         sample_uids = []
         sample_metadata = []
         next_validation_diag_state: dict[str, dict[str, float | int]] = {}
+        validation_token_aggregate_states: dict[str, dict[str, Any]] = {}
         val_diag_max_samples = self._get_validation_diag_max_samples()
         analyzed_val_diag_samples = 0
         if self._validation_diagnostics_enabled():
@@ -1085,22 +1418,32 @@ class RayPPOTrainer:
                 if val_diag_max_samples is not None:
                     remaining_diag_budget = max(0, val_diag_max_samples - analyzed_val_diag_samples)
 
-                diag_batch_size = len(test_batch) if remaining_diag_budget is None else min(len(test_batch), remaining_diag_budget)
-                if diag_batch_size > 0:
-                    diag_test_batch = test_batch[:diag_batch_size]
+                diag_indices = self._select_validation_diag_indices(test_batch, remaining_diag_budget)
+                if diag_indices:
+                    diag_test_batch = test_batch[diag_indices]
                     val_log_prob = self.actor_rollout_wg.compute_log_prob(diag_test_batch)
-                    diag_infos_subset, diag_sample_metadata_subset = self._compute_validation_token_diagnostics(
+                    (
+                        diag_infos_subset,
+                        diag_sample_metadata_subset,
+                        diag_aggregate_payloads_subset,
+                    ) = self._compute_validation_token_diagnostics(
                         batch=diag_test_batch,
                         log_prob_batch=val_log_prob,
                         next_validation_diag_state=next_validation_diag_state,
                     )
-                    analyzed_val_diag_samples += diag_batch_size
-                    if diag_batch_size < len(test_batch):
-                        pad_size = len(test_batch) - diag_batch_size
-                        batch_diag_infos = {key: values + [None] * pad_size for key, values in diag_infos_subset.items()}
-                    else:
-                        batch_diag_infos = diag_infos_subset
-                    batch_sample_metadata[:diag_batch_size] = diag_sample_metadata_subset
+                    analyzed_val_diag_samples += len(diag_indices)
+                    batch_diag_infos = {key: [None] * len(test_batch) for key in diag_infos_subset.keys()}
+                    for key, values in diag_infos_subset.items():
+                        for local_idx, global_idx in enumerate(diag_indices):
+                            batch_diag_infos[key][global_idx] = values[local_idx]
+                    for local_idx, global_idx in enumerate(diag_indices):
+                        batch_sample_metadata[global_idx] = diag_sample_metadata_subset[local_idx]
+                    if self._validation_token_aggregation_enabled():
+                        self._accumulate_validation_token_aggregates(
+                            aggregate_states=validation_token_aggregate_states,
+                            data_sources=diag_test_batch.non_tensor_batch.get("data_source", None),
+                            aggregate_payloads=diag_aggregate_payloads_subset,
+                        )
 
             # evaluate using reward_function
             if self.val_reward_fn is None:
@@ -1231,6 +1574,18 @@ class RayPPOTrainer:
             metric_dict["val-aux/num_turns/min"] = sample_turns.min()
             metric_dict["val-aux/num_turns/max"] = sample_turns.max()
             metric_dict["val-aux/num_turns/mean"] = sample_turns.mean()
+
+        if self._validation_token_aggregation_enabled() and validation_token_aggregate_states:
+            total_data_source_counts: dict[str, int] = {"all": len(data_sources)}
+            unique_data_sources, counts = np.unique(data_sources, return_counts=True)
+            for data_source, count in zip(unique_data_sources.tolist(), counts.tolist(), strict=True):
+                total_data_source_counts[str(data_source)] = int(count)
+            metric_dict.update(
+                self._finalize_validation_token_aggregates(
+                    aggregate_states=validation_token_aggregate_states,
+                    total_counts=total_data_source_counts,
+                )
+            )
 
         return metric_dict
 

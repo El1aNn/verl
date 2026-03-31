@@ -898,3 +898,176 @@
   - `TestComputeDataMetrics.test_compute_data_metrics_with_critic`
   - 报的是 `critic/rewards/mean` 断言不一致
 - 这个失败不是本次 validation 聚合规则调整引入的。
+
+---
+## 2026-03-31 记录 27：四次 validation 结果对比分析与初版报告
+
+完成内容：
+- 新增分析脚本：
+  - `analysis/exp4_validation_20260331/analyze_exp4_validation.py`
+- 基于 `ALL_4_EXPERIMENTS_validation_only_20260331.zip` 生成了对比产物：
+  - `analysis/exp4_validation_20260331/outputs/tables/step_metrics.csv`
+  - `analysis/exp4_validation_20260331/outputs/tables/experiment_summary.csv`
+  - `analysis/exp4_validation_20260331/outputs/tables/final_case_matrix.csv`
+  - `analysis/exp4_validation_20260331/outputs/tables/llm_tagging_candidates.csv`
+  - `analysis/exp4_validation_20260331/outputs/tables/pairwise_winrate.csv`
+  - `analysis/exp4_validation_20260331/outputs/tables/failure_tag_summary.csv`
+- 生成图表：
+  - `analysis/exp4_validation_20260331/outputs/plots/01_score_over_steps.png`
+  - `analysis/exp4_validation_20260331/outputs/plots/02_diagnostics_over_steps.png`
+  - `analysis/exp4_validation_20260331/outputs/plots/03_final_vs_best_score.png`
+  - `analysis/exp4_validation_20260331/outputs/plots/04_final_metrics_heatmap.png`
+  - `analysis/exp4_validation_20260331/outputs/plots/05_pairwise_winrate_heatmap.png`
+- 输出初版报告：
+  - `analysis/exp4_validation_20260331/REPORT_exp4_validation_20260331_v1.md`
+
+关键结论（final step）：
+- 最优实验：`Instruct-Full`，`final_score=0.7070`
+- 4 实验 `final_score`：
+  - Base-Full: `0.6053`
+  - Base-OneShot: `0.5753`
+  - Instruct-Full: `0.7070`
+  - Instruct-OneShot: `0.6928`
+- case 分布（共 4000 条）：
+  - `all_correct=1766`
+  - `mixed=1482`
+  - `all_wrong=752`
+- pairwise（行对列胜率）：
+  - `Instruct-Full` 对 `Base-Full`: `0.5509`
+  - `Instruct-Full` 对 `Base-OneShot`: `0.5659`
+  - `Instruct-OneShot` 对 `Base-Full`: `0.5438`
+  - `Instruct-OneShot` 对 `Base-OneShot`: `0.5588`
+
+case 级与打标准备：
+- 由于原始 `uid` 在该数据中非逐样本唯一，脚本改为使用 `input-hash + 同题采样序号` 作为稳定 case 键，确保 4000 条 case 对齐。
+- 生成了 `llm_tagging_candidates.csv`（240 条候选，覆盖 all_wrong + 高分歧 mixed）用于后续 LLM 细粒度错误标签分析。
+- 当前启发式失败标签统计：
+  - `missing_boxed=208`
+  - `overlong_reasoning=14`
+
+验证与执行：
+- 执行命令：
+  - `MPLCONFIGDIR=/tmp/mpl python3 analysis/exp4_validation_20260331/analyze_exp4_validation.py`
+- 脚本成功完成并输出全部表格、图像和报告文件。
+
+---
+## 2026-03-31 记录 28：四种训练方式的 token 粒度影响分析
+
+完成内容：
+- 新增 token 分析脚本：
+  - `analysis/exp4_validation_20260331/analyze_exp4_token_diagnostics.py`
+- 新增 token 分析产物：
+  - `analysis/exp4_validation_20260331/token_outputs/tables/traced_response_rows.csv`
+  - `analysis/exp4_validation_20260331/token_outputs/tables/traced_token_rows.csv`
+  - `analysis/exp4_validation_20260331/token_outputs/tables/traced_response_step_summary.csv`
+  - `analysis/exp4_validation_20260331/token_outputs/tables/traced_token_step_summary.csv`
+  - `analysis/exp4_validation_20260331/token_outputs/tables/traced_token_position_final.csv`
+  - `analysis/exp4_validation_20260331/token_outputs/tables/traced_token_final_correctness.csv`
+  - `analysis/exp4_validation_20260331/token_outputs/tables/traced_token_delta_step0_to_final.csv`
+- 新增 token 图表：
+  - `analysis/exp4_validation_20260331/token_outputs/plots/01_traced_probe_over_steps.png`
+  - `analysis/exp4_validation_20260331/token_outputs/plots/02_token_step_metrics.png`
+  - `analysis/exp4_validation_20260331/token_outputs/plots/03_final_prefix_curves.png`
+  - `analysis/exp4_validation_20260331/token_outputs/plots/04_token_delta_step0_to_final.png`
+  - `analysis/exp4_validation_20260331/token_outputs/plots/05_correct_vs_wrong_entropy.png`
+- 输出补充报告：
+  - `analysis/exp4_validation_20260331/REPORT_exp4_token_diagnostics_20260331_v1.md`
+
+关键口径说明：
+- `token_diagnostics` 并不是全量保存：
+  - 每个实验每个 step 只有 `8` 条 traced rollout
+  - traced subset 只覆盖 `1` 道固定 probe 题
+  - 每条只保留前 `96` 个 token 左右，且是截断前缀
+- 因此这部分结论用于分析“固定 probe 题上的前缀 token 行为变化”，不适合直接外推成全任务结论。
+
+关键发现：
+- final step 上，probe score 并列最高的是：
+  - `Base-Full`
+  - `Instruct-Full`
+  - `Instruct-OneShot`
+  都达到 `1.000`
+- `Base-OneShot` 在 final step 仍只有 `0.875`
+- final step token 级稳定性对比：
+  - `Instruct-Full`：`entropy=0.0778`，`top1_prob=0.9705`
+  - `Instruct-OneShot`：`entropy=0.1119`，`top1_prob=0.9580`
+  - `Base-Full`：`entropy=0.2036`，`top1_prob=0.9246`
+  - `Base-OneShot`：`entropy=0.2059`，`top1_prob=0.9224`
+- final step 输出长度：
+  - `Base-Full`: `460.1`
+  - `Base-OneShot`: `490.6`
+  - `Instruct-Full`: `338.1`
+  - `Instruct-OneShot`: `328.1`
+- `step0 -> final` 的 token 改变量表明：
+  - base 系列改动最大：
+    - `Base-Full`: `logprob +0.3673`, `entropy -0.3908`
+    - `Base-OneShot`: `logprob +0.3849`, `entropy -0.3885`
+  - instruct 系列改动较小：
+    - `Instruct-Full`: `logprob +0.0744`, `entropy -0.0760`
+    - `Instruct-OneShot`: `logprob +0.0435`, `entropy -0.0419`
+
+结论解释：
+- instruct 系列在训练开始前就已经具有更高的前缀 token 置信度、更低 entropy 和更短输出。
+- base 系列训练的主要作用，是把前缀 token 从“更散、更长、更不稳定”拉回到更可控状态。
+- 但在 base 上，`oneshot` 没有把 token 级稳定性完全修到 `full` 的水平；这点在 probe score 和输出长度上都能看到。
+
+验证与执行：
+- 执行命令：
+  - `MPLCONFIGDIR=/tmp/mpl python3 analysis/exp4_validation_20260331/analyze_exp4_token_diagnostics.py`
+- 脚本成功完成并输出 token 表格、图像和补充报告。
+
+---
+## 2026-03-31 记录 29：训练中低成本 token 监控实现
+
+完成内容：
+- 在 `verl/trainer/ppo/ray_trainer.py` 中补充了 validation diagnostics 的低成本 token 监控主干：
+  - 新增稳定 hash 采样配置读取与采样函数
+  - 新增 step 级 token 聚合 payload 的累计与汇总函数
+  - 在 validation 主循环中对被采样样本做 token 聚合，并把结果写入 `val-token/...` 指标
+  - 保留原有少量 raw `token_diagnostics` 导出逻辑，用于 case 排障
+- 在 trainer 配置中新增默认开关：
+  - `sampling_strategy`
+  - `sample_rate`
+  - `sample_seed`
+  - `aggregate_token_metrics`
+  - `aggregate_position_buckets`
+- 新增 CPU 单测文件：
+  - `tests/trainer/ppo/test_validation_diagnostics_on_cpu.py`
+  - 覆盖顺序采样、hash 采样、token 聚合汇总的核心口径
+
+主要输出指标：
+- step 级 summary：
+  - `val-token/{data_source}/summary/analyzed_samples`
+  - `val-token/{data_source}/summary/analyzed_sample_fraction`
+  - `val-token/{data_source}/summary/analyzed_tokens`
+  - `val-token/{data_source}/summary/token_logprob_mean`
+  - `val-token/{data_source}/summary/token_prob_mean`
+  - `val-token/{data_source}/summary/token_entropy_mean`
+  - `val-token/{data_source}/summary/eos_prob_mean`
+  - `val-token/{data_source}/summary/top1_prob_mean`
+  - 以及 `low_confidence_token_ratio`、`topk_mass_mean`、`chosen_is_top1_ratio`、`eos_in_topk_ratio`、`eos_top1_ratio`
+- 位置 bucket：
+  - `val-token/{data_source}/bucket_{xx}/token_fraction`
+  - `val-token/{data_source}/bucket_{xx}/token_logprob_mean`
+  - `val-token/{data_source}/bucket_{xx}/token_entropy_mean`
+  - 可选 `eos_prob_mean`、`top1_prob_mean`
+
+修改的文件：
+- `PLAN.md`
+- `RESULT.md`
+- `verl/trainer/ppo/ray_trainer.py`
+- `verl/trainer/config/ppo_trainer.yaml`
+- `verl/trainer/config/ppo_megatron_trainer.yaml`
+- `tests/trainer/ppo/test_validation_diagnostics_on_cpu.py`
+
+验证与执行：
+- Python 3.10 AST 语法检查：
+  - `/Users/bytedance/miniforge3/envs/atdoubao_env/bin/python3.10 - <<'PY' ... ast.parse(...)`
+- 基于 `ray_trainer.py` 实际源码抽取 helper，并在 Python 3.10 下执行断言：
+  - 验证 hash 采样与 budget 截断逻辑
+  - 验证 token 聚合 summary / bucket 指标数值
+- 当前机器上没有现成同时具备 `omegaconf`、`ray`、`torchdata` 的 3.10 运行环境，因此还未直接跑完整 `unittest` 导入链路
+
+结果与剩余注意事项：
+- 现在 validation diagnostics 已经支持“少量 raw trace + 低成本 step 级 token 聚合”这两层监督。
+- 默认配置仍保持 `sampling_strategy: sequential`，所以现有任务不会因为升级而立刻改变采样口径；需要稳定 probe 抽样时，再显式切到 `hash` 并设置 `sample_rate`。
+- 若要在你的训练环境中直接跑新单测，需保证 Python 3.10+ 且安装项目依赖中的 `omegaconf`、`ray`、`torchdata`、`tensordict`。

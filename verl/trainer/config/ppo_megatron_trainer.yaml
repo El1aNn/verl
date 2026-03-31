@@ -106,8 +106,13 @@ trainer:
   validation_diagnostics:
     enabled: False
     compare_to_previous_eval: True
+    sampling_strategy: sequential
+    sample_rate: 1.0
+    sample_seed: 0
     samples_to_dump_token_details: 0
     max_tokens_per_sample: 64
+    aggregate_token_metrics: True
+    aggregate_position_buckets: 10
     tail_tokens: 32
     low_confidence_prob_threshold: 0.2
     track_eos_probability: True

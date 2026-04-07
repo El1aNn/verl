@@ -1,0 +1,717 @@
+{
+  "selected_steps": [
+    0,
+    90,
+    180
+  ],
+  "token_groups": {
+    "reasoning_sparks": [
+      "but",
+      "wait",
+      "perhaps",
+      "alternatively",
+      "however"
+    ],
+    "noise": [
+      "cost",
+      "fine",
+      "balanced",
+      "ere",
+      "trans"
+    ]
+  },
+  "runs": [
+    {
+      "label": "base_c_n1_group_ablation_rerun180_2gpu_restart_20260405_213719",
+      "validation_dir": "/root/rl/verl/ckpts/verl_grpo_dsr_sub_baseline/base_c_n1_group_ablation_rerun180_2gpu_restart_20260405_213719/validation",
+      "metrics_file": "/root/rl/verl/ckpts/verl_grpo_dsr_sub_baseline/base_c_n1_group_ablation_rerun180_2gpu_restart_20260405_213719/metrics/verl_grpo_dsr_sub_baseline/base_c_n1_group_ablation_rerun180_2gpu_restart_20260405_213719.jsonl",
+      "primary_metric_key": "reward",
+      "warnings": [
+        "base_c_n1_group_ablation_rerun180_2gpu_restart_20260405_213719 step 0: token diagnostics cover only 8/500 samples",
+        "base_c_n1_group_ablation_rerun180_2gpu_restart_20260405_213719 step 102: token diagnostics cover only 8/500 samples",
+        "base_c_n1_group_ablation_rerun180_2gpu_restart_20260405_213719 step 108: token diagnostics cover only 8/500 samples",
+        "base_c_n1_group_ablation_rerun180_2gpu_restart_20260405_213719 step 114: token diagnostics cover only 8/500 samples",
+        "base_c_n1_group_ablation_rerun180_2gpu_restart_20260405_213719 step 120: token diagnostics cover only 8/500 samples",
+        "base_c_n1_group_ablation_rerun180_2gpu_restart_20260405_213719 step 126: token diagnostics cover only 8/500 samples",
+        "base_c_n1_group_ablation_rerun180_2gpu_restart_20260405_213719 step 12: token diagnostics cover only 8/500 samples",
+        "base_c_n1_group_ablation_rerun180_2gpu_restart_20260405_213719 step 132: token diagnostics cover only 8/500 samples",
+        "base_c_n1_group_ablation_rerun180_2gpu_restart_20260405_213719 step 138: token diagnostics cover only 8/500 samples",
+        "base_c_n1_group_ablation_rerun180_2gpu_restart_20260405_213719 step 144: token diagnostics cover only 8/500 samples",
+        "base_c_n1_group_ablation_rerun180_2gpu_restart_20260405_213719 step 150: token diagnostics cover only 8/500 samples",
+        "base_c_n1_group_ablation_rerun180_2gpu_restart_20260405_213719 step 156: token diagnostics cover only 8/500 samples",
+        "base_c_n1_group_ablation_rerun180_2gpu_restart_20260405_213719 step 162: token diagnostics cover only 8/500 samples",
+        "base_c_n1_group_ablation_rerun180_2gpu_restart_20260405_213719 step 168: token diagnostics cover only 8/500 samples",
+        "base_c_n1_group_ablation_rerun180_2gpu_restart_20260405_213719 step 174: token diagnostics cover only 8/500 samples",
+        "base_c_n1_group_ablation_rerun180_2gpu_restart_20260405_213719 step 180: token diagnostics cover only 8/500 samples",
+        "base_c_n1_group_ablation_rerun180_2gpu_restart_20260405_213719 step 18: token diagnostics cover only 8/500 samples",
+        "base_c_n1_group_ablation_rerun180_2gpu_restart_20260405_213719 step 24: token diagnostics cover only 8/500 samples",
+        "base_c_n1_group_ablation_rerun180_2gpu_restart_20260405_213719 step 30: token diagnostics cover only 8/500 samples",
+        "base_c_n1_group_ablation_rerun180_2gpu_restart_20260405_213719 step 36: token diagnostics cover only 8/500 samples",
+        "base_c_n1_group_ablation_rerun180_2gpu_restart_20260405_213719 step 42: token diagnostics cover only 8/500 samples",
+        "base_c_n1_group_ablation_rerun180_2gpu_restart_20260405_213719 step 48: token diagnostics cover only 8/500 samples",
+        "base_c_n1_group_ablation_rerun180_2gpu_restart_20260405_213719 step 54: token diagnostics cover only 8/500 samples",
+        "base_c_n1_group_ablation_rerun180_2gpu_restart_20260405_213719 step 60: token diagnostics cover only 8/500 samples",
+        "base_c_n1_group_ablation_rerun180_2gpu_restart_20260405_213719 step 66: token diagnostics cover only 8/500 samples",
+        "base_c_n1_group_ablation_rerun180_2gpu_restart_20260405_213719 step 6: token diagnostics cover only 8/500 samples",
+        "base_c_n1_group_ablation_rerun180_2gpu_restart_20260405_213719 step 72: token diagnostics cover only 8/500 samples",
+        "base_c_n1_group_ablation_rerun180_2gpu_restart_20260405_213719 step 78: token diagnostics cover only 8/500 samples",
+        "base_c_n1_group_ablation_rerun180_2gpu_restart_20260405_213719 step 84: token diagnostics cover only 8/500 samples",
+        "base_c_n1_group_ablation_rerun180_2gpu_restart_20260405_213719 step 90: token diagnostics cover only 8/500 samples",
+        "base_c_n1_group_ablation_rerun180_2gpu_restart_20260405_213719 step 96: token diagnostics cover only 8/500 samples"
+      ],
+      "steps": [
+        {
+          "step": 0,
+          "sample_count": 500,
+          "primary_metric_mean": 0.358,
+          "actor_entropy": null,
+          "token_entropy_mean": 0.6765852215467021,
+          "dumped_sample_ratio": 0.016,
+          "dumped_token_ratio": 0.015883849351616307,
+          "sampled_group_count": {
+            "reasoning_sparks": 0,
+            "noise": 0
+          },
+          "sampled_group_frequency": {
+            "reasoning_sparks": 0.0,
+            "noise": 0.0
+          },
+          "topk_low_prob_group_mean": {
+            "reasoning_sparks": null,
+            "noise": null
+          }
+        },
+        {
+          "step": 6,
+          "sample_count": 500,
+          "primary_metric_mean": 0.39,
+          "actor_entropy": null,
+          "token_entropy_mean": 0.5182662934530526,
+          "dumped_sample_ratio": 0.016,
+          "dumped_token_ratio": 0.018695683926093623,
+          "sampled_group_count": {
+            "reasoning_sparks": 0,
+            "noise": 0
+          },
+          "sampled_group_frequency": {
+            "reasoning_sparks": 0.0,
+            "noise": 0.0
+          },
+          "topk_low_prob_group_mean": {
+            "reasoning_sparks": null,
+            "noise": null
+          }
+        },
+        {
+          "step": 12,
+          "sample_count": 500,
+          "primary_metric_mean": 0.362,
+          "actor_entropy": null,
+          "token_entropy_mean": 0.5871062717633322,
+          "dumped_sample_ratio": 0.016,
+          "dumped_token_ratio": 0.016725102898582287,
+          "sampled_group_count": {
+            "reasoning_sparks": 0,
+            "noise": 0
+          },
+          "sampled_group_frequency": {
+            "reasoning_sparks": 0.0,
+            "noise": 0.0
+          },
+          "topk_low_prob_group_mean": {
+            "reasoning_sparks": null,
+            "noise": null
+          }
+        },
+        {
+          "step": 18,
+          "sample_count": 500,
+          "primary_metric_mean": 0.406,
+          "actor_entropy": null,
+          "token_entropy_mean": 0.5755577615927905,
+          "dumped_sample_ratio": 0.016,
+          "dumped_token_ratio": 0.016610074183013603,
+          "sampled_group_count": {
+            "reasoning_sparks": 0,
+            "noise": 0
+          },
+          "sampled_group_frequency": {
+            "reasoning_sparks": 0.0,
+            "noise": 0.0
+          },
+          "topk_low_prob_group_mean": {
+            "reasoning_sparks": 0.038415197283029556,
+            "noise": null
+          }
+        },
+        {
+          "step": 24,
+          "sample_count": 500,
+          "primary_metric_mean": 0.414,
+          "actor_entropy": null,
+          "token_entropy_mean": 0.46218201238662004,
+          "dumped_sample_ratio": 0.016,
+          "dumped_token_ratio": 0.01887627193629258,
+          "sampled_group_count": {
+            "reasoning_sparks": 1,
+            "noise": 0
+          },
+          "sampled_group_frequency": {
+            "reasoning_sparks": 0.0013020833333333333,
+            "noise": 0.0
+          },
+          "topk_low_prob_group_mean": {
+            "reasoning_sparks": null,
+            "noise": null
+          }
+        },
+        {
+          "step": 30,
+          "sample_count": 500,
+          "primary_metric_mean": 0.45,
+          "actor_entropy": null,
+          "token_entropy_mean": 0.5753335463814437,
+          "dumped_sample_ratio": 0.016,
+          "dumped_token_ratio": 0.01583897046691965,
+          "sampled_group_count": {
+            "reasoning_sparks": 0,
+            "noise": 0
+          },
+          "sampled_group_frequency": {
+            "reasoning_sparks": 0.0,
+            "noise": 0.0
+          },
+          "topk_low_prob_group_mean": {
+            "reasoning_sparks": 4.262765287421644e-05,
+            "noise": null
+          }
+        },
+        {
+          "step": 36,
+          "sample_count": 500,
+          "primary_metric_mean": 0.47,
+          "actor_entropy": null,
+          "token_entropy_mean": 0.30251894786488265,
+          "dumped_sample_ratio": 0.016,
+          "dumped_token_ratio": 0.020007294326056375,
+          "sampled_group_count": {
+            "reasoning_sparks": 1,
+            "noise": 0
+          },
+          "sampled_group_frequency": {
+            "reasoning_sparks": 0.0013020833333333333,
+            "noise": 0.0
+          },
+          "topk_low_prob_group_mean": {
+            "reasoning_sparks": null,
+            "noise": null
+          }
+        },
+        {
+          "step": 42,
+          "sample_count": 500,
+          "primary_metric_mean": 0.486,
+          "actor_entropy": null,
+          "token_entropy_mean": 0.32143262878526,
+          "dumped_sample_ratio": 0.016,
+          "dumped_token_ratio": 0.021803934928881698,
+          "sampled_group_count": {
+            "reasoning_sparks": 0,
+            "noise": 0
+          },
+          "sampled_group_frequency": {
+            "reasoning_sparks": 0.0,
+            "noise": 0.0
+          },
+          "topk_low_prob_group_mean": {
+            "reasoning_sparks": null,
+            "noise": null
+          }
+        },
+        {
+          "step": 48,
+          "sample_count": 500,
+          "primary_metric_mean": 0.486,
+          "actor_entropy": null,
+          "token_entropy_mean": 0.3026601903839037,
+          "dumped_sample_ratio": 0.016,
+          "dumped_token_ratio": 0.0173909105319173,
+          "sampled_group_count": {
+            "reasoning_sparks": 1,
+            "noise": 0
+          },
+          "sampled_group_frequency": {
+            "reasoning_sparks": 0.0013020833333333333,
+            "noise": 0.0
+          },
+          "topk_low_prob_group_mean": {
+            "reasoning_sparks": null,
+            "noise": null
+          }
+        },
+        {
+          "step": 54,
+          "sample_count": 500,
+          "primary_metric_mean": 0.512,
+          "actor_entropy": null,
+          "token_entropy_mean": 0.30285158089827746,
+          "dumped_sample_ratio": 0.016,
+          "dumped_token_ratio": 0.020315638450502153,
+          "sampled_group_count": {
+            "reasoning_sparks": 0,
+            "noise": 0
+          },
+          "sampled_group_frequency": {
+            "reasoning_sparks": 0.0,
+            "noise": 0.0
+          },
+          "topk_low_prob_group_mean": {
+            "reasoning_sparks": null,
+            "noise": null
+          }
+        },
+        {
+          "step": 60,
+          "sample_count": 500,
+          "primary_metric_mean": 0.494,
+          "actor_entropy": null,
+          "token_entropy_mean": 0.2712835893034935,
+          "dumped_sample_ratio": 0.016,
+          "dumped_token_ratio": 0.019735827722670504,
+          "sampled_group_count": {
+            "reasoning_sparks": 0,
+            "noise": 0
+          },
+          "sampled_group_frequency": {
+            "reasoning_sparks": 0.0,
+            "noise": 0.0
+          },
+          "topk_low_prob_group_mean": {
+            "reasoning_sparks": 0.05225716903805733,
+            "noise": null
+          }
+        },
+        {
+          "step": 66,
+          "sample_count": 500,
+          "primary_metric_mean": 0.498,
+          "actor_entropy": null,
+          "token_entropy_mean": 0.28579079103656113,
+          "dumped_sample_ratio": 0.016,
+          "dumped_token_ratio": 0.01942042178728569,
+          "sampled_group_count": {
+            "reasoning_sparks": 1,
+            "noise": 0
+          },
+          "sampled_group_frequency": {
+            "reasoning_sparks": 0.0013020833333333333,
+            "noise": 0.0
+          },
+          "topk_low_prob_group_mean": {
+            "reasoning_sparks": null,
+            "noise": null
+          }
+        },
+        {
+          "step": 72,
+          "sample_count": 500,
+          "primary_metric_mean": 0.522,
+          "actor_entropy": null,
+          "token_entropy_mean": 0.23857764061540365,
+          "dumped_sample_ratio": 0.016,
+          "dumped_token_ratio": 0.02007318348144276,
+          "sampled_group_count": {
+            "reasoning_sparks": 0,
+            "noise": 0
+          },
+          "sampled_group_frequency": {
+            "reasoning_sparks": 0.0,
+            "noise": 0.0
+          },
+          "topk_low_prob_group_mean": {
+            "reasoning_sparks": 0.00015827434253878891,
+            "noise": null
+          }
+        },
+        {
+          "step": 78,
+          "sample_count": 500,
+          "primary_metric_mean": 0.506,
+          "actor_entropy": null,
+          "token_entropy_mean": 0.27943813538877293,
+          "dumped_sample_ratio": 0.016,
+          "dumped_token_ratio": 0.017683221661946535,
+          "sampled_group_count": {
+            "reasoning_sparks": 1,
+            "noise": 0
+          },
+          "sampled_group_frequency": {
+            "reasoning_sparks": 0.0013020833333333333,
+            "noise": 0.0
+          },
+          "topk_low_prob_group_mean": {
+            "reasoning_sparks": 0.021182013675570488,
+            "noise": null
+          }
+        },
+        {
+          "step": 84,
+          "sample_count": 500,
+          "primary_metric_mean": 0.512,
+          "actor_entropy": null,
+          "token_entropy_mean": 0.2729830474127084,
+          "dumped_sample_ratio": 0.016,
+          "dumped_token_ratio": 0.01847663956117981,
+          "sampled_group_count": {
+            "reasoning_sparks": 0,
+            "noise": 0
+          },
+          "sampled_group_frequency": {
+            "reasoning_sparks": 0.0,
+            "noise": 0.0
+          },
+          "topk_low_prob_group_mean": {
+            "reasoning_sparks": null,
+            "noise": null
+          }
+        },
+        {
+          "step": 90,
+          "sample_count": 500,
+          "primary_metric_mean": 0.514,
+          "actor_entropy": null,
+          "token_entropy_mean": 0.24535519338678569,
+          "dumped_sample_ratio": 0.016,
+          "dumped_token_ratio": 0.019393449660362112,
+          "sampled_group_count": {
+            "reasoning_sparks": 0,
+            "noise": 0
+          },
+          "sampled_group_frequency": {
+            "reasoning_sparks": 0.0,
+            "noise": 0.0
+          },
+          "topk_low_prob_group_mean": {
+            "reasoning_sparks": null,
+            "noise": null
+          }
+        },
+        {
+          "step": 96,
+          "sample_count": 500,
+          "primary_metric_mean": 0.506,
+          "actor_entropy": null,
+          "token_entropy_mean": 0.262394470628351,
+          "dumped_sample_ratio": 0.016,
+          "dumped_token_ratio": 0.020513368412617857,
+          "sampled_group_count": {
+            "reasoning_sparks": 0,
+            "noise": 0
+          },
+          "sampled_group_frequency": {
+            "reasoning_sparks": 0.0,
+            "noise": 0.0
+          },
+          "topk_low_prob_group_mean": {
+            "reasoning_sparks": null,
+            "noise": null
+          }
+        },
+        {
+          "step": 102,
+          "sample_count": 500,
+          "primary_metric_mean": 0.548,
+          "actor_entropy": null,
+          "token_entropy_mean": 0.225528504117392,
+          "dumped_sample_ratio": 0.016,
+          "dumped_token_ratio": 0.019661051661461267,
+          "sampled_group_count": {
+            "reasoning_sparks": 0,
+            "noise": 0
+          },
+          "sampled_group_frequency": {
+            "reasoning_sparks": 0.0,
+            "noise": 0.0
+          },
+          "topk_low_prob_group_mean": {
+            "reasoning_sparks": null,
+            "noise": null
+          }
+        },
+        {
+          "step": 108,
+          "sample_count": 500,
+          "primary_metric_mean": 0.544,
+          "actor_entropy": null,
+          "token_entropy_mean": 0.2095779800438322,
+          "dumped_sample_ratio": 0.016,
+          "dumped_token_ratio": 0.016776251119508947,
+          "sampled_group_count": {
+            "reasoning_sparks": 0,
+            "noise": 0
+          },
+          "sampled_group_frequency": {
+            "reasoning_sparks": 0.0,
+            "noise": 0.0
+          },
+          "topk_low_prob_group_mean": {
+            "reasoning_sparks": 0.008110342547297478,
+            "noise": null
+          }
+        },
+        {
+          "step": 114,
+          "sample_count": 500,
+          "primary_metric_mean": 0.558,
+          "actor_entropy": null,
+          "token_entropy_mean": 0.2287290906533599,
+          "dumped_sample_ratio": 0.016,
+          "dumped_token_ratio": 0.020897390547195995,
+          "sampled_group_count": {
+            "reasoning_sparks": 1,
+            "noise": 0
+          },
+          "sampled_group_frequency": {
+            "reasoning_sparks": 0.0013020833333333333,
+            "noise": 0.0
+          },
+          "topk_low_prob_group_mean": {
+            "reasoning_sparks": 0.09351363778114319,
+            "noise": null
+          }
+        },
+        {
+          "step": 120,
+          "sample_count": 500,
+          "primary_metric_mean": 0.542,
+          "actor_entropy": null,
+          "token_entropy_mean": 0.2207951934542507,
+          "dumped_sample_ratio": 0.016,
+          "dumped_token_ratio": 0.019773429454170956,
+          "sampled_group_count": {
+            "reasoning_sparks": 0,
+            "noise": 0
+          },
+          "sampled_group_frequency": {
+            "reasoning_sparks": 0.0,
+            "noise": 0.0
+          },
+          "topk_low_prob_group_mean": {
+            "reasoning_sparks": 0.018276624381542206,
+            "noise": null
+          }
+        },
+        {
+          "step": 126,
+          "sample_count": 500,
+          "primary_metric_mean": 0.546,
+          "actor_entropy": null,
+          "token_entropy_mean": 0.23392559331841767,
+          "dumped_sample_ratio": 0.016,
+          "dumped_token_ratio": 0.020533661301534677,
+          "sampled_group_count": {
+            "reasoning_sparks": 0,
+            "noise": 0
+          },
+          "sampled_group_frequency": {
+            "reasoning_sparks": 0.0,
+            "noise": 0.0
+          },
+          "topk_low_prob_group_mean": {
+            "reasoning_sparks": 0.00010227051825495437,
+            "noise": null
+          }
+        },
+        {
+          "step": 132,
+          "sample_count": 500,
+          "primary_metric_mean": 0.516,
+          "actor_entropy": null,
+          "token_entropy_mean": 0.2441790415905416,
+          "dumped_sample_ratio": 0.016,
+          "dumped_token_ratio": 0.019127316198445904,
+          "sampled_group_count": {
+            "reasoning_sparks": 0,
+            "noise": 0
+          },
+          "sampled_group_frequency": {
+            "reasoning_sparks": 0.0,
+            "noise": 0.0
+          },
+          "topk_low_prob_group_mean": {
+            "reasoning_sparks": null,
+            "noise": null
+          }
+        },
+        {
+          "step": 138,
+          "sample_count": 500,
+          "primary_metric_mean": 0.57,
+          "actor_entropy": null,
+          "token_entropy_mean": 0.2304292406188324,
+          "dumped_sample_ratio": 0.016,
+          "dumped_token_ratio": 0.019291635267520722,
+          "sampled_group_count": {
+            "reasoning_sparks": 0,
+            "noise": 0
+          },
+          "sampled_group_frequency": {
+            "reasoning_sparks": 0.0,
+            "noise": 0.0
+          },
+          "topk_low_prob_group_mean": {
+            "reasoning_sparks": null,
+            "noise": null
+          }
+        },
+        {
+          "step": 144,
+          "sample_count": 500,
+          "primary_metric_mean": 0.532,
+          "actor_entropy": null,
+          "token_entropy_mean": 0.21240570163354278,
+          "dumped_sample_ratio": 0.016,
+          "dumped_token_ratio": 0.020205209155485397,
+          "sampled_group_count": {
+            "reasoning_sparks": 0,
+            "noise": 0
+          },
+          "sampled_group_frequency": {
+            "reasoning_sparks": 0.0,
+            "noise": 0.0
+          },
+          "topk_low_prob_group_mean": {
+            "reasoning_sparks": 0.0072013759054243565,
+            "noise": null
+          }
+        },
+        {
+          "step": 150,
+          "sample_count": 500,
+          "primary_metric_mean": 0.54,
+          "actor_entropy": null,
+          "token_entropy_mean": 0.2429582733893767,
+          "dumped_sample_ratio": 0.016,
+          "dumped_token_ratio": 0.02313531750813351,
+          "sampled_group_count": {
+            "reasoning_sparks": 0,
+            "noise": 0
+          },
+          "sampled_group_frequency": {
+            "reasoning_sparks": 0.0,
+            "noise": 0.0
+          },
+          "topk_low_prob_group_mean": {
+            "reasoning_sparks": null,
+            "noise": null
+          }
+        },
+        {
+          "step": 156,
+          "sample_count": 500,
+          "primary_metric_mean": 0.578,
+          "actor_entropy": null,
+          "token_entropy_mean": 0.2582588497316465,
+          "dumped_sample_ratio": 0.016,
+          "dumped_token_ratio": 0.019227399043637183,
+          "sampled_group_count": {
+            "reasoning_sparks": 0,
+            "noise": 0
+          },
+          "sampled_group_frequency": {
+            "reasoning_sparks": 0.0,
+            "noise": 0.0
+          },
+          "topk_low_prob_group_mean": {
+            "reasoning_sparks": null,
+            "noise": null
+          }
+        },
+        {
+          "step": 162,
+          "sample_count": 500,
+          "primary_metric_mean": 0.536,
+          "actor_entropy": null,
+          "token_entropy_mean": 0.22652172087691724,
+          "dumped_sample_ratio": 0.016,
+          "dumped_token_ratio": 0.022520012902090724,
+          "sampled_group_count": {
+            "reasoning_sparks": 0,
+            "noise": 0
+          },
+          "sampled_group_frequency": {
+            "reasoning_sparks": 0.0,
+            "noise": 0.0
+          },
+          "topk_low_prob_group_mean": {
+            "reasoning_sparks": 1.2211723515065387e-05,
+            "noise": null
+          }
+        },
+        {
+          "step": 168,
+          "sample_count": 500,
+          "primary_metric_mean": 0.57,
+          "actor_entropy": null,
+          "token_entropy_mean": 0.2082370797288604,
+          "dumped_sample_ratio": 0.016,
+          "dumped_token_ratio": 0.02003129890453834,
+          "sampled_group_count": {
+            "reasoning_sparks": 0,
+            "noise": 0
+          },
+          "sampled_group_frequency": {
+            "reasoning_sparks": 0.0,
+            "noise": 0.0
+          },
+          "topk_low_prob_group_mean": {
+            "reasoning_sparks": 0.005861061968062131,
+            "noise": null
+          }
+        },
+        {
+          "step": 174,
+          "sample_count": 500,
+          "primary_metric_mean": 0.576,
+          "actor_entropy": null,
+          "token_entropy_mean": 0.20429474487900734,
+          "dumped_sample_ratio": 0.016,
+          "dumped_token_ratio": 0.021636240703177823,
+          "sampled_group_count": {
+            "reasoning_sparks": 0,
+            "noise": 0
+          },
+          "sampled_group_frequency": {
+            "reasoning_sparks": 0.0,
+            "noise": 0.0
+          },
+          "topk_low_prob_group_mean": {
+            "reasoning_sparks": 1.892492946353741e-05,
+            "noise": null
+          }
+        },
+        {
+          "step": 180,
+          "sample_count": 500,
+          "primary_metric_mean": 0.59,
+          "actor_entropy": null,
+          "token_entropy_mean": 0.2411105572246015,
+          "dumped_sample_ratio": 0.016,
+          "dumped_token_ratio": 0.02179217978548323,
+          "sampled_group_count": {
+            "reasoning_sparks": 0,
+            "noise": 0
+          },
+          "sampled_group_frequency": {
+            "reasoning_sparks": 0.0,
+            "noise": 0.0
+          },
+          "topk_low_prob_group_mean": {
+            "reasoning_sparks": 3.533309791237116e-05,
+            "noise": null
+          }
+        }
+      ]
+    }
+  ]
+}

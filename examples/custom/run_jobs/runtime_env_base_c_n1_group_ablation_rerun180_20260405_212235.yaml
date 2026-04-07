@@ -1,0 +1,20 @@
+working_dir: ./
+excludes:
+  - .git/**
+  - ckpts/**
+  - checkpoints/**
+  - data/**
+  - logs/**
+  - analysis/**
+  - tmp/**
+  - reports/**
+  - inference_result_zips_20260331/**
+  - "**/.whl"
+  - "**/__pycache__/**"
+  - "**/*.log"
+  - "**/*.tmp"
+  - "**/*.swp"
+env_vars:
+  TORCH_NCCL_AVOID_RECORD_STREAMS: "1"
+  CUDA_DEVICE_MAX_CONNECTIONS: "1"
+  RAY_DEBUG_POST_MORTEM: "0"

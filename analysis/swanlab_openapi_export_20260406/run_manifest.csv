@@ -1,0 +1,7 @@
+formal_label,run_name,run_id,column_count,resolved_metric_count
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,313,19
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,319,19
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,309,18
+Base nominal control condition,base_b_reward_shuffle_20260402_132309,n7tq5k0sid555howe8hmg,313,19
+Instruct nominal control condition,instruct_b_reward_shuffle_20260403_002727,36jz6dyl5w510dkl2mff2,313,19
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,313,19

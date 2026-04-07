@@ -1,0 +1,46 @@
+\contentsline {section}{\numberline {1}引言}{1}{section.1}%
+\contentsline {section}{\numberline {2}方法背景与研究问题}{1}{section.2}%
+\contentsline {subsection}{\numberline {2.1}GRPO 的基本思想}{1}{subsection.2.1}%
+\contentsline {subsection}{\numberline {2.2}为什么不能只看最终正确率}{2}{subsection.2.2}%
+\contentsline {subsection}{\numberline {2.3}研究问题与核心假设}{2}{subsection.2.3}%
+\contentsline {section}{\numberline {3}实验设计}{3}{section.3}%
+\contentsline {subsection}{\numberline {3.1}模型、数据与总体流程}{3}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}正式实验矩阵}{3}{subsection.3.2}%
+\contentsline {subsection}{\numberline {3.3}训练与评估口径}{3}{subsection.3.3}%
+\contentsline {subsection}{\numberline {3.4}历史预实验作为先验证据}{4}{subsection.3.4}%
+\contentsline {section}{\numberline {4}主结果：1-shot GRPO 是否有效}{5}{section.4}%
+\contentsline {subsection}{\numberline {4.1}总体趋势：Base 收益显著，Instruct 收益有限}{5}{subsection.4.1}%
+\contentsline {subsection}{\numberline {4.2}Base 模型：收益大且具有一致性}{5}{subsection.4.2}%
+\contentsline {subsection}{\numberline {4.3}Instruct 模型：高起点与小增益}{7}{subsection.4.3}%
+\contentsline {subsection}{\numberline {4.4}最佳 step 与最终 step 不完全一致}{7}{subsection.4.4}%
+\contentsline {section}{\numberline {5}行为机制分析：训练究竟改了什么}{7}{section.5}%
+\contentsline {subsection}{\numberline {5.1}Base 模型的收缩与稳定化}{7}{subsection.5.1}%
+\contentsline {subsection}{\numberline {5.2}动态统计进一步强化了上述判断}{11}{subsection.5.2}%
+\contentsline {subsection}{\numberline {5.3}弱约束版本的启示}{14}{subsection.5.3}%
+\contentsline {subsection}{\numberline {5.4}Instruct 模型主要是局部微调}{14}{subsection.5.4}%
+\contentsline {section}{\numberline {6}Token 级补充证据}{15}{section.6}%
+\contentsline {subsection}{\numberline {6.1}补充材料的口径与边界}{15}{subsection.6.1}%
+\contentsline {subsection}{\numberline {6.2}直接观察：Base 变化大，Instruct 变化小}{15}{subsection.6.2}%
+\contentsline {subsection}{\numberline {6.3}与当前正式实验结论的衔接}{17}{subsection.6.3}%
+\contentsline {subsection}{\numberline {6.4}前缀分布如何被重新组织}{17}{subsection.6.4}%
+\contentsline {subsection}{\numberline {6.5}从 \texttt {step 0} 到 final：局部 token 分布到底收缩了多少}{18}{subsection.6.5}%
+\contentsline {subsection}{\numberline {6.6}正确与错误响应的分布差异为什么重要}{18}{subsection.6.6}%
+\contentsline {section}{\numberline {7}消融与严格控制实验分析}{19}{section.7}%
+\contentsline {subsection}{\numberline {7.1}\texttt {n=1} 小组规模消融的解释边界}{19}{subsection.7.1}%
+\contentsline {subsection}{\numberline {7.2}严格破坏性奖励控制实验的解释意义}{19}{subsection.7.2}%
+\contentsline {section}{\numberline {8}训练动态的阶段性分解}{20}{section.8}%
+\contentsline {subsection}{\numberline {8.1}收益主要发生在什么阶段}{20}{subsection.8.1}%
+\contentsline {subsection}{\numberline {8.2}为什么 best checkpoint 和 final checkpoint 不能混为一谈}{21}{subsection.8.2}%
+\contentsline {subsection}{\numberline {8.3}终点行为排序如何补强主叙事}{22}{subsection.8.3}%
+\contentsline {section}{\numberline {9}多指标之间的耦合关系}{23}{section.9}%
+\contentsline {subsection}{\numberline {9.1}收益提升是否真的与校准量同步}{23}{subsection.9.1}%
+\contentsline {subsection}{\numberline {9.2}终点性能与终点稳定性是否形成共同前沿}{24}{subsection.9.2}%
+\contentsline {subsection}{\numberline {9.3}为什么这组图对正文是必要的}{25}{subsection.9.3}%
+\contentsline {section}{\numberline {10}讨论与局限性}{25}{section.10}%
+\contentsline {subsection}{\numberline {10.1}当前最强的证据是什么}{25}{subsection.10.1}%
+\contentsline {subsection}{\numberline {10.2}当前最弱的地方是什么}{25}{subsection.10.2}%
+\contentsline {subsection}{\numberline {10.3}对后续工作的直接建议}{26}{subsection.10.3}%
+\contentsline {subsection}{\numberline {10.4}当前证据链的正式汇总}{26}{subsection.10.4}%
+\contentsline {section}{\numberline {11}结论}{27}{section.11}%
+\contentsline {section}{\numberline {A}附录：补充讨论}{28}{appendix.A}%
+\contentsline {section}{\numberline {B}附录：补充图}{29}{appendix.B}%

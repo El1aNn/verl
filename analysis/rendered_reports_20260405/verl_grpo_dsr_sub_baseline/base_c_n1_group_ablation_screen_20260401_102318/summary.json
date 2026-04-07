@@ -1,0 +1,55 @@
+{
+  "selected_steps": [
+    0
+  ],
+  "token_groups": {
+    "reasoning_sparks": [
+      "but",
+      "wait",
+      "perhaps",
+      "alternatively",
+      "however"
+    ],
+    "noise": [
+      "cost",
+      "fine",
+      "balanced",
+      "ere",
+      "trans"
+    ]
+  },
+  "runs": [
+    {
+      "label": "base_c_n1_group_ablation_screen_20260401_102318",
+      "validation_dir": "/root/rl/verl/ckpts/verl_grpo_dsr_sub_baseline/base_c_n1_group_ablation_screen_20260401_102318/validation",
+      "metrics_file": "/root/rl/verl/ckpts/verl_grpo_dsr_sub_baseline/base_c_n1_group_ablation_screen_20260401_102318/metrics/verl_grpo_dsr_sub_baseline/base_c_n1_group_ablation_screen_20260401_102318.jsonl",
+      "primary_metric_key": "reward",
+      "warnings": [
+        "base_c_n1_group_ablation_screen_20260401_102318 step 0: token diagnostics cover only 64/500 samples"
+      ],
+      "steps": [
+        {
+          "step": 0,
+          "sample_count": 500,
+          "primary_metric_mean": 0.354,
+          "actor_entropy": null,
+          "token_entropy_mean": 0.7247496084310114,
+          "dumped_sample_ratio": 0.128,
+          "dumped_token_ratio": 0.24194591535631998,
+          "sampled_group_count": {
+            "reasoning_sparks": 3,
+            "noise": 3
+          },
+          "sampled_group_frequency": {
+            "reasoning_sparks": 0.00025060563027316015,
+            "noise": 0.00025060563027316015
+          },
+          "topk_low_prob_group_mean": {
+            "reasoning_sparks": 0.0017998438295549206,
+            "noise": 0.0018219415024914817
+          }
+        }
+      ]
+    }
+  ]
+}

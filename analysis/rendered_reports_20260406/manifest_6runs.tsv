@@ -1,0 +1,7 @@
+label	exp_name	model_tag	train_mode	seed	model_path	ckpts_dir	command_text
+base_c_n8_baseline	base_align_exp1_20260401_141352	BASE	oneshot	1	/root/.cache/modelscope/hub/models/Qwen/Qwen2.5-Math-1.5B	/root/rl/verl/ckpts/verl_grpo_dsr_sub_baseline/base_align_exp1_20260401_141352	-
+base_c_n1_group_ablation	base_c_n1_group_ablation_rerun180_2gpu_restart_20260405_213719	BASE	oneshot	1	/root/.cache/modelscope/hub/models/Qwen/Qwen2.5-Math-1.5B	/root/rl/verl/ckpts/verl_grpo_dsr_sub_baseline/base_c_n1_group_ablation_rerun180_2gpu_restart_20260405_213719	-
+base_d_weak_constraint	base_d_weak_constraint_20260402_003007	BASE	oneshot	1	/root/.cache/modelscope/hub/models/Qwen/Qwen2.5-Math-1.5B	/root/rl/verl/ckpts/verl_grpo_dsr_sub_baseline/base_d_weak_constraint_20260402_003007	-
+base_b_reward_shuffle	base_b_reward_shuffle_20260402_132309	BASE	oneshot	1	/root/.cache/modelscope/hub/models/Qwen/Qwen2.5-Math-1.5B	/root/rl/verl/ckpts/verl_grpo_dsr_sub_baseline/base_b_reward_shuffle_20260402_132309	-
+instruct_b_reward_shuffle	instruct_b_reward_shuffle_20260403_002727	INSTRUCT	oneshot	1	/root/.cache/modelscope/hub/models/Qwen/Qwen2.5-Math-1.5B-Instruct	/root/rl/verl/ckpts/verl_grpo_dsr_sub_baseline/instruct_b_reward_shuffle_20260403_002727	-
+instruct_c_n8_baseline	instruct_c_n8_baseline_rerun180_20260404_113902	INSTRUCT	oneshot	1	/root/.cache/modelscope/hub/models/Qwen/Qwen2.5-Math-1.5B-Instruct	/root/rl/verl/ckpts/verl_grpo_dsr_sub_baseline/instruct_c_n8_baseline_rerun180_20260404_113902	-

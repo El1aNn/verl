@@ -64,8 +64,11 @@ export RAY_ADDRESS="${RAY_GCS_ADDRESS}"
 WORKING_DIR=${WORKING_DIR:-"${PWD}"}
 RUNTIME_ENV=${RUNTIME_ENV:-"${HOME_DIR}/verl/verl/trainer/runtime_env.yaml"}
 
-# 自动检测 GPU 数量作为每节点的 GPU 数
-N_GPUS=$(nvidia-smi --query-gpu=name --format=csv,noheader | wc -l)
+# 自动检测 GPU 数量作为每节点的 GPU 数；允许外部覆盖以便复现实验条件。
+N_GPUS=${N_GPUS_OVERRIDE:-}
+if [ -z "${N_GPUS}" ]; then
+    N_GPUS=$(nvidia-smi --query-gpu=name --format=csv,noheader | wc -l)
+fi
 NNODES=${NNODES:-1}
 
 echo "Detected ${N_GPUS} GPUs. Setting trainer.n_gpus_per_node=${N_GPUS}"
@@ -158,7 +161,6 @@ echo "VAL_FILES set to: ${VAL_FILES}"
 CKPTS_DIR=${CKPTS_DIR:-"${RAY_DATA_HOME}/ckpts/${project_name}/${exp_name}"}
 
 RESUME_FROM=${RESUME_FROM:-""}
-RESUME_FROM="" 
 if [ -n "$RESUME_FROM" ]; then
     echo "Resuming from checkpoint: ${RESUME_FROM}"
     RESUME_ARGS="trainer.resume_mode=resume_path trainer.resume_from_path=${RESUME_FROM}"

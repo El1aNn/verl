@@ -1,0 +1,176 @@
+\usepackage[a4paper,margin=2.4cm]{geometry}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{setspace}
+\usepackage{float}
+\usepackage{xcolor}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{enumitem}
+\usepackage{threeparttable}
+\usepackage{hyperref}
+\usepackage{fancyhdr}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\usepgfplotslibrary{groupplots}
+\pgfplotsset{compat=1.18}
+
+\graphicspath{{figures/}}
+\captionsetup{font=small,labelfont=bf}
+\setlength{\parindent}{2em}
+\setlength{\parskip}{0.35em}
+\setlength{\emergencystretch}{2em}
+\linespread{1.22}
+\setlist[itemize]{leftmargin=1.8em,itemsep=0.2em,topsep=0.35em}
+\setlist[enumerate]{leftmargin=1.8em,itemsep=0.2em,topsep=0.35em}
+\hypersetup{colorlinks=true,linkcolor=blue!50!black,urlcolor=blue!60!black,citecolor=blue!50!black}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{1-shot GRPO Report}
+\fancyhead[R]{\thepage}
+\setlength{\headheight}{15pt}
+
+\definecolor{BaseBlue}{HTML}{1F5F8B}
+\definecolor{BaseOrange}{HTML}{C56A2D}
+\definecolor{BaseGreen}{HTML}{2A7F62}
+\definecolor{BaseRed}{HTML}{AA3F39}
+\definecolor{InstrTeal}{HTML}{2C7A7B}
+\definecolor{InstrGold}{HTML}{B58227}
+\definecolor{GridGray}{HTML}{D9D9D9}
+
+\newcommand{\ModelBase}{Qwen2.5-Math-1.5B}
+\newcommand{\ModelInstruct}{Qwen2.5-Math-1.5B-Instruct}
+\newcommand{\EvalSet}{MATH500}
+
+\pgfplotsset{
+  report axis/.style={
+    width=\textwidth,
+    height=7.0cm,
+    grid=both,
+    grid style={draw=GridGray, line width=0.2pt},
+    major grid style={draw=GridGray, line width=0.35pt},
+    tick align=outside,
+    tick style={black!70},
+    xlabel={Training step},
+    ylabel={Value},
+    xmin=0,
+    xmax=180,
+    xtick={0,30,60,90,120,150,180},
+    legend cell align=left,
+    legend style={font=\small,draw=none,fill=none},
+    label style={font=\small},
+    tick label style={font=\small},
+    title style={font=\small},
+    line join=round,
+  }
+}
+
+\newcommand{\PlotAllScoreCurves}{%
+\begin{tikzpicture}
+\begin{axis}[
+  report axis,
+  ylabel={Validation score},
+  ymin=0.32,
+  ymax=0.74,
+  legend columns=2,
+  legend pos=south east
+]
+\addplot[BaseBlue, line width=1.35pt] table[x=step,y=BaseCN8,col sep=comma]{data/score-curves-all.csv};
+\addplot[BaseOrange, line width=1.35pt, dashed] table[x=step,y=BaseCN1,col sep=comma]{data/score-curves-all.csv};
+\addplot[BaseGreen, line width=1.35pt, dashdotted] table[x=step,y=BaseWeak,col sep=comma]{data/score-curves-all.csv};
+\addplot[BaseRed, line width=1.35pt, dotted] table[x=step,y=BaseShuffle,col sep=comma]{data/score-curves-all.csv};
+\addplot[InstrGold, line width=1.35pt, dashed] table[x=step,y=InstrShuffle,col sep=comma]{data/score-curves-all.csv};
+\addplot[InstrTeal, line width=1.35pt] table[x=step,y=InstrCN8,col sep=comma]{data/score-curves-all.csv};
+\legend{Base baseline, Base small-group, Base weak-reg., Base nominal control, Instruct nominal control, Instruct baseline}
+\end{axis}
+\end{tikzpicture}%
+}
+
+\newcommand{\PlotBaseScoreCurves}{%
+\begin{tikzpicture}
+\begin{axis}[
+  report axis,
+  ylabel={Validation score},
+  ymin=0.32,
+  ymax=0.62,
+  legend pos=south east
+]
+\addplot[BaseBlue, line width=1.35pt] table[x=step,y=BaseCN8,col sep=comma]{data/score-curves-base.csv};
+\addplot[BaseOrange, line width=1.35pt, dashed] table[x=step,y=BaseCN1,col sep=comma]{data/score-curves-base.csv};
+\addplot[BaseGreen, line width=1.35pt, dashdotted] table[x=step,y=BaseWeak,col sep=comma]{data/score-curves-base.csv};
+\addplot[BaseRed, line width=1.35pt, dotted] table[x=step,y=BaseShuffle,col sep=comma]{data/score-curves-base.csv};
+\legend{Base baseline, Base small-group, Base weak-reg., Base nominal control}
+\end{axis}
+\end{tikzpicture}%
+}
+
+\newcommand{\PlotInstructScoreCurves}{%
+\begin{tikzpicture}
+\begin{axis}[
+  report axis,
+  ylabel={Validation score},
+  ymin=0.67,
+  ymax=0.705,
+  legend pos=south east
+]
+\addplot[InstrGold, line width=1.35pt, dashed] table[x=step,y=InstrShuffle,col sep=comma]{data/score-curves-instruct.csv};
+\addplot[InstrTeal, line width=1.35pt] table[x=step,y=InstrCN8,col sep=comma]{data/score-curves-instruct.csv};
+\legend{Instruct nominal control, Instruct baseline}
+\end{axis}
+\end{tikzpicture}%
+}
+
+\newcommand{\PlotBaseBehaviorCurves}{%
+\begin{tikzpicture}
+\begin{groupplot}[
+  group style={group size=2 by 2, horizontal sep=1.8cm, vertical sep=1.6cm},
+  width=0.46\textwidth,
+  height=5.4cm,
+  grid=both,
+  grid style={draw=GridGray, line width=0.2pt},
+  major grid style={draw=GridGray, line width=0.35pt},
+  tick align=outside,
+  xmin=0,
+  xmax=180,
+  xtick={0,60,120,180},
+  xlabel={Training step},
+  legend style={font=\scriptsize,draw=none,fill=none},
+  label style={font=\small},
+  tick label style={font=\scriptsize},
+  title style={font=\small},
+]
+\nextgroupplot[title={Response length}, ylabel={Tokens}]
+\addplot[BaseBlue, line width=1.1pt] table[x=step,y=BaseCN8,col sep=comma]{data/base-length-curves.csv};
+\addplot[BaseOrange, line width=1.1pt, dashed] table[x=step,y=BaseCN1,col sep=comma]{data/base-length-curves.csv};
+\addplot[BaseGreen, line width=1.1pt, dashdotted] table[x=step,y=BaseWeak,col sep=comma]{data/base-length-curves.csv};
+\addplot[BaseRed, line width=1.1pt, dotted] table[x=step,y=BaseShuffle,col sep=comma]{data/base-length-curves.csv};
+\legend{Base baseline, Base small-group, Base weak-reg., Base nominal control}
+
+\nextgroupplot[title={Token entropy}, ylabel={Entropy}]
+\addplot[BaseBlue, line width=1.1pt] table[x=step,y=BaseCN8,col sep=comma]{data/base-entropy-curves.csv};
+\addplot[BaseOrange, line width=1.1pt, dashed] table[x=step,y=BaseCN1,col sep=comma]{data/base-entropy-curves.csv};
+\addplot[BaseGreen, line width=1.1pt, dashdotted] table[x=step,y=BaseWeak,col sep=comma]{data/base-entropy-curves.csv};
+\addplot[BaseRed, line width=1.1pt, dotted] table[x=step,y=BaseShuffle,col sep=comma]{data/base-entropy-curves.csv};
+
+\nextgroupplot[title={Low-confidence ratio}, ylabel={Ratio}]
+\addplot[BaseBlue, line width=1.1pt] table[x=step,y=BaseCN8,col sep=comma]{data/base-low-conf-curves.csv};
+\addplot[BaseOrange, line width=1.1pt, dashed] table[x=step,y=BaseCN1,col sep=comma]{data/base-low-conf-curves.csv};
+\addplot[BaseGreen, line width=1.1pt, dashdotted] table[x=step,y=BaseWeak,col sep=comma]{data/base-low-conf-curves.csv};
+\addplot[BaseRed, line width=1.1pt, dotted] table[x=step,y=BaseShuffle,col sep=comma]{data/base-low-conf-curves.csv};
+
+\nextgroupplot[title={Final EOS probability}, ylabel={Probability}]
+\addplot[BaseBlue, line width=1.1pt] table[x=step,y=BaseCN8,col sep=comma]{data/base-eos-curves.csv};
+\addplot[BaseOrange, line width=1.1pt, dashed] table[x=step,y=BaseCN1,col sep=comma]{data/base-eos-curves.csv};
+\addplot[BaseGreen, line width=1.1pt, dashdotted] table[x=step,y=BaseWeak,col sep=comma]{data/base-eos-curves.csv};
+\addplot[BaseRed, line width=1.1pt, dotted] table[x=step,y=BaseShuffle,col sep=comma]{data/base-eos-curves.csv};
+\end{groupplot}
+\end{tikzpicture}%
+}
+
+\newcommand{\tightparagraph}[1]{\vspace{0.4em}\noindent\textbf{#1}\ }

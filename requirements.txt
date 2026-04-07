@@ -5,6 +5,7 @@ datasets
 dill
 hydra-core
 liger-kernel
+click==8.1.8
 numpy<2.0.0
 pandas
 peft

@@ -1,0 +1,26 @@
+{
+  "formal_label": "Instruct nominal control condition",
+  "run_name": "instruct_b_reward_shuffle_20260403_002727",
+  "run_id": "36jz6dyl5w510dkl2mff2",
+  "resolved_keys": {
+    "training_global_step": "training/global_step",
+    "actor_entropy": "actor/entropy",
+    "actor_kl_loss": "actor/kl_loss",
+    "actor_ppo_kl": "actor/ppo_kl",
+    "actor_pg_loss": "actor/pg_loss",
+    "train_response_length_mean": "response_length/mean",
+    "val_reward_mean": "val-core/math500/reward/mean@8",
+    "val_reward_pass1": "val-core/math500/reward/pass@1",
+    "val_reward_pass8": "val-core/math500/reward/pass@8",
+    "val_reward_best8_mean": "val-core/math500/reward/best@8/mean",
+    "val_aux_response_length_mean": "val-aux/math500/response_length/mean@8",
+    "val_token_entropy_mean": "val-token/math500/summary/token_entropy_mean",
+    "val_low_confidence_ratio": "val-token/math500/summary/low_confidence_token_ratio",
+    "val_token_response_length_mean": "val-token/math500/summary/response_length_mean",
+    "val_top1_prob_mean": "val-token/math500/summary/top1_prob_mean",
+    "val_eos_prob_mean": "val-token/math500/summary/eos_prob_mean",
+    "val_topk_mass_mean": "val-token/math500/summary/topk_mass_mean",
+    "val_analyzed_samples": "val-token/math500/summary/analyzed_samples",
+    "val_analyzed_sample_fraction": "val-token/math500/summary/analyzed_sample_fraction"
+  }
+}

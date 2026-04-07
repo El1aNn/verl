@@ -4,6 +4,7 @@ codetiming
 datasets
 dill
 hydra-core
+click==8.1.8
 numpy<2.0.0
 pandas
 peft>=0.15.2

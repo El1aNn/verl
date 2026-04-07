@@ -1,0 +1,861 @@
+formal_label,run_name,run_id,step,training_global_step,actor_entropy
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,0,,
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,1,1.0,0.3455305397510528
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,2,2.0,0.4399823844432831
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,3,3.0,0.4436939656734466
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,4,4.0,0.3661771416664123
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,5,5.0,0.3692652583122253
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,6,6.0,0.3358620405197143
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,7,7.0,0.3030526041984558
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,8,8.0,0.285564124584198
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,9,9.0,0.36914724111557
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,10,10.0,0.3109761476516723
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,11,11.0,0.3361073732376098
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,12,12.0,0.3082064986228943
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,13,13.0,0.2862798571586609
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,14,14.0,0.2785075604915619
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,15,15.0,0.2337559014558792
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,16,16.0,0.2427216917276382
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,17,17.0,0.2473438084125518
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,18,18.0,0.2039351612329483
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,19,19.0,0.2152645587921142
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,20,20.0,0.2076829224824905
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,21,21.0,0.2214575111865997
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,22,22.0,0.1818163692951202
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,23,23.0,0.185282826423645
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,24,24.0,0.167300283908844
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,25,25.0,0.1697885990142822
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,26,26.0,0.1524195969104766
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,27,27.0,0.1516104489564895
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,28,28.0,0.1480681598186493
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,29,29.0,0.1501433849334716
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,30,30.0,0.2003516107797622
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,31,31.0,0.1524740904569626
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,32,32.0,0.1425280272960662
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,33,33.0,0.1510598808526992
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,34,34.0,0.1402254998683929
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,35,35.0,0.1387497037649154
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,36,36.0,0.1347865462303161
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,37,37.0,0.133776843547821
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,38,38.0,0.1425729990005493
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,39,39.0,0.1356109380722046
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,40,40.0,0.1419957429170608
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,41,41.0,0.1309947520494461
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,42,42.0,0.1346390694379806
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,43,43.0,0.1305647641420364
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,44,44.0,0.1284130960702896
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,45,45.0,0.1367716193199157
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,46,46.0,0.1336818635463714
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,47,47.0,0.1257020682096481
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,48,48.0,0.1278594732284546
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,49,49.0,0.1355453580617904
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,50,50.0,0.130728930234909
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,51,51.0,0.1250381767749786
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,52,52.0,0.1442138105630874
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,53,53.0,0.1256172806024551
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,54,54.0,0.1287775337696075
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,55,55.0,0.1293215602636337
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,56,56.0,0.1250806599855423
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,57,57.0,0.1338633596897125
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,58,58.0,0.1223786696791648
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,59,59.0,0.1243346109986305
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,60,60.0,0.1211538612842559
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,61,61.0,0.1239823624491691
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,62,62.0,0.1181300356984138
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,63,63.0,0.1141141280531883
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,64,64.0,0.1162914112210273
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,65,65.0,0.1156683638691902
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,66,66.0,0.1242588236927986
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,67,67.0,0.1128577664494514
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,68,68.0,0.1177046597003936
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,69,69.0,0.1221786141395568
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,70,70.0,0.1186784952878952
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,71,71.0,0.1157891452312469
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,72,72.0,0.1157024875283241
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,73,73.0,0.1243664845824241
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,74,74.0,0.1175143122673034
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,75,75.0,0.1108773425221443
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,76,76.0,0.1111143678426742
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,77,77.0,0.1093501299619674
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,78,78.0,0.1134970411658287
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,79,79.0,0.1235610246658325
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,80,80.0,0.1135201603174209
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,81,81.0,0.1126443147659301
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,82,82.0,0.112692728638649
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,83,83.0,0.1119965836405754
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,84,84.0,0.1148592978715896
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,85,85.0,0.1159394681453704
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,86,86.0,0.1123106330633163
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,87,87.0,0.1167494505643844
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,88,88.0,0.1084497198462486
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,89,89.0,0.1168176159262657
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,90,90.0,0.1135720461606979
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,91,91.0,0.114736370742321
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,92,92.0,0.1125576794147491
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,93,93.0,0.1169365793466568
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,94,94.0,0.1115790978074073
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,95,95.0,0.11154305934906
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,96,96.0,0.1104427203536033
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,97,97.0,0.1129715889692306
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,98,98.0,0.1138880103826522
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,99,99.0,0.1114373505115509
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,100,100.0,0.1103826910257339
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,101,101.0,0.1126465424895286
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,102,102.0,0.1097824573516845
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,103,103.0,0.113049991428852
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,104,104.0,0.1087869927287101
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,105,105.0,0.1103767678141594
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,106,106.0,0.1139187663793563
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,107,107.0,0.1144506484270095
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,108,108.0,0.1107422783970832
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,109,109.0,0.1077946946024894
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,110,110.0,0.1054065749049186
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,111,111.0,0.115112081170082
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,112,112.0,0.1129461824893951
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,113,113.0,0.1059875339269638
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,114,114.0,0.1088889017701149
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,115,115.0,0.1531486809253692
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,116,116.0,0.1219576299190521
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,117,117.0,0.1100208312273025
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,118,118.0,0.1104665920138359
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,119,119.0,0.1079870983958244
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,120,120.0,0.1121464520692825
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,121,121.0,0.1101776883006096
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,122,122.0,0.1109492108225822
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,123,123.0,0.1316707134246826
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,124,124.0,0.1111515164375305
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,125,125.0,0.1097094416618347
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,126,126.0,0.1100986003875732
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,127,127.0,0.1107283905148506
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,128,128.0,0.1105219796299934
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,129,129.0,0.111468032002449
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,130,130.0,0.1098532527685165
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,131,131.0,0.108125127851963
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,132,132.0,0.115331582725048
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,133,133.0,0.1079815030097961
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,134,134.0,0.1102239340543747
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,135,135.0,0.1062133610248565
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,136,136.0,0.109169028699398
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,137,137.0,0.1154078245162964
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,138,138.0,0.1094063892960548
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,139,139.0,0.1077877506613731
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,140,140.0,0.11684250831604
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,141,141.0,0.1124154850840568
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,142,142.0,0.105414368212223
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,143,143.0,0.1072140038013458
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,144,144.0,0.1064458787441253
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,145,145.0,0.1083744466304779
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,146,146.0,0.1154200732707977
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,147,147.0,0.1094446554780006
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,148,148.0,0.1063786447048187
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,149,149.0,0.1140555739402771
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,150,150.0,0.1083591729402542
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,151,151.0,0.1099485382437706
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,152,152.0,0.1114038601517677
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,153,153.0,0.1114741489291191
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,154,154.0,0.1092646643519401
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,155,155.0,0.1091113835573196
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,156,156.0,0.1060921028256416
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,157,157.0,0.1099224686622619
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,158,158.0,0.1159116551280021
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,159,159.0,0.1085595712065696
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,160,160.0,0.1100329458713531
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,161,161.0,0.1085609719157219
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,162,162.0,0.1117981374263763
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,163,163.0,0.1070374995470047
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,164,164.0,0.1106224283576011
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,165,165.0,0.1084907278418541
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,166,166.0,0.1068784892559051
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,167,167.0,0.1077403649687767
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,168,168.0,0.113872542977333
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,169,169.0,0.110542893409729
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,170,170.0,0.1107256859540939
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,171,171.0,0.1089420691132545
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,172,172.0,0.1104970499873161
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,173,173.0,0.1091829538345336
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,174,174.0,0.1107713803648948
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,175,175.0,0.1102688312530517
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,176,176.0,0.1097207888960838
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,177,177.0,0.112354040145874
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,178,178.0,0.1153140738606453
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,179,179.0,0.1161022707819938
+Base baseline (n=8),base_align_exp1_20260401_141352,refyqg089cx5qvp3g7zbo,180,180.0,0.1162291392683982
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,0,,
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,1,1.0,0.6408476233482361
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,2,2.0,0.3603676557540893
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,3,3.0,0.2779013514518738
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,4,4.0,0.401196539402008
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,5,5.0,0.309986799955368
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,6,6.0,0.3282959759235382
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,8,8.0,0.3392560184001922
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,9,9.0,0.4682551920413971
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,10,10.0,0.291050910949707
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,11,11.0,0.3480955958366394
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,13,13.0,0.7613453269004822
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,14,14.0,0.4319715797901153
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,15,15.0,0.3026875853538513
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,17,17.0,0.2515631020069122
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,18,18.0,0.2497216463088989
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,19,19.0,0.3454320132732391
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,20,20.0,0.3179837763309479
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,21,21.0,0.3233791589736938
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,22,22.0,0.2756687104701996
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,23,23.0,0.4923546016216278
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,24,24.0,0.2684514820575714
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,25,25.0,0.2779945135116577
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,27,27.0,0.2480022609233856
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,28,28.0,0.1995377093553543
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,29,29.0,0.3221673667430877
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,31,31.0,0.1937109529972076
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,32,32.0,0.2668477892875671
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,33,33.0,0.2172037661075592
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,34,34.0,0.2341112792491912
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,35,35.0,0.1838327199220657
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,36,36.0,0.1719955950975418
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,37,37.0,0.1957141160964965
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,38,38.0,0.1856388300657272
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,39,39.0,0.1820791810750961
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,40,40.0,0.1763007193803787
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,41,41.0,0.1570075154304504
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,42,42.0,0.1844371408224105
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,43,43.0,0.1752366423606872
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,46,46.0,0.1775265485048294
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,47,47.0,0.16825932264328
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,48,48.0,0.190166637301445
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,49,49.0,0.1486768871545791
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,50,50.0,0.1366329044103622
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,53,53.0,0.1411698460578918
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,55,55.0,0.1395556330680847
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,57,57.0,0.137084886431694
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,59,59.0,0.1277735233306884
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,60,60.0,0.1443925350904464
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,61,61.0,0.1241528987884521
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,62,62.0,0.1432938128709793
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,64,64.0,0.13230861723423
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,67,67.0,0.1436929851770401
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,68,68.0,0.1346254497766494
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,69,69.0,0.1551308184862136
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,71,71.0,0.1286489069461822
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,72,72.0,0.122198961675167
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,73,73.0,0.1610726863145828
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,74,74.0,0.1450008302927017
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,80,80.0,0.115180142223835
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,81,81.0,0.1146641373634338
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,82,82.0,0.1402247697114944
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,86,86.0,0.1151859611272812
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,87,87.0,0.1159303560853004
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,90,90.0,0.1239844560623169
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,91,91.0,0.1109945103526115
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,92,92.0,0.1277390569448471
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,94,94.0,0.1367809325456619
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,95,95.0,0.1326049715280532
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,96,96.0,0.1238865107297897
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,99,99.0,0.1184108406305313
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,100,100.0,0.1286446154117584
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,101,101.0,0.1176409274339676
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,102,102.0,0.1155166253447532
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,103,103.0,0.1169636771082878
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,105,105.0,0.1163809970021248
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,106,106.0,0.1257568448781967
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,107,107.0,0.1155376359820366
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,108,108.0,0.134440615773201
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,109,109.0,0.117524467408657
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,111,111.0,0.1238554716110229
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,112,112.0,0.1316230744123459
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,113,113.0,0.1245264336466789
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,114,114.0,0.1182997077703476
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,116,116.0,0.1107013002038002
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,117,117.0,0.1302651464939117
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,119,119.0,0.1108165830373764
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,120,120.0,0.1246965453028678
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,122,122.0,0.1092200055718422
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,123,123.0,0.1097393929958343
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,124,124.0,0.1086373925209045
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,125,125.0,0.1127051711082458
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,126,126.0,0.1087336242198944
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,129,129.0,0.11223766207695
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,130,130.0,0.1073540672659874
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,131,131.0,0.1064945384860038
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,132,132.0,0.1109355613589286
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,133,133.0,0.1147005930542946
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,135,135.0,0.1237351521849632
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,136,136.0,0.1010078489780426
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,137,137.0,0.1056954115629196
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,138,138.0,0.0987942889332771
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,139,139.0,0.0988583788275718
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,140,140.0,0.096670389175415
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,142,142.0,0.0972159579396248
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,143,143.0,0.0998904034495353
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,144,144.0,0.1006868407130241
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,146,146.0,0.0970617830753326
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,148,148.0,0.1225105971097946
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,149,149.0,0.0953984335064888
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,150,150.0,0.1035256534814834
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,151,151.0,0.0972532406449318
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,152,152.0,0.1012527793645858
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,153,153.0,0.0971668064594268
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,154,154.0,0.0934219360351562
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,155,155.0,0.0928291827440261
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,156,156.0,0.0898481532931327
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,157,157.0,0.0933328568935394
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,158,158.0,0.0930708721280098
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,159,159.0,0.0987188443541526
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,160,160.0,0.1059014126658439
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,161,161.0,0.1055570095777511
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,162,162.0,0.0921260267496109
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,163,163.0,0.1034129187464714
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,164,164.0,0.0861224010586738
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,167,167.0,0.0894131064414978
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,168,168.0,0.0964970514178276
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,171,171.0,0.1044362783432006
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,172,172.0,0.0910757258534431
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,173,173.0,0.0829688534140586
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,174,174.0,0.1186742112040519
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,175,175.0,0.0876375958323478
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,176,176.0,0.0815261080861091
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,177,177.0,0.0917206183075904
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,178,178.0,0.0849566906690597
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,179,179.0,0.0826132968068122
+Base small-group ablation (n=1),base_c_n1_val8_align_exp1_2gpu_20260406_195153,04bw3n5xqk9h3gla7imi9,180,180.0,0.0845555886626243
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,0,,
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,1,1.0,0.3455305397510528
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,2,2.0,0.3553726077079773
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,3,3.0,0.3939868807792664
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,4,4.0,0.408247709274292
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,5,5.0,0.3499517738819122
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,6,6.0,0.3858982920646667
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,7,7.0,0.2954252958297729
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,8,8.0,0.3295895755290985
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,9,9.0,0.3460823893547058
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,10,10.0,0.3753516376018524
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,11,11.0,0.2837252020835876
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,12,12.0,0.2595750987529754
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,13,13.0,0.2726920247077942
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,14,14.0,0.2839458882808685
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,15,15.0,0.2627362012863159
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,16,16.0,0.2320944368839264
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,17,17.0,0.2220049798488617
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,18,18.0,0.2554158866405487
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,19,19.0,0.2169364988803863
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,20,20.0,0.2306690663099289
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,21,21.0,0.2341560870409012
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,22,22.0,0.1907547116279602
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,23,23.0,0.1772466301918029
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,24,24.0,0.171433538198471
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,25,25.0,0.170351356267929
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,26,26.0,0.1645254641771316
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,27,27.0,0.1726542711257934
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,28,28.0,0.1523488610982895
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,29,29.0,0.1566343605518341
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,30,30.0,0.153941810131073
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,31,31.0,0.1503962576389312
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,32,32.0,0.1379765570163726
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,33,33.0,0.1437024772167205
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,34,34.0,0.162282183766365
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,35,35.0,0.1427823007106781
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,36,36.0,0.1421889960765838
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,37,37.0,0.1399946957826614
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,38,38.0,0.136912852525711
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,39,39.0,0.1330229043960571
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,40,40.0,0.1305845379829406
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,41,41.0,0.1526668220758438
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,42,42.0,0.1335647851228714
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,43,43.0,0.1405235677957534
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,44,44.0,0.1310116052627563
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,45,45.0,0.1415674984455108
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,46,46.0,0.1289983689785003
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,47,47.0,0.1395985037088394
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,48,48.0,0.1299913376569748
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,49,49.0,0.1318661272525787
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,50,50.0,0.1281709372997284
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,51,51.0,0.1270177066326141
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,52,52.0,0.165772795677185
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,53,53.0,0.1396794021129608
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,54,54.0,0.1272510886192321
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,55,55.0,0.1235594823956489
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,56,56.0,0.1303942501544952
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,57,57.0,0.1332834959030151
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,58,58.0,0.1231805831193924
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,59,59.0,0.1549150645732879
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,60,60.0,0.1196914613246917
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,61,61.0,0.1200310066342353
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,62,62.0,0.1224038749933242
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,63,63.0,0.125003308057785
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,64,64.0,0.1185344755649566
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,65,65.0,0.122491106390953
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,66,66.0,0.1194924712181091
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,67,67.0,0.121549405157566
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,68,68.0,0.1141435280442238
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,69,69.0,0.1254516094923019
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,70,70.0,0.1175427809357643
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,71,71.0,0.1129697635769844
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,72,72.0,0.1152128800749778
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,73,73.0,0.1146643310785293
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,74,74.0,0.1125259324908256
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,75,75.0,0.1211324781179428
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,76,76.0,0.1208045482635498
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,77,77.0,0.1146662086248397
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,78,78.0,0.1139248758554458
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,79,79.0,0.1183323189616203
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,80,80.0,0.1211246699094772
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,81,81.0,0.1120528504252433
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,82,82.0,0.1144386827945709
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,83,83.0,0.1151701509952545
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,84,84.0,0.1123344376683235
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,85,85.0,0.1104659363627433
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,86,86.0,0.109015591442585
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,87,87.0,0.1145917251706123
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,88,88.0,0.1122639700770378
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,89,89.0,0.1103909164667129
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,90,90.0,0.1136214360594749
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,91,91.0,0.1107103675603866
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,92,92.0,0.1087188944220542
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,93,93.0,0.1119202226400375
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,94,94.0,0.1098785698413848
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,95,95.0,0.107337549328804
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,96,96.0,0.1085785254836082
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,97,97.0,0.1093707457184791
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,98,98.0,0.109768345952034
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,99,99.0,0.1122512072324752
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,100,100.0,0.1097558960318565
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,101,101.0,0.108680747449398
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,102,102.0,0.1093989983201026
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,103,103.0,0.1044280007481575
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,104,104.0,0.1148879155516624
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,105,105.0,0.1069637313485145
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,106,106.0,0.105677843093872
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,107,107.0,0.1072694733738899
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,108,108.0,0.1060054153203964
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,109,109.0,0.1072315350174904
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,110,110.0,0.1037291511893272
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,111,111.0,0.1049700379371643
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,112,112.0,0.1052219569683075
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,113,113.0,0.1045270413160324
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,114,114.0,0.1033991277217865
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,115,115.0,0.1044964790344238
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,116,116.0,0.1010660007596016
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,117,117.0,0.1029615849256515
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,118,118.0,0.100935012102127
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,119,119.0,0.1099531725049018
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,120,120.0,0.0994271785020828
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,121,121.0,0.0981670916080474
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,122,122.0,0.1060561910271644
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,123,123.0,0.0996797904372215
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,124,124.0,0.1009023860096931
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,125,125.0,0.0978294163942337
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,126,126.0,0.0979020968079567
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,127,127.0,0.0975003913044929
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,128,128.0,0.0991050228476524
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,129,129.0,0.0971168354153633
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,130,130.0,0.0972660556435585
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,131,131.0,0.0976183712482452
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,132,132.0,0.1006181687116622
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,133,133.0,0.1006953045725822
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,134,134.0,0.098427802324295
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,135,135.0,0.0967542827129364
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,136,136.0,0.0968631729483604
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,137,137.0,0.0950556918978691
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,138,138.0,0.0955703631043434
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,139,139.0,0.094875156879425
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,140,140.0,0.0965196713805198
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,141,141.0,0.1151028573513031
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,142,142.0,0.096265323460102
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,143,143.0,0.0995386093854904
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,144,144.0,0.0976243391633033
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,145,145.0,0.0966342836618423
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,146,146.0,0.0961625501513481
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,147,147.0,0.0983270853757858
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,148,148.0,0.0941046476364135
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,149,149.0,0.0924372673034668
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,150,150.0,0.093531921505928
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,151,151.0,0.0927185639739036
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,152,152.0,0.1093570366501808
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,153,153.0,0.0934913977980613
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,154,154.0,0.0936686471104622
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,155,155.0,0.0938881114125251
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,156,156.0,0.0910915955901146
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,157,157.0,0.0925843194127082
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,158,158.0,0.0895806699991226
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,159,159.0,0.0910109356045723
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,160,160.0,0.0903900191187858
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,161,161.0,0.0926330983638763
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,162,162.0,0.0917924270033836
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,163,163.0,0.0944915115833282
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,164,164.0,0.0915667340159416
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,165,165.0,0.0893451198935508
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,166,166.0,0.0899827778339386
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,167,167.0,0.0918881967663765
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,168,168.0,0.0928664728999138
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,169,169.0,0.0904039293527603
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,170,170.0,0.0913760811090469
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,171,171.0,0.0880522057414054
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,172,172.0,0.0909252613782882
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,173,173.0,0.1074988692998886
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,174,174.0,0.0883117765188217
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,175,175.0,0.0899380818009376
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,176,176.0,0.0894689112901687
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,177,177.0,0.0901733487844467
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,178,178.0,0.0895723402500152
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,179,179.0,0.0915527045726776
+Base weak-regularization variant,base_d_weak_constraint_20260402_003007,rq4nirwa1qsaynipprodn,180,180.0,0.0907386690378189
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,0,,
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,1,1.0,0.1181448027491569
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,2,2.0,0.0982692837715148
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,3,3.0,0.1066767498850822
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,4,4.0,0.1179610639810562
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,5,5.0,0.1214019209146499
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,6,6.0,0.0987802520394325
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,7,7.0,0.1421334743499756
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,8,8.0,0.0888377428054809
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,9,9.0,0.0884327739477157
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,10,10.0,0.0850780978798866
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,11,11.0,0.0652403309941291
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,12,12.0,0.0948140025138855
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,13,13.0,0.0672059953212738
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,14,14.0,0.0696365758776664
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,15,15.0,0.0672146156430244
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,16,16.0,0.0663921386003494
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,17,17.0,0.0648279041051864
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,18,18.0,0.0688536614179611
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,19,19.0,0.0632660314440727
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,20,20.0,0.0652846544981002
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,21,21.0,0.0605346672236919
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,22,22.0,0.0608586333692073
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,23,23.0,0.0609052069485187
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,24,24.0,0.0624712444841861
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,25,25.0,0.0611244738101959
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,26,26.0,0.05906792730093
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,27,27.0,0.0644896104931831
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,28,28.0,0.0596983395516872
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,29,29.0,0.0598139539361
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,30,30.0,0.0656980946660041
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,31,31.0,0.0575064979493618
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,32,32.0,0.0580066815018653
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,33,33.0,0.0615371949970722
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,34,34.0,0.0598139055073261
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,35,35.0,0.0598345100879669
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,36,36.0,0.060176957398653
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,37,37.0,0.0572712011635303
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,38,38.0,0.0672237947583198
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,39,39.0,0.0587750002741813
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,40,40.0,0.0608209073543548
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,41,41.0,0.0622890405356884
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,42,42.0,0.057812463492155
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,43,43.0,0.0818553492426872
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,44,44.0,0.0573048330843448
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,45,45.0,0.0573853924870491
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,46,46.0,0.0571480169892311
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,47,47.0,0.0618761107325553
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,48,48.0,0.0576722472906112
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,49,49.0,0.0565187558531761
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,50,50.0,0.0578622706234455
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,51,51.0,0.0573363974690437
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,52,52.0,0.0596600361168384
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,53,53.0,0.0569047853350639
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,54,54.0,0.0602422170341014
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,55,55.0,0.0578717850148677
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,56,56.0,0.0618095360696315
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,57,57.0,0.06022909283638
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,58,58.0,0.0579308271408081
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,59,59.0,0.0577430576086044
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,60,60.0,0.0609671398997306
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,61,61.0,0.0578573085367679
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,62,62.0,0.0590473040938377
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,63,63.0,0.0606799982488155
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,64,64.0,0.0557736083865165
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,65,65.0,0.0574978180229663
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,66,66.0,0.056662879884243
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,67,67.0,0.059678815305233
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,68,68.0,0.0593108646571636
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,69,69.0,0.0568857938051223
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,70,70.0,0.0563796572387218
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,71,71.0,0.0573223307728767
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,72,72.0,0.0574702285230159
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,73,73.0,0.0571795590221881
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,74,74.0,0.0577050298452377
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,75,75.0,0.0576593689620494
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,76,76.0,0.0567195825278759
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,77,77.0,0.0573271326720714
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,78,78.0,0.0581938438117504
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,79,79.0,0.057803064584732
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,80,80.0,0.0571134649217128
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,81,81.0,0.0760343894362449
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,82,82.0,0.0641757249832153
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,83,83.0,0.058911882340908
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,84,84.0,0.05818348005414
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,85,85.0,0.0582390651106834
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,86,86.0,0.0619295723736286
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,87,87.0,0.0589570254087448
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,88,88.0,0.0580402500927448
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,89,89.0,0.064482107758522
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,90,90.0,0.0752276107668876
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,91,91.0,0.0565450564026832
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,92,92.0,0.05939781665802
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,93,93.0,0.0572880618274211
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,94,94.0,0.0573410391807556
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,95,95.0,0.058806475251913
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,96,96.0,0.0580536238849163
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,97,97.0,0.0591241940855979
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,98,98.0,0.058662511408329
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,99,99.0,0.0619596131145954
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,100,100.0,0.0632026642560958
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,101,101.0,0.0573261976242065
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,102,102.0,0.0642117485404014
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,103,103.0,0.0575125738978385
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,104,104.0,0.065033845603466
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,105,105.0,0.0598682016134262
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,106,106.0,0.0588272735476493
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,107,107.0,0.0724374875426292
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,108,108.0,0.0610355138778686
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,109,109.0,0.0603730157017707
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,110,110.0,0.0608514286577701
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,111,111.0,0.0587299056351184
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,112,112.0,0.0598891824483871
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,113,113.0,0.0596837289631366
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,114,114.0,0.0587057508528232
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,115,115.0,0.0592204630374908
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,116,116.0,0.0600385926663875
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,117,117.0,0.0584754049777984
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,118,118.0,0.0606202594935894
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,119,119.0,0.0576952882111072
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,120,120.0,0.0628241375088691
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,121,121.0,0.0599599741399288
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,122,122.0,0.0642305314540863
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,123,123.0,0.0600216202437877
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,124,124.0,0.0601595491170883
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,125,125.0,0.060665238648653
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,126,126.0,0.0582175999879837
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,127,127.0,0.0593335665762424
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,128,128.0,0.0589505098760128
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,129,129.0,0.0597015805542469
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,130,130.0,0.0610033012926578
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,131,131.0,0.060514610260725
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,132,132.0,0.0630086511373519
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,133,133.0,0.0608353652060031
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,134,134.0,0.0599627904593944
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,135,135.0,0.0610354356467723
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,136,136.0,0.0611127577722072
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,137,137.0,0.0611733086407184
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,138,138.0,0.0586925223469734
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,139,139.0,0.0609937496483325
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,140,140.0,0.0750358402729034
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,141,141.0,0.0608981810510158
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,142,142.0,0.0614280365407466
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,143,143.0,0.0597422458231449
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,144,144.0,0.0612907521426677
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,145,145.0,0.060795422643423
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,146,146.0,0.0608324594795703
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,147,147.0,0.0607850775122642
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,148,148.0,0.0603524856269359
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,149,149.0,0.0636666566133499
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,150,150.0,0.060988251119852
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,151,151.0,0.061840496957302
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,152,152.0,0.0608592368662357
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,153,153.0,0.0613589212298393
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,154,154.0,0.0614457577466964
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,155,155.0,0.0614317171275615
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,156,156.0,0.0603261105716228
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,157,157.0,0.0632190853357315
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,158,158.0,0.0614652186632156
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,159,159.0,0.0632523819804191
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,160,160.0,0.0622460022568702
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,161,161.0,0.0618281513452529
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,162,162.0,0.0619927458465099
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,163,163.0,0.0627369210124015
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,164,164.0,0.0606397502124309
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,165,165.0,0.0619499310851097
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,166,166.0,0.061718501150608
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,167,167.0,0.0611349456012249
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,168,168.0,0.0618933141231536
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,169,169.0,0.0609189793467521
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,170,170.0,0.0611161440610885
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,171,171.0,0.0617350786924362
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,172,172.0,0.062194999307394
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,173,173.0,0.0630636140704155
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,174,174.0,0.0633451342582702
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,175,175.0,0.0640672296285629
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,176,176.0,0.0626820251345634
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,177,177.0,0.0614299364387989
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,178,178.0,0.0679420530796051
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,179,179.0,0.0631389245390892
+Instruct baseline (n=8),instruct_c_n8_baseline_rerun180_20260404_113902,z0ub6abmgswdgbah08442,180,180.0,0.0624950379133224
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,1,1.0,0.376192033290863
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,2,2.0,0.3725778758525848
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,3,3.0,0.3748107850551605
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,4,4.0,0.3862603604793548
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,5,5.0,0.4402326941490173
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,6,6.0,0.4391883909702301
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,7,7.0,0.5466187000274658
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,8,8.0,0.5526338815689087
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,9,9.0,0.6907463669776917
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,10,10.0,1.0439411401748655
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,11,11.0,1.5204805135726929
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,12,12.0,1.6706441640853882
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,13,13.0,2.203531503677368
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,14,14.0,2.3879854679107666
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,15,15.0,2.8691697120666504
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,16,16.0,4.718890190124512
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,17,17.0,6.476968765258789
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,18,18.0,6.908047676086426
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,19,19.0,7.482930660247803
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,20,20.0,8.602123260498047
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,21,21.0,9.07200527191162
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,22,22.0,9.700714111328123
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,23,23.0,10.27091121673584
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,24,24.0,10.161931991577148
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,25,25.0,10.16273021697998
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,26,26.0,10.298004150390623
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,27,27.0,10.55771827697754
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,28,28.0,10.578121185302734
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,29,29.0,10.872376441955566
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,30,30.0,10.967975616455078
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,31,31.0,11.03407096862793
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,32,32.0,11.174813270568848
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,33,33.0,11.180875778198242
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,34,34.0,11.206750869750977
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,35,35.0,11.120627403259276
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,36,36.0,11.205961227416992
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,37,37.0,11.158157348632812
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,38,38.0,11.167318344116213
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,39,39.0,11.200568199157717
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,40,40.0,11.253262519836426
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,41,41.0,11.236930847167969
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,42,42.0,11.29128646850586
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,43,43.0,11.304882049560549
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,44,44.0,11.314157485961914
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,45,45.0,11.36264991760254
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,46,46.0,11.314852714538574
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,47,47.0,11.369544982910156
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,48,48.0,11.378104209899902
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,49,49.0,11.406232833862305
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,50,50.0,11.401631355285645
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,51,51.0,11.425463676452637
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,52,52.0,11.431655883789062
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,53,53.0,11.442614555358888
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,54,54.0,11.443181991577148
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,55,55.0,11.416000366210938
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,56,56.0,11.45870304107666
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,57,57.0,11.44271755218506
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,58,58.0,11.49073314666748
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,59,59.0,11.448307991027832
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,60,60.0,11.49774169921875
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,61,61.0,11.49287223815918
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,62,62.0,11.492151260375977
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,63,63.0,11.503984451293944
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,64,64.0,11.487421035766602
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,65,65.0,11.516908645629885
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,66,66.0,11.471050262451172
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,67,67.0,11.52012062072754
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,68,68.0,11.449586868286133
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,69,69.0,11.488431930541992
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,70,70.0,11.491368293762209
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,71,71.0,11.515613555908203
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,72,72.0,11.502603530883787
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,73,73.0,11.51560878753662
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,74,74.0,11.49692726135254
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,75,75.0,11.515830993652344
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,76,76.0,11.523513793945312
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,77,77.0,11.535547256469728
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,78,78.0,11.539447784423828
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,79,79.0,11.51717472076416
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,80,80.0,11.52682399749756
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,81,81.0,11.507899284362791
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,82,82.0,11.540029525756836
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,83,83.0,11.54174518585205
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,84,84.0,11.54413604736328
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,85,85.0,11.520452499389648
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,86,86.0,11.515482902526855
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,87,87.0,11.51666259765625
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,88,88.0,11.51788330078125
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,89,89.0,11.525776863098145
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,90,90.0,11.518762588500977
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,91,91.0,11.556812286376951
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,92,92.0,11.531180381774902
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,93,93.0,11.534475326538086
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,94,94.0,11.549020767211914
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,95,95.0,11.55942440032959
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,96,96.0,11.558723449707031
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,97,97.0,11.553196907043455
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,98,98.0,11.550039291381836
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,99,99.0,11.55609130859375
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,100,100.0,11.557943344116213
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,101,101.0,11.566112518310549
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,102,102.0,11.567346572875977
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,103,103.0,11.566680908203123
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,104,104.0,11.557808876037598
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,105,105.0,11.569015502929688
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,106,106.0,11.571609497070312
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,107,107.0,11.56055736541748
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,108,108.0,11.56805419921875
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,109,109.0,11.542031288146973
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,110,110.0,11.574129104614258
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,111,111.0,11.568489074707031
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,112,112.0,11.577305793762209
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,113,113.0,11.552026748657228
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,114,114.0,11.579136848449709
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,115,115.0,11.57430934906006
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,116,116.0,11.570351600646973
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,117,117.0,11.550851821899414
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,118,118.0,11.577234268188477
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,119,119.0,11.532315254211426
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,120,120.0,11.57437229156494
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,121,121.0,11.580371856689451
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,122,122.0,11.581583023071287
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,123,123.0,11.58246612548828
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,124,124.0,11.56229305267334
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,125,125.0,11.585107803344728
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,126,126.0,11.572246551513672
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,127,127.0,11.564781188964844
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,128,128.0,11.561568260192873
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,129,129.0,11.52434539794922
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,130,130.0,11.577960968017578
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,131,131.0,11.58216381072998
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,132,132.0,11.564265251159668
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,133,133.0,11.586050033569336
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,134,134.0,11.587109565734863
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,135,135.0,11.585097312927246
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,136,136.0,11.5680570602417
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,137,137.0,11.590275764465332
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,138,138.0,11.592244148254396
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,139,139.0,11.567401885986328
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,140,140.0,11.58864402770996
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,141,141.0,11.584498405456545
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,142,142.0,11.59250831604004
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,143,143.0,11.591586112976074
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,144,144.0,11.593894004821776
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,145,145.0,11.593539237976074
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,146,146.0,11.594853401184082
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,147,147.0,11.595595359802246
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,148,148.0,11.568018913269045
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,149,149.0,11.597187995910645
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,150,150.0,11.58568000793457
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,151,151.0,11.594282150268556
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,152,152.0,11.595947265625
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,153,153.0,11.597822189331056
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,154,154.0,11.596959114074709
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,155,155.0,11.593833923339844
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,156,156.0,11.59569263458252
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,157,157.0,11.543427467346191
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,158,158.0,11.599059104919434
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,159,159.0,11.58464527130127
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,160,160.0,11.582890510559082
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,161,161.0,11.602100372314451
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,162,162.0,11.583640098571776
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,163,163.0,11.601492881774902
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,164,164.0,11.59045124053955
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,165,165.0,11.600289344787598
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,166,166.0,11.57770824432373
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,167,167.0,11.562215805053713
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,168,168.0,11.597588539123535
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,169,169.0,11.581356048583984
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,170,170.0,11.58804988861084
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,171,171.0,11.598237037658691
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,172,172.0,11.5891752243042
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,173,173.0,11.580907821655272
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,174,174.0,11.60420036315918
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,175,175.0,11.575092315673828
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,176,176.0,11.602066040039062
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,177,177.0,11.589995384216309
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,178,178.0,11.587745666503906
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,179,179.0,11.57971477508545
+Base corrupted-reward control,base_c_n8_random_wrong_2gpu_20260407_014405,w9y27pqc7jmnma8tlqod5,180,180.0,11.593615531921388

@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Validation Visualization Report</title>
+  <style>
+    :root {
+      --bg: #f7f1e6;
+      --card: rgba(255, 252, 247, 0.9);
+      --ink: #1f2933;
+      --muted: #59626b;
+      --border: #d8cfc0;
+      --accent: #125b50;
+      --accent-soft: #dcebe6;
+      --warn: #8e3200;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(18, 91, 80, 0.12), transparent 28rem),
+        radial-gradient(circle at top right, rgba(142, 50, 0, 0.08), transparent 24rem),
+        linear-gradient(180deg, #faf6ef 0%, var(--bg) 100%);
+    }
+    main {
+      width: min(1320px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 32px 0 48px;
+    }
+    header {
+      display: grid;
+      gap: 14px;
+      margin-bottom: 28px;
+    }
+    h1 {
+      margin: 0;
+      font-size: clamp(2rem, 4vw, 3.4rem);
+      line-height: 0.95;
+      letter-spacing: -0.04em;
+    }
+    .subtitle {
+      max-width: 72rem;
+      color: var(--muted);
+      font-size: 1rem;
+      line-height: 1.6;
+    }
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+    .summary-card, .table-card, .warning-card, .figure-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      box-shadow: 0 18px 42px rgba(31, 41, 51, 0.06);
+      backdrop-filter: blur(10px);
+    }
+    .summary-card {
+      padding: 18px 18px 14px;
+    }
+    .summary-card .card-label {
+      color: var(--muted);
+      font-size: 0.9rem;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .summary-card .card-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--accent);
+    }
+    .summary-card .card-meta {
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+    .summary-card dl {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 6px 12px;
+      margin: 0;
+      font-size: 0.92rem;
+    }
+    .summary-card dt {
+      color: var(--muted);
+    }
+    .summary-card dd {
+      margin: 0;
+      font-variant-numeric: tabular-nums;
+    }
+    .figure-grid {
+      display: grid;
+      gap: 18px;
+      margin-bottom: 24px;
+    }
+    .figure-card {
+      padding: 16px;
+      overflow: auto;
+    }
+    .figure-card h2 {
+      margin: 0 0 10px;
+      font-size: 1.05rem;
+    }
+    img, svg {
+      display: block;
+      max-width: 100%;
+      height: auto;
+      border-radius: 16px;
+    }
+    .table-stack {
+      display: grid;
+      gap: 18px;
+    }
+    .table-card {
+      padding: 16px 16px 18px;
+      overflow: auto;
+    }
+    .table-card h3 {
+      margin: 0 0 12px;
+      font-size: 1rem;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.92rem;
+    }
+    th, td {
+      padding: 10px 12px;
+      border-bottom: 1px solid rgba(216, 207, 192, 0.8);
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      color: var(--muted);
+      font-size: 0.84rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    pre {
+      margin: 8px 0 0;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 0.82rem;
+      line-height: 1.45;
+      color: #24313b;
+    }
+    details summary {
+      cursor: pointer;
+      color: var(--accent);
+      font-weight: 600;
+    }
+    .warning-card {
+      margin-bottom: 24px;
+      border-color: rgba(142, 50, 0, 0.24);
+      background: rgba(255, 249, 244, 0.92);
+      padding: 16px 18px;
+    }
+    .warning-card h3 {
+      margin: 0 0 10px;
+      color: var(--warn);
+    }
+    .warning-card ul {
+      margin: 0;
+      padding-left: 18px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+    .trace-link {
+      color: white;
+      text-decoration: none;
+      background: var(--accent);
+      border-radius: 999px;
+      display: inline-block;
+      padding: 8px 12px;
+      font-size: 0.92rem;
+      margin-top: 4px;
+    }
+    .footer-note {
+      margin-top: 24px;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <div class="eyebrow">validation report</div>
+      <h1>Paper-Style Experiment Visualization</h1>
+      <p class="subtitle">
+        Generated from local validation dumps and optional file logger metrics.
+        Selected steps: 0, 90, 180.
+        Token groups: reasoning_sparks=but,wait,perhaps,alternatively,however, noise=cost,fine,balanced,ere,trans.
+      </p>
+    </header>
+
+    <section class="summary-grid">
+      
+            <article class="summary-card">
+              <div class="card-label">base_c_n8_baseline</div>
+              <div class="card-value">0.5733</div>
+              <div class="card-meta">last-step reward</div>
+              <dl>
+                <dt>Step</dt><dd>180</dd>
+                <dt>Actor entropy</dt><dd>-</dd>
+                <dt>Token entropy</dt><dd>0.1839</dd>
+                <dt>Coverage</dt><dd>8/4000 samples</dd>
+              </dl>
+            </article>
+            
+            <article class="summary-card">
+              <div class="card-label">base_d_weak_constraint</div>
+              <div class="card-value">0.5747</div>
+              <div class="card-meta">last-step reward</div>
+              <dl>
+                <dt>Step</dt><dd>180</dd>
+                <dt>Actor entropy</dt><dd>-</dd>
+                <dt>Token entropy</dt><dd>0.1563</dd>
+                <dt>Coverage</dt><dd>8/4000 samples</dd>
+              </dl>
+            </article>
+            
+            <article class="summary-card">
+              <div class="card-label">base_b_reward_shuffle</div>
+              <div class="card-value">0.5745</div>
+              <div class="card-meta">last-step reward</div>
+              <dl>
+                <dt>Step</dt><dd>180</dd>
+                <dt>Actor entropy</dt><dd>-</dd>
+                <dt>Token entropy</dt><dd>0.1867</dd>
+                <dt>Coverage</dt><dd>8/4000 samples</dd>
+              </dl>
+            </article>
+            
+            <article class="summary-card">
+              <div class="card-label">instruct_b_reward_shuffle</div>
+              <div class="card-value">0.6933</div>
+              <div class="card-meta">last-step reward</div>
+              <dl>
+                <dt>Step</dt><dd>180</dd>
+                <dt>Actor entropy</dt><dd>-</dd>
+                <dt>Token entropy</dt><dd>0.2644</dd>
+                <dt>Coverage</dt><dd>8/4000 samples</dd>
+              </dl>
+            </article>
+            
+            <article class="summary-card">
+              <div class="card-label">instruct_c_n8_baseline</div>
+              <div class="card-value">0.6873</div>
+              <div class="card-meta">last-step reward</div>
+              <dl>
+                <dt>Step</dt><dd>180</dd>
+                <dt>Actor entropy</dt><dd>-</dd>
+                <dt>Token entropy</dt><dd>0.1322</dd>
+                <dt>Coverage</dt><dd>8/4000 samples</dd>
+              </dl>
+            </article>
+            
+    </section>
+
+    
+    <section class="warning-card">
+      <h3>Coverage warnings</h3>
+      <ul><li>base_b_reward_shuffle step 0: token diagnostics cover only 8/4000 samples</li><li>base_b_reward_shuffle step 102: token diagnostics cover only 8/4000 samples</li><li>base_b_reward_shuffle step 108: token diagnostics cover only 8/4000 samples</li><li>base_b_reward_shuffle step 114: token diagnostics cover only 8/4000 samples</li><li>base_b_reward_shuffle step 120: token diagnostics cover only 8/4000 samples</li><li>base_b_reward_shuffle step 126: token diagnostics cover only 8/4000 samples</li><li>base_b_reward_shuffle step 12: token diagnostics cover only 8/4000 samples</li><li>base_b_reward_shuffle step 132: token diagnostics cover only 8/4000 samples</li><li>base_b_reward_shuffle step 138: token diagnostics cover only 8/4000 samples</li><li>base_b_reward_shuffle step 144: token diagnostics cover only 8/4000 samples</li><li>base_b_reward_shuffle step 150: token diagnostics cover only 8/4000 samples</li><li>base_b_reward_shuffle step 156: token diagnostics cover only 8/4000 samples</li><li>base_b_reward_shuffle step 162: token diagnostics cover only 8/4000 samples</li><li>base_b_reward_shuffle step 168: token diagnostics cover only 8/4000 samples</li><li>base_b_reward_shuffle step 174: token diagnostics cover only 8/4000 samples</li><li>base_b_reward_shuffle step 180: token diagnostics cover only 8/4000 samples</li><li>base_b_reward_shuffle step 18: token diagnostics cover only 8/4000 samples</li><li>base_b_reward_shuffle step 24: token diagnostics cover only 8/4000 samples</li><li>base_b_reward_shuffle step 30: token diagnostics cover only 8/4000 samples</li><li>base_b_reward_shuffle step 36: token diagnostics cover only 8/4000 samples</li></ul>
+    </section>
+    
+
+    <section class="figure-grid">
+      <article class="figure-card">
+        <h2>Training dynamics</h2>
+        <img src="training_metric.svg" alt="training metric curve" />
+        <img src="training_entropy.svg" alt="entropy curve" style="margin-top: 14px;" />
+      </article>
+      <article class="figure-card">
+        <h2>Sampled probability distributions</h2>
+        <img src="sampled_probability_distributions.svg" alt="sampled probability distributions" />
+      </article>
+      <article class="figure-card">
+        <h2>Probability-entropy scatter</h2>
+        <img src="probability_entropy_scatter.svg" alt="probability entropy scatter" />
+      </article>
+      <article class="figure-card">
+        <h2>Low-probability top-k trends</h2>
+        <img src="low_prob_topk_trends.svg" alt="low probability topk trends" />
+      </article>
+      <article class="figure-card"><h2>Token traces</h2><p class="subtitle">Sample-level token tracking across validation steps for selected one-shot examples.</p><p><a class="trace-link" href="token_traces.html">Open token trace report</a></p></article>
+    </section>
+
+    <section class="table-stack">
+      
+            <section class="table-card">
+              <h3>reasoning_sparks token frequency</h3>
+              <table>
+                <thead><tr><th>Run</th><th>Step</th><th>but</th><th>wait</th><th>perhaps</th><th>alternatively</th><th>however</th></tr></thead>
+                <tbody><tr><td>base_c_n8_baseline</td><td>0</td><td>-</td><td>-</td><td>-</td><td>-</td><td>0.00130</td></tr><tr><td>base_c_n8_baseline</td><td>90</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr><tr><td>base_c_n8_baseline</td><td>180</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr><tr><td>base_d_weak_constraint</td><td>0</td><td>-</td><td>-</td><td>-</td><td>-</td><td>0.00130</td></tr><tr><td>base_d_weak_constraint</td><td>90</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr><tr><td>base_d_weak_constraint</td><td>180</td><td>0.00130</td><td>-</td><td>-</td><td>-</td><td>-</td></tr><tr><td>base_b_reward_shuffle</td><td>0</td><td>-</td><td>-</td><td>-</td><td>-</td><td>0.00130</td></tr><tr><td>base_b_reward_shuffle</td><td>90</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr><tr><td>base_b_reward_shuffle</td><td>180</td><td>-</td><td>-</td><td>-</td><td>-</td><td>0.00260</td></tr><tr><td>instruct_b_reward_shuffle</td><td>0</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr><tr><td>instruct_b_reward_shuffle</td><td>90</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr><tr><td>instruct_b_reward_shuffle</td><td>180</td><td>-</td><td>-</td><td>-</td><td>-</td><td>0.00130</td></tr><tr><td>instruct_c_n8_baseline</td><td>0</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr><tr><td>instruct_c_n8_baseline</td><td>90</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr><tr><td>instruct_c_n8_baseline</td><td>180</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr></tbody>
+              </table>
+            </section>
+            
+            <section class="table-card">
+              <h3>noise token frequency</h3>
+              <table>
+                <thead><tr><th>Run</th><th>Step</th><th>cost</th><th>fine</th><th>balanced</th><th>ere</th><th>trans</th></tr></thead>
+                <tbody><tr><td>base_c_n8_baseline</td><td>0</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr><tr><td>base_c_n8_baseline</td><td>90</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr><tr><td>base_c_n8_baseline</td><td>180</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr><tr><td>base_d_weak_constraint</td><td>0</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr><tr><td>base_d_weak_constraint</td><td>90</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr><tr><td>base_d_weak_constraint</td><td>180</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr><tr><td>base_b_reward_shuffle</td><td>0</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr><tr><td>base_b_reward_shuffle</td><td>90</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr><tr><td>base_b_reward_shuffle</td><td>180</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr><tr><td>instruct_b_reward_shuffle</td><td>0</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr><tr><td>instruct_b_reward_shuffle</td><td>90</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr><tr><td>instruct_b_reward_shuffle</td><td>180</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr><tr><td>instruct_c_n8_baseline</td><td>0</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr><tr><td>instruct_c_n8_baseline</td><td>90</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr><tr><td>instruct_c_n8_baseline</td><td>180</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr></tbody>
+              </table>
+            </section>
+            
+      
+            <section class="table-card">
+              <h3>Representative samples: base_c_n8_baseline</h3>
+              <table class="sample-table">
+                <thead>
+                  <tr>
+                    <th>UID</th>
+                    <th>reward</th>
+                    <th>Matched tokens</th>
+                    <th>Prompt</th>
+                    <th>Output</th>
+                  </tr>
+                </thead>
+                <tbody>
+                <tr>
+                  <td>val::math500::0::ac1b3e428f37b91f</td>
+                  <td>1.0000</td>
+                  <td>-</td>
+                  <td><details><summary>prompt</summary><pre>system
+Please reason step by step, and put your final answer within \boxed{}.
+user
+Convert the point $(0,3)$ in rectangular coordinates to polar coordinates.  Enter your answer in the form $(r,\theta),$ where $r &gt; 0$ and $0 \le \theta &lt; 2 \pi.$ Let&#x27;s think step by step and output the final answer within \boxed{}.
+assistant</pre></details></td>
+                  <td><details open><summary>output</summary><pre>To convert the point \((0, 3)\) from rectangular coordinates to polar coordinates, we need to find the radius \( r \) and the angle \( \theta \).
+
+1. The radius \( r \) is calculated using the formula:
+   \[
+   r = \sqrt{x^2 + y^2}
+   \]
+   where \( x = 0 \) and \( y = 3 \).
+
+2. The angle \( \theta \) is calculated using the formula:
+   \[
+   \theta = \arctan\left(\frac{y}{x}\right)
+   \]
+   However, since \( x = 0 \), we need to handle this case carefully. When \( x = 0 \), the angle \( \theta \) can be either ...</pre></details></td>
+                </tr>
+                
+                <tr>
+                  <td>val::math500::0::ac1b3e428f37b91f</td>
+                  <td>1.0000</td>
+                  <td>-</td>
+                  <td><details><summary>prompt</summary><pre>system
+Please reason step by step, and put your final answer within \boxed{}.
+user
+Convert the point $(0,3)$ in rectangular coordinates to polar coordinates.  Enter your answer in the form $(r,\theta),$ where $r &gt; 0$ and $0 \le \theta &lt; 2 \pi.$ Let&#x27;s think step by step and output the final answer within \boxed{}.
+assistant</pre></details></td>
+                  <td><details open><summary>output</summary><pre>To convert the rectangular coordinates \((x, y)\) to polar coordinates \((r, \theta)\), we can use the following formulas:
+- \( r = \sqrt{x^2 + y^2} \)
+- \( \theta = \tan^{-1}\left(\frac{y}{x}\right) \)
+
+For the point \((0, 3)\):
+- \( r = \sqrt{0^2 + 3^2} = \sqrt{9} = 3 \)
+- \( \theta = \tan^{-1}\left(\frac{3}{0}\right) \)
+
+The expression \(\frac{3}{0}\) is undefined, but we know from trigonometry that the angle \(\theta\) whose tangent is undefined in the context of \(x = 0\) (i.e., the positive y-axis) is \(\t...</pre></details></td>
+                </tr>
+                
+                <tr>
+                  <td>val::math500::0::ac1b3e428f37b91f</td>
+                  <td>1.0000</td>
+                  <td>-</td>
+                  <td><details><summary>prompt</summary><pre>system
+Please reason step by step, and put your final answer within \boxed{}.
+user
+Convert the point $(0,3)$ in rectangular coordinates to polar coordinates.  Enter your answer in the form $(r,\theta),$ where $r &gt; 0$ and $0 \le \theta &lt; 2 \pi.$ Let&#x27;s think step by step and output the final answer within \boxed{}.
+assistant</pre></details></td>
+                  <td><details open><summary>output</summary><pre>To convert the point \((0, 3)\) from rectangular coordinates to polar coordinates, we need to find the radius \(r\) and the angle \(\theta\).
+
+1. The radius \(r\) is the distance from the origin to the point \((0, 3)\). This can be calculated using the Pythagorean theorem:
+\[ r = \sqrt{0^2 + 3^2} = \sqrt{9} = 3. \]
+
+2. The angle \(\theta\) is the angle that the line segment from the origin to the point \((0, 3)\) makes with the positive x-axis. Since the point \((0, 3)\) lies on the positive y-axis, the angle \(...</pre></details></td>
+                </tr>
+                
+                <tr>
+                  <td>val::math500::0::ac1b3e428f37b91f</td>
+                  <td>1.0000</td>
+                  <td>-</td>
+                  <td><details><summary>prompt</summary><pre>system
+Please reason step by step, and put your final answer within \boxed{}.
+user
+Convert the point $(0,3)$ in rectangular coordinates to polar coordinates.  Enter your answer in the form $(r,\theta),$ where $r &gt; 0$ and $0 \le \theta &lt; 2 \pi.$ Let&#x27;s think step by step and output the final answer within \boxed{}.
+assistant</pre></details></td>
+                  <td><details open><summary>output</summary><pre>To convert the point \((0,3)\) in rectangular coordinates to polar coordinates, we need to determine the values of \(r\) and \(\theta\).
+
+1. The radius \(r\) is the distance from the origin \((0,0)\) to the point \((0,3)\). Using the Pythagorean theorem:
+   \[
+   r = \sqrt{x^2 + y^2} = \sqrt{0^2 + 3^2} = 3
+   \]
+2. The angle \(\theta\) is the angle that the line segment from the origin to the point makes with the positive x-axis. For the point \((0,3)\), the angle \(\theta\) is \(\frac{\pi}{2}\) radians (90 degr...</pre></details></td>
+                </tr>
+                
+                <tr>
+                  <td>val::math500::0::ac1b3e428f37b91f</td>
+                  <td>1.0000</td>
+                  <td>-</td>
+                  <td><details><summary>prompt</summary><pre>system
+Please reason step by step, and put your final answer within \boxed{}.
+user
+Convert the point $(0,3)$ in rectangular coordinates to polar coordinates.  Enter your answer in the form $(r,\theta),$ where $r &gt; 0$ and $0 \le \theta &lt; 2 \pi.$ Let&#x27;s think step by step and output the final answer within \boxed{}.
+assistant</pre></details></td>
+                  <td><details open><summary>output</summary><pre>To convert the point \((0, 3)\) from rectangular (Cartesian) coordinates to polar coordinates \((r, \theta)\), we can use the following formulas:
+
+1. The distance \(r\) from the origin to the point is given by:
+   \[
+   r = \sqrt{x^2 + y^2}
+   \]
+   where \(x = 0\) and \(y = 3\).
+
+2. The angle \(\theta\) from the positive x-axis to the line segment connecting the origin to the point is given by:
+   \[
+   \theta = \begin{cases} 
+   \tan^{-1}\left(\frac{y}{x}\right) &amp; \text{if } x &gt; 0 \\
+   \frac{\pi}{2} &amp; \text{i...</pre></details></td>
+                </tr>
+                
+                <tr>
+                  <td>val::math500::0::ac1b3e428f37b91f</td>
+                  <td>1.0000</td>
+                  <td>-</td>
+                  <td><details><summary>prompt</summary><pre>system
+Please reason step by step, and put your final answer within \boxed{}.
+user
+Convert the point $(0,3)$ in rectangular coordinates to polar coordinates.  Enter your answer in the form $(r,\theta),$ where $r &gt; 0$ and $0 \le \theta &lt; 2 \pi.$ Let&#x27;s think step by step and output the final answer within \boxed{}.
+assistant</pre></details></td>
+                  <td><details open><summary>output</summary><pre>To convert the point \((0, 3)\) from rectangular (Cartesian) coordinates to polar coordinates, we need to calculate the radius \(r\) and the angle \(\theta\).
+
+The radius \(r\) is calculated using the formula:
+\[
+r = \sqrt{x^2 + y^2}
+\]
+
+The angle \(\theta\) is calculated using the formula:
+\[
+\theta = \arctan\left(\frac{y}{x}\right)
+\]
+
+However, we need to ensure that \(\theta\) is in the correct quadrant. Since the point \((0, 3)\) is on the positive y-axis, the angle \(\theta\) is \(\frac{\pi}{2}\).
+
+Let&#x27;s ca...</pre></details></td>
+                </tr>
+                </tbody>
+              </table>
+            </section>
+            
+            <section class="table-card">
+              <h3>Representative samples: base_d_weak_constraint</h3>
+              <table class="sample-table">
+                <thead>
+                  <tr>
+                    <th>UID</th>
+                    <th>reward</th>
+                    <th>Matched tokens</th>
+                    <th>Prompt</th>
+                    <th>Output</th>
+                  </tr>
+                </thead>
+                <tbody>
+                <tr>
+                  <td>val::math500::0::ac1b3e428f37b91f</td>
+                  <td>1.0000</td>
+                  <td>but</td>
+                  <td><details><summary>prompt</summary><pre>system
+Please reason step by step, and put your final answer within \boxed{}.
+user
+Convert the point $(0,3)$ in rectangular coordinates to polar coordinates.  Enter your answer in the form $(r,\theta),$ where $r &gt; 0$ and $0 \le \theta &lt; 2 \pi.$ Let&#x27;s think step by step and output the final answer within \boxed{}.
+assistant</pre></details></td>
+                  <td><details open><summary>output</summary><pre>To convert the rectangular coordinates $(x, y)$ to polar coordinates $(r, \theta)$, we use the following formulas:
+- $r = \sqrt{x^2 + y^2}$
+- $\theta = \tan^{-1}\left(\frac{y}{x}\right)$, but we need to take into account the quadrant of the point.
+
+For the point $(0, 3)$:
+- $x = 0$
+- $y = 3$
+
+Let&#x27;s calculate $r$ and $\theta$:
+
+1. Calculate $r$:
+\[ r = \sqrt{0^2 + 3^2} = \sqrt{9} = 3 \]
+
+2. Calculate $\theta$:
+The point $(0, 3)$ lies on the positive y-axis, so $\theta = \frac{\pi}{2} = \frac{\pi}{2}$.
+
+Thus, the ...</pre></details></td>
+                </tr>
+                </tbody>
+              </table>
+            </section>
+            
+            <section class="table-card">
+              <h3>Representative samples: base_b_reward_shuffle</h3>
+              <table class="sample-table">
+                <thead>
+                  <tr>
+                    <th>UID</th>
+                    <th>reward</th>
+                    <th>Matched tokens</th>
+                    <th>Prompt</th>
+                    <th>Output</th>
+                  </tr>
+                </thead>
+                <tbody>
+                <tr>
+                  <td>val::math500::0::ac1b3e428f37b91f</td>
+                  <td>1.0000</td>
+                  <td>however</td>
+                  <td><details><summary>prompt</summary><pre>system
+Please reason step by step, and put your final answer within \boxed{}.
+user
+Convert the point $(0,3)$ in rectangular coordinates to polar coordinates.  Enter your answer in the form $(r,\theta),$ where $r &gt; 0$ and $0 \le \theta &lt; 2 \pi.$ Let&#x27;s think step by step and output the final answer within \boxed{}.
+assistant</pre></details></td>
+                  <td><details open><summary>output</summary><pre>### Step-by-step Conversion from Rectangular to Polar Coordinates:
+
+To convert from rectangular coordinates \((x, y)\) to polar coordinates \((r, \theta)\), we use the following formulas:
+\[
+r = \sqrt{x^2 + y^2}
+\]
+\[
+\theta = \tan^{-1}\left(\frac{y}{x}\right)
+\]
+However, \(\theta\) needs to be adjusted based on the quadrant of the point.
+1. If \(x &gt; 0\): \(\theta\) remains as calculated from \(\tan^{-1}\left(\frac{y}{x}\right)\)
+2. If \(x &lt; 0\): \(\theta = \tan^{-1}\left(\frac{y}{x}\right) + \pi\)
+3. If \(x = 0...</pre></details></td>
+                </tr>
+                
+                <tr>
+                  <td>val::math500::0::ac1b3e428f37b91f</td>
+                  <td>1.0000</td>
+                  <td>however</td>
+                  <td><details><summary>prompt</summary><pre>system
+Please reason step by step, and put your final answer within \boxed{}.
+user
+Convert the point $(0,3)$ in rectangular coordinates to polar coordinates.  Enter your answer in the form $(r,\theta),$ where $r &gt; 0$ and $0 \le \theta &lt; 2 \pi.$ Let&#x27;s think step by step and output the final answer within \boxed{}.
+assistant</pre></details></td>
+                  <td><details open><summary>output</summary><pre>To convert from rectangular coordinates to polar coordinates, we use the following formulas:
+\[ r = \sqrt{x^2 + y^2} \]
+\[ \theta = \tan^{-1}\left(\frac{y}{x}\right) \]
+However, we need to be careful when using the arctangent function, as it may not always give the correct angle depending on the signs of $x$ and $y$. For the point $(0,3)$, we have:
+\[ r = \sqrt{0^2 + 3^2} = \sqrt{9} = 3 \]
+\[ \theta = \tan^{-1}\left(\frac{3}{0}\right) \]
+Since the point is on the positive y-axis, $\theta = \frac{\pi}{2}$. Theref...</pre></details></td>
+                </tr>
+                </tbody>
+              </table>
+            </section>
+            
+            <section class="table-card">
+              <h3>Representative samples: instruct_b_reward_shuffle</h3>
+              <table class="sample-table">
+                <thead>
+                  <tr>
+                    <th>UID</th>
+                    <th>reward</th>
+                    <th>Matched tokens</th>
+                    <th>Prompt</th>
+                    <th>Output</th>
+                  </tr>
+                </thead>
+                <tbody>
+                <tr>
+                  <td>val::math500::0::ac1b3e428f37b91f</td>
+                  <td>1.0000</td>
+                  <td>however</td>
+                  <td><details><summary>prompt</summary><pre>system
+Please reason step by step, and put your final answer within \boxed{}.
+user
+Convert the point $(0,3)$ in rectangular coordinates to polar coordinates.  Enter your answer in the form $(r,\theta),$ where $r &gt; 0$ and $0 \le \theta &lt; 2 \pi.$ Let&#x27;s think step by step and output the final answer within \boxed{}.
+assistant</pre></details></td>
+                  <td><details open><summary>output</summary><pre>To convert the point \((0,3)\) from rectangular coordinates to polar coordinates, we need to find the values of \(r\) and \(\theta\). The formulas for converting from rectangular coordinates \((x,y)\) to polar coordinates \((r,\theta)\) are:
+
+\[ r = \sqrt{x^2 + y^2} \]
+\[ \theta = \tan^{-1}\left(\frac{y}{x}\right) \]
+
+However, for the point \((0,3)\), \(x = 0\) and \(y = 3\). Let&#x27;s calculate \(r\) first:
+
+\[ r = \sqrt{0^2 + 3^2} = \sqrt{9} = 3 \]
+
+Next, we need to find \(\theta\). The tangent of \(\theta\) is gi...</pre></details></td>
+                </tr>
+                </tbody>
+              </table>
+            </section>
+            
+            <section class="table-card">
+              <h3>Representative samples: instruct_c_n8_baseline</h3>
+              <table class="sample-table">
+                <thead>
+                  <tr>
+                    <th>UID</th>
+                    <th>reward</th>
+                    <th>Matched tokens</th>
+                    <th>Prompt</th>
+                    <th>Output</th>
+                  </tr>
+                </thead>
+                <tbody>
+                <tr>
+                  <td>val::math500::0::ac1b3e428f37b91f</td>
+                  <td>1.0000</td>
+                  <td>-</td>
+                  <td><details><summary>prompt</summary><pre>system
+Please reason step by step, and put your final answer within \boxed{}.
+user
+Convert the point $(0,3)$ in rectangular coordinates to polar coordinates.  Enter your answer in the form $(r,\theta),$ where $r &gt; 0$ and $0 \le \theta &lt; 2 \pi.$ Let&#x27;s think step by step and output the final answer within \boxed{}.
+assistant</pre></details></td>
+                  <td><details open><summary>output</summary><pre>To convert the point \((0,3)\) from rectangular coordinates to polar coordinates, we need to find the values of \(r\) and \(\theta\). The formulas for converting from rectangular coordinates \((x, y)\) to polar coordinates \((r, \theta)\) are:
+
+\[ r = \sqrt{x^2 + y^2} \]
+\[ \theta = \tan^{-1}\left(\frac{y}{x}\right) \]
+
+However, we need to be careful with the calculation of \(\theta\) because the point \((0,3)\) lies on the positive \(y\)-axis, which means \(\theta\) will be \(\frac{\pi}{2}\) (90 degrees).
+
+Let&#x27;...</pre></details></td>
+                </tr>
+                
+                <tr>
+                  <td>val::math500::0::ac1b3e428f37b91f</td>
+                  <td>1.0000</td>
+                  <td>-</td>
+                  <td><details><summary>prompt</summary><pre>system
+Please reason step by step, and put your final answer within \boxed{}.
+user
+Convert the point $(0,3)$ in rectangular coordinates to polar coordinates.  Enter your answer in the form $(r,\theta),$ where $r &gt; 0$ and $0 \le \theta &lt; 2 \pi.$ Let&#x27;s think step by step and output the final answer within \boxed{}.
+assistant</pre></details></td>
+                  <td><details open><summary>output</summary><pre>To convert the point \((0,3)\) from rectangular coordinates to polar coordinates, we need to find the values of \(r\) and \(\theta\).
+
+1. **Calculate \(r\):**
+   The polar coordinate \(r\) is the distance from the origin to the point, which can be found using the formula:
+   \[
+   r = \sqrt{x^2 + y^2}
+   \]
+   Here, \(x = 0\) and \(y = 3\). Plugging in these values, we get:
+   \[
+   r = \sqrt{0^2 + 3^2} = \sqrt{9} = 3
+   \]
+
+2. **Calculate \(\theta\):**
+   The polar coordinate \(\theta\) is the angle from the po...</pre></details></td>
+                </tr>
+                
+                <tr>
+                  <td>val::math500::0::ac1b3e428f37b91f</td>
+                  <td>1.0000</td>
+                  <td>-</td>
+                  <td><details><summary>prompt</summary><pre>system
+Please reason step by step, and put your final answer within \boxed{}.
+user
+Convert the point $(0,3)$ in rectangular coordinates to polar coordinates.  Enter your answer in the form $(r,\theta),$ where $r &gt; 0$ and $0 \le \theta &lt; 2 \pi.$ Let&#x27;s think step by step and output the final answer within \boxed{}.
+assistant</pre></details></td>
+                  <td><details open><summary>output</summary><pre>To convert the point \((0,3)\) from rectangular (Cartesian) coordinates to polar coordinates, we need to find the values of \(r\) and \(\theta\). Polar coordinates are given in the form \((r, \theta)\), where \(r\) is the radial distance from the origin and \(\theta\) is the angle from the positive \(x\)-axis.
+
+### Step 1: Calculate \(r\)
+The radial distance \(r\) is calculated using the formula:
+\[
+r = \sqrt{x^2 + y^2}
+\]
+For the point \((0, 3)\):
+\[
+r = \sqrt{0^2 + 3^2} = \sqrt{0 + 9} = \sqrt{9} = 3
+\]
+
+### St...</pre></details></td>
+                </tr>
+                
+                <tr>
+                  <td>val::math500::0::ac1b3e428f37b91f</td>
+                  <td>1.0000</td>
+                  <td>-</td>
+                  <td><details><summary>prompt</summary><pre>system
+Please reason step by step, and put your final answer within \boxed{}.
+user
+Convert the point $(0,3)$ in rectangular coordinates to polar coordinates.  Enter your answer in the form $(r,\theta),$ where $r &gt; 0$ and $0 \le \theta &lt; 2 \pi.$ Let&#x27;s think step by step and output the final answer within \boxed{}.
+assistant</pre></details></td>
+                  <td><details open><summary>output</summary><pre>To convert the point \((0,3)\) from rectangular coordinates to polar coordinates, we need to find the values of \(r\) and \(\theta\).
+
+The conversion formulas are:
+\[ r = \sqrt{x^2 + y^2} \]
+\[ \theta = \tan^{-1}\left(\frac{y}{x}\right) \]
+
+Given the point \((0,3)\), we have:
+\[ x = 0 \]
+\[ y = 3 \]
+
+First, we calculate \(r\):
+\[ r = \sqrt{0^2 + 3^2} = \sqrt{9} = 3 \]
+
+Next, we calculate \(\theta\). The formula \(\theta = \tan^{-1}\left(\frac{y}{x}\right)\) involves a division by zero, which is undefined. Howeve...</pre></details></td>
+                </tr>
+                
+                <tr>
+                  <td>val::math500::0::ac1b3e428f37b91f</td>
+                  <td>1.0000</td>
+                  <td>-</td>
+                  <td><details><summary>prompt</summary><pre>system
+Please reason step by step, and put your final answer within \boxed{}.
+user
+Convert the point $(0,3)$ in rectangular coordinates to polar coordinates.  Enter your answer in the form $(r,\theta),$ where $r &gt; 0$ and $0 \le \theta &lt; 2 \pi.$ Let&#x27;s think step by step and output the final answer within \boxed{}.
+assistant</pre></details></td>
+                  <td><details open><summary>output</summary><pre>To convert the point \((0, 3)\) in rectangular coordinates to polar coordinates \((r, \theta)\), we will follow these steps:
+
+1. **Calculate \(r\):**
+   The radial distance \(r\) from the origin to the point \((0, 3)\) is given by:
+   \[
+   r = \sqrt{x^2 + y^2}
+   \]
+   Substituting \(x = 0\) and \(y = 3\):
+   \[
+   r = \sqrt{0^2 + 3^2} = \sqrt{9} = 3
+   \]
+
+2. **Calculate \(\theta\):**
+   The angle \(\theta\) is given by:
+   \[
+   \theta = \tan^{-1}\left(\frac{y}{x}\right)
+   \]
+   Substituting \(x = 0\) and \(...</pre></details></td>
+                </tr>
+                
+                <tr>
+                  <td>val::math500::0::ac1b3e428f37b91f</td>
+                  <td>1.0000</td>
+                  <td>-</td>
+                  <td><details><summary>prompt</summary><pre>system
+Please reason step by step, and put your final answer within \boxed{}.
+user
+Convert the point $(0,3)$ in rectangular coordinates to polar coordinates.  Enter your answer in the form $(r,\theta),$ where $r &gt; 0$ and $0 \le \theta &lt; 2 \pi.$ Let&#x27;s think step by step and output the final answer within \boxed{}.
+assistant</pre></details></td>
+                  <td><details open><summary>output</summary><pre>To convert the point \((0,3)\) from rectangular coordinates to polar coordinates, we need to find the values of \(r\) and \(\theta\). The polar coordinates \((r, \theta)\) are related to the rectangular coordinates \((x, y)\) by the formulas:
+\[ r = \sqrt{x^2 + y^2} \]
+\[ \theta = \tan^{-1}\left(\frac{y}{x}\right) \]
+
+Given the point \((0,3)\), we have \(x = 0\) and \(y = 3\).
+
+First, we calculate \(r\):
+\[ r = \sqrt{0^2 + 3^2} = \sqrt{9} = 3 \]
+
+Next, we calculate \(\theta\). The formula \(\theta = \tan^{-1}\le...</pre></details></td>
+                </tr>
+                </tbody>
+              </table>
+            </section>
+            
+    </section>
+
+    <p class="footer-note">
+      Files written under /root/rl/verl/analysis/rendered_reports_20260405/compare_5runs. If token coverage warnings appear above, increase
+      <code>trainer.validation_diagnostics.samples_to_dump_token_details</code> and
+      <code>trainer.validation_diagnostics.token_distribution_topk</code> for the next run.
+    </p>
+  </main>
+</body>
+</html>

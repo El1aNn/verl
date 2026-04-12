@@ -90,6 +90,17 @@ TOKEN_SUPPLEMENT_SOURCE = {
     "delta": ROOT / "analysis" / "exp4_validation_20260331" / "token_outputs" / "tables" / "traced_token_delta_step0_to_final.csv",
 }
 
+FIG19_TRACE_SOURCE = {
+    "paper_label": "Base small-group ablation (n=1)",
+    "run_slug": "base_c_n1_group_ablation_rerun180_2gpu_restart_20260405_213719",
+    "final_validation_file": ROOT
+    / "ckpts"
+    / "verl_grpo_dsr_sub_baseline"
+    / "base_c_n1_group_ablation_rerun180_2gpu_restart_20260405_213719"
+    / "validation"
+    / "180.jsonl",
+}
+
 
 def mean_of(rows: list[dict], key: str) -> float:
     values = [row[key] for row in rows if isinstance(row.get(key), (int, float))]
@@ -153,6 +164,51 @@ def summarize_nonnull(df: pd.DataFrame, column: str) -> dict[str, float | int | 
         "final": final_val,
         "delta": final_val - start_val,
     }
+
+
+def extract_user_prompt(input_text: str) -> str:
+    marker = "user\n"
+    if marker not in input_text:
+        return input_text.strip()
+    tail = input_text.split(marker, 1)[1]
+    if "\nassistant\n" in tail:
+        tail = tail.split("\nassistant\n", 1)[0]
+    return tail.strip()
+
+
+def build_fig19_trace_rows(path: Path, paper_label: str, run_slug: str) -> list[dict]:
+    rows = []
+    for row in read_jsonl(path):
+        token_diag = row.get("token_diagnostics") or []
+        if not token_diag:
+            continue
+        entropy_values = [item["entropy"] for item in token_diag if isinstance(item.get("entropy"), (int, float))]
+        top1_values = [item["top1_prob"] for item in token_diag if isinstance(item.get("top1_prob"), (int, float))]
+        eos_values = [item["eos_prob"] for item in token_diag if isinstance(item.get("eos_prob"), (int, float))]
+        if not entropy_values:
+            continue
+        uid = str(row.get("uid", ""))
+        uid_parts = uid.split("::")
+        question_id = int(uid_parts[2]) if len(uid_parts) >= 3 and uid_parts[2].isdigit() else None
+        rows.append(
+            {
+                "paper_label": paper_label,
+                "run_slug": run_slug,
+                "source_file": str(path),
+                "final_step": int(row.get("step", 0)),
+                "uid": uid,
+                "question_id": question_id,
+                "score": float(row.get("score", 0.0)),
+                "correctness": "correct" if float(row.get("score", 0.0)) >= 0.5 else "wrong",
+                "traced_tokens": len(token_diag),
+                "mean_token_entropy": statistics.fmean(entropy_values),
+                "mean_top1_prob": statistics.fmean(top1_values) if top1_values else float("nan"),
+                "mean_eos_prob": statistics.fmean(eos_values) if eos_values else float("nan"),
+                "response_length": int(row.get("response_length", 0)),
+                "question": extract_user_prompt(str(row.get("input", ""))),
+            }
+        )
+    return rows
 
 
 def main() -> None:
@@ -418,6 +474,11 @@ def main() -> None:
         token_final_rows = list(csv.DictReader(f))
     with TOKEN_SUPPLEMENT_SOURCE["delta"].open("r", encoding="utf-8") as f:
         token_delta_rows = list(csv.DictReader(f))
+    fig19_trace_rows = build_fig19_trace_rows(
+        FIG19_TRACE_SOURCE["final_validation_file"],
+        paper_label=str(FIG19_TRACE_SOURCE["paper_label"]),
+        run_slug=str(FIG19_TRACE_SOURCE["run_slug"]),
+    )
 
     write_csv(
         DATA_DIR / "token-probe-final.csv",
@@ -428,6 +489,26 @@ def main() -> None:
         DATA_DIR / "token-probe-delta.csv",
         list(token_delta_rows[0].keys()),
         token_delta_rows,
+    )
+    write_csv(
+        DATA_DIR / "fig19-apr05-eight-question-trace.csv",
+        [
+            "paper_label",
+            "run_slug",
+            "source_file",
+            "final_step",
+            "uid",
+            "question_id",
+            "score",
+            "correctness",
+            "traced_tokens",
+            "mean_token_entropy",
+            "mean_top1_prob",
+            "mean_eos_prob",
+            "response_length",
+            "question",
+        ],
+        fig19_trace_rows,
     )
 
     main_result_lines = []
@@ -512,6 +593,9 @@ def main() -> None:
         "bundle_dir": str(BUNDLE),
         "runs": run_rows,
         "token_probe_source": {key: str(value) for key, value in TOKEN_SUPPLEMENT_SOURCE.items()},
+        "fig19_trace_source": {
+            key: str(value) for key, value in FIG19_TRACE_SOURCE.items()
+        },
         "data_integrity": data_integrity_rows,
     }
     write_text(DATA_DIR / "manifest.json", json.dumps(manifest, ensure_ascii=False, indent=2))

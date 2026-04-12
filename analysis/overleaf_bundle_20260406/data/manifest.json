@@ -126,6 +126,11 @@
     "final": "/root/rl/verl/analysis/exp4_validation_20260331/token_outputs/tables/traced_token_final_correctness.csv",
     "delta": "/root/rl/verl/analysis/exp4_validation_20260331/token_outputs/tables/traced_token_delta_step0_to_final.csv"
   },
+  "fig19_trace_source": {
+    "paper_label": "Base small-group ablation (n=1)",
+    "run_slug": "base_c_n1_group_ablation_rerun180_2gpu_restart_20260405_213719",
+    "final_validation_file": "/root/rl/verl/ckpts/verl_grpo_dsr_sub_baseline/base_c_n1_group_ablation_rerun180_2gpu_restart_20260405_213719/validation/180.jsonl"
+  },
   "data_integrity": [
     {
       "file": "data/dsr_sub/pi1_one_ans.parquet",

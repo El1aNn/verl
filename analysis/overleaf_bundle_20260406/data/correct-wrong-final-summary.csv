@@ -1,0 +1,17 @@
+paper_label,metric,correct_mean,wrong_mean,correct_n,wrong_n
+Base baseline (n=8),token_entropy_mean,0.16477956226531495,0.23669746211346457,47,17
+Base baseline (n=8),top1_prob_mean,0.9393757607074494,0.9245197106810177,47,17
+Base baseline (n=8),eos_prob_mean,0.0022920440818044417,0.001455038388752762,47,17
+Base baseline (n=8),answer_tail_confidence,0.9572129794891845,0.8663871148053337,47,17
+Base small-group ablation (n=1),token_entropy_mean,0.15900328109661738,0.570279324525281,45,19
+Base small-group ablation (n=1),top1_prob_mean,0.9413409312566121,0.8784859117708708,45,19
+Base small-group ablation (n=1),eos_prob_mean,0.0025737739879534475,0.010616782154823125,45,19
+Base small-group ablation (n=1),answer_tail_confidence,0.9487771391868591,0.785395285016612,45,19
+Base weak-regularization variant,token_entropy_mean,0.15231677144765854,0.17205721598405105,51,13
+Base weak-regularization variant,top1_prob_mean,0.9446417280271941,0.9397871127495399,51,13
+Base weak-regularization variant,eos_prob_mean,0.002219849141707242,0.0013899390502908422,51,13
+Base weak-regularization variant,answer_tail_confidence,0.9575210540902381,0.8893276819816003,51,13
+Instruct baseline (n=8),token_entropy_mean,0.08722474308390367,0.4987976753285953,57,7
+Instruct baseline (n=8),top1_prob_mean,0.9681275382376554,0.9251978056771415,57,7
+Instruct baseline (n=8),eos_prob_mean,0.00242388093018937,0.0015846066609291093,57,7
+Instruct baseline (n=8),answer_tail_confidence,0.9727580296365839,0.8298787134034293,57,7

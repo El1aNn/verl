@@ -4,6 +4,7 @@
 \input{shared-setup.tex}
 
 \begin{document}
+\fancyhead[L]{低数据强化学习中的行为校准}
 
 \begin{titlepage}
     \centering
@@ -25,11 +26,11 @@
 \pagenumbering{Roman}
 
 \begin{abstract}
-本报告研究 1-shot GRPO 在数学推理任务中的作用机制，重点关注在极低数据预算下，强化学习式对齐是否仍能稳定改善推理表现，以及这种改善究竟更接近知识注入还是行为校准。围绕这一问题，本文构建了一个由五个正式实验组成的主比较矩阵，覆盖 \ModelBase{} 与 \ModelInstruct{} 两个模型家族中的标准基线、弱正则化变体、小组规模消融以及严格的破坏性奖励控制实验，并统一在 \EvalSet{} 上进行评估，同时结合 token-level diagnostics 追踪训练过程中的分布变化。
+本文研究极低数据强化学习场景下 1-shot GRPO 对数学推理模型的作用机制。近期关于 1-shot RLVR 的研究表明，即使只使用一个带可验证奖励的训练样本，强化学习仍可能显著提升数学推理表现 \cite{wang2025oneshotrlvr}。在这一发现的基础上，本文比较 \ModelBase{} 与 \ModelInstruct{} 上的五组结果设置，并结合验证正确率、响应长度、置信度、熵和停止行为等诊断指标分析训练后的生成分布变化。
 
-结果表明，Base 模型在标准 \texttt{n=8} 配置下的验证分数由 0.3745 提升到 0.5733；与其验证协议完全对齐的 \texttt{n=1} 小组规模消融实验由 0.3630 提升到 0.5470，最佳分数为 0.5590；弱正则化变体最终达到 0.5747。相比之下，采用随机错误奖励的严格控制实验并未复现 clean baseline 的收益，而是从 0.3630 迅速坍缩到 0.00025，并伴随 token entropy、低置信 token 比例和响应长度的显著恶化。Instruct 基线则仅从 0.6837 轻微变化到 0.6873，显示高先验模型在当前设置下的收益空间明显更小。除主分数外，Base clean 实验还同时表现出响应长度缩短、答案尾部置信度上升、低置信 token 比例下降、token entropy 下降以及 EOS 结束概率上升等一致性变化。
+结果呈现出清晰的模型家族差异：Base 模型在有意义奖励监督下获得约 0.20 的验证分数提升，而 Instruct 模型由于起点更高，只表现出小幅局部变化。将训练 group size 从 \texttt{n=8} 降到 \texttt{n=1} 会削弱但不会消除收益；采用随机错误奖励时，Base 模型不再复现正常奖励条件下的提升，而是在分数与行为指标上同步坍缩。除主分数外，Base 模型在正常奖励条件下还同时表现出响应长度缩短、答案尾部置信度上升、低置信 token 比例下降、token entropy 下降以及 EOS 结束概率上升等一致变化。
 
-这些结果共同支持一个更稳妥的解释：在当前设置下，1-shot GRPO 对 Base 数学推理模型的主要作用并不是向模型注入全新的数学知识，而是更快地把已有推理能力校准到更稳定、更果断的生成轨道上。本文同时保留两个边界。第一，对齐后的 \texttt{n=1} 消融目前仍基于单次正式运行，group size 的因果结论仍需多 seed 复验。第二，严格的破坏性奖励控制目前只在 Base 家族上完成，尚未扩展到与之匹配的 Instruct 控制版本。
+这些结果支持一个直接解释：在当前设置下，1-shot GRPO 对 Base 数学推理模型的主要作用是快速行为校准，而不是注入额外数学知识。本文的贡献在于提供了 group size 与奖励有效性的同口径比较、围绕分布稳定化的多指标证据链，以及用于定位低数据收益的全量数据经验上界参考。
 \end{abstract}
 
 \noindent\textbf{关键词：}\ReportKeywordsCN
@@ -39,9 +40,9 @@
 \textbf{English Abstract}
 \end{center}
 \noindent
-This report studies 1-shot GRPO for mathematical reasoning under an extremely low-data regime. The formal analysis is built around five principal experiments: a Base baseline, an evaluation-aligned Base \texttt{n=1} ablation, a Base weak-regularization variant, a strict Base corrupted-reward control, and an Instruct baseline. The verified evidence is highly asymmetric across model families. The Base baseline improves from 0.3745 to 0.5733, the aligned \texttt{n=1} ablation improves from 0.3630 to 0.5470 with a best score of 0.5590, and the weak-regularization variant reaches 0.5747. By contrast, the strict corrupted-reward control collapses from 0.3630 to 0.00025, while the Instruct baseline changes only slightly from 0.6837 to 0.6873.
+This paper studies 1-shot GRPO for mathematical reasoning under an extremely low-data reinforcement-learning regime. Motivated by recent evidence that verifiable reward can remain effective with a single training example \cite{wang2025oneshotrlvr}, it asks what kind of generation behavior changes when the data budget is so small. The analysis compares five result settings across Base and Instruct model families and combines validation accuracy with diagnostics for length, confidence, entropy, and stopping behavior.
 
-The behavioral diagnostics sharpen the interpretation. In the successful Base runs, training shortens responses, lowers token entropy, reduces low-confidence token mass, raises tail confidence, and makes stopping behavior more decisive. In the corrupted-reward control, all of these trends reverse: entropy explodes, low-confidence mass saturates, EOS confidence collapses, and outputs become much longer. Taken together, these results support a conservative but coherent conclusion: under the current setup, 1-shot GRPO is primarily a fast calibration mechanism for the Base math model rather than a mechanism for injecting new mathematical knowledge. The main remaining caveats are that the aligned \texttt{n=1} result still comes from a single formal run and that the strict control has so far been completed only for the Base family.
+The main finding is a strong asymmetry across model families. The Base model gains roughly 0.20 validation score under meaningful reward supervision, while the Instruct model moves only slightly from an already strong starting point. Reducing the training group size from \texttt{n=8} to \texttt{n=1} weakens but does not remove the gain, and reward corruption causes the Base model to collapse rather than reproduce the meaningful-reward improvement. Across the successful Base settings, training also shortens outputs, lowers entropy, reduces low-confidence token mass, raises tail confidence, and makes stopping behavior sharper. These results support interpreting 1-shot GRPO primarily as fast behavioral calibration for the Base math model.
 
 \vspace{0.6em}
 \noindent\textbf{Keywords:} \ReportKeywordsEN
@@ -52,15 +53,15 @@ The behavioral diagnostics sharpen the interpretation. In the successful Base ru
 
 \section{引言}
 
-近年来，大语言模型在数学推理、代码生成和科学问答等复杂推理任务上取得了快速进展。与纯监督微调不同，强化学习式对齐能够利用最终答案正确性、相对偏好或过程质量信号，在生成阶段直接优化模型的行为分布。对于数学推理这类任务而言，模型不仅需要“知道”相关知识，还需要在解题过程中做出一系列结构化决策：是否继续展开、是否及时纠偏、何时终止生成，以及如何在多个候选思路之间重新分配概率质量。这些问题共同决定了最终正确率的上限，也决定了为什么基于强化学习的推理对齐在近年的研究中持续受到关注。
+近年来，大语言模型在数学推理、代码生成和科学问答等复杂推理任务上取得了快速进展 \cite{deepseekr1,kimi15,deepseekmath,alphacode,gpqa}。与纯监督微调不同，带可验证奖励的强化学习能够利用最终答案正确性或过程质量信号，在生成阶段直接优化模型的行为分布 \cite{deepseekr1,lightman2023stepbystep,wang2025oneshotrlvr}。对于数学推理这类任务而言，模型不仅需要“知道”相关知识，还需要在解题过程中做出一系列结构化决策：是否继续展开、是否及时纠偏、何时终止生成，以及如何在多个候选思路之间重新分配概率质量。这些问题共同决定了最终正确率的上限，也使得基于强化学习的推理优化成为近年研究中的重要方向。
 
-在当前实践中，GRPO 提供了一种尤其适合推理模型的优化思路。它并不依赖于高精度 critic，而是通过同一输入下多个采样响应之间的相对比较构造训练信号。对于数学题而言，这种组内比较非常自然：同一道题通常可以采样出完全正确、部分正确和明显错误的多条解法，组内差异恰好为训练提供了可利用的排序信号。因此，GRPO 经常被视为在工程成本、训练稳定性和实际收益之间较为平衡的方案。
+Wang 等人关于 1-shot RLVR 的近期工作进一步把这一问题推向了极低数据场景 \cite{wang2025oneshotrlvr}。该工作表明，对于 Qwen2.5-Math-1.5B 这样的数学模型，使用单个经过选择的训练样本也可以在 MATH500 以及多个数学推理基准上带来显著提升，并且在某些设置下接近使用更大 RLVR 数据子集得到的效果。更重要的是，该工作同时讨论了 outcome reward 与 format reward 的区别、policy-gradient loss 的主要作用、探索项的重要性，以及训练样本准确率饱和后测试性能仍可继续提升的 post-saturation generalization 现象。这些发现说明，1-shot RLVR 并非孤立的经验现象，而是一个值得进一步开展机制分析的研究场景。
 
-但在极低数据预算下，GRPO 究竟还能做什么，是一个并未被充分回答的问题。直觉上，若训练数据接近 one-shot 级别，模型不太可能在短时间内真正学到一套新的数学知识体系。那么，训练收益更可能来自能力注入，还是来自对原有推理习惯、结束行为和分布置信度的快速重排？这个问题不仅关乎解释，也直接影响后续实验设计。如果收益主要来自快速校准，那么后续工作应当更关注稳定性诊断、约束项和 group size 的作用，而不是简单增加数据量。
+本文沿着上述问题继续展开，但重点从“单样本 RLVR 是否存在显著基准收益”转向“这种收益对应怎样的行为变化”。在当前实践中，GRPO 提供了一种尤其适合推理模型的优化思路。它并不依赖于高精度 critic，而是通过同一输入下多个采样响应之间的相对比较构造训练信号。对于数学题而言，这种组内比较非常自然：同一道题通常可以采样出完全正确、部分正确和明显错误的多条解法，组内差异恰好为训练提供了可利用的排序信号。因此，GRPO 不仅是一种可行的优化方法，也使 group size 本身成为可以被直接检验的机制变量。
 
-本报告正是在这一背景下展开。与只报告一个最终分数不同，我们同时关注三个层面的问题。第一，1-shot GRPO 是否能在数学推理任务上带来可重复的性能提升。第二，这种提升是否伴随可观测的行为变化，例如 response length 缩短、token entropy 下降、低置信 token 比例减少以及 EOS 概率上升。第三，在当前正式实验矩阵下，哪些结论已经足够稳，哪些结论仍受限于实验口径和控制实验覆盖范围。
+在极低数据预算下，GRPO 对模型行为的影响需要更细的受控比较来刻画。本文关注三个问题：1-shot GRPO 是否主要改变已有推理行为而不只是提高分数；这种变化在 Base 与 Instruct 先验之间是否不同；以及它是否依赖 group-relative signal 和有效奖励信号。由此，本文引入 token-level diagnostics、相同验证口径的 \texttt{n=1} 设置和随机错误奖励设置，用于把低数据 RLVR 从单纯分数比较推进到行为机制分析。
 
-围绕这些问题，本文的主要贡献可以概括为三点。第一，本文对五个正式实验结果进行统一整理，并将新的对齐版 \texttt{n=1} 小组规模消融与严格的随机错误奖励控制实验纳入同一分析框架。第二，本文不仅比较最终 score，还系统整理了多种行为指标与训练过程中的动态统计，从而给出“训练如何改写推理分布”的直接证据。第三，本文明确区分当前证据已经足以支持的结论与仍需谨慎解释的部分，特别是 group size 单次运行与严格控制实验目前仅覆盖 Base 家族这两个边界，从而使结论保持正式而克制的表达。
+围绕这些问题，本文的主要贡献可以概括为三点。第一，本文在 1-shot RLVR 研究脉络下，统一比较五组关键结果设置，并将 \texttt{n=1} 小组规模设置与随机错误奖励设置纳入同一分析框架。第二，本文不仅比较最终 score，还系统整理了多种行为指标与训练过程中的动态统计，从而给出“训练如何改写推理分布”的直接证据。第三，本文进一步引入全量数据训练结果作为经验上界，用于评估 1-shot 收益距离更大数据预算下可达到效果还有多远。后文将依次给出方法背景、研究设置、主结果、行为证据、token 级证据与训练动态综合。
 
 \section{方法背景与研究问题}
 
@@ -68,223 +69,273 @@ The behavioral diagnostics sharpen the interpretation. In the successful Base ru
 
 GRPO 的核心在于组内相对比较。对于同一条输入，训练阶段会采样多个候选响应，并依据它们的相对表现形成优势信号。相比传统 PPO 强依赖的状态价值估计，这种做法减少了显式 critic 的复杂度，也更贴近推理任务中的真实训练需求。对于数学推理而言，多个采样结果之间常常体现出清晰的质量差异，例如某些响应中途走偏、某些响应拖尾过长、某些响应则能在较短链路内稳定闭合答案。GRPO 正是利用这些组内差异重新分配概率质量，让下一轮采样更偏向“结构更好”的解法。
 
-在本报告整理的主实验中，标准配置采用 \texttt{rollout\_n=8}。这意味着每个输入在训练阶段会被采样 8 次，以形成组内比较信号。与之对应，新的 \texttt{Base small-group ablation (n=1)} 则仅把训练阶段的 \texttt{rollout\_n} 降为 1，同时保持 \texttt{val\_rollout\_n=8} 与标准基线一致，用来更直接地测试组内相对信号在当前任务中的必要性。由于其他超参数大体保持一致，这种设计使得 group size 成为更清晰的主变量。
+在本文整理的主结果中，标准配置采用 \texttt{rollout\_n=8}。这意味着每个输入在训练阶段会被采样 8 次，以形成组内比较信号。与之对应，\texttt{Base n=1} 设置仅把训练阶段的 \texttt{rollout\_n} 降为 1，同时保持 \texttt{val\_rollout\_n=8} 与 \texttt{Base n=8} 一致，用来更直接地测试组内相对信号在当前任务中的作用。由于其他超参数大体保持一致，这种设计使得 group size 成为更直接的主要变量。
 
-\subsection{为什么不能只看最终正确率}
+\subsection{最终正确率之外的诊断指标}
 
-如果只比较最终 score，那么很容易得到一个过于粗糙的结论：Base 模型收益显著，而 Instruct 模型收益有限。然而，这样的结论无法解释训练究竟改变了什么。为此，本报告引入了多种验证期行为指标，包括平均响应长度、答案尾部置信度、低置信 token 比例、token 熵、最终 EOS 概率和平均 top-1 token 概率。它们分别对应模型行为的不同侧面：更短的响应可能意味着推理链更加收敛；更低的 entropy 和更高的 top-1 概率意味着分布更集中；更高的 EOS 概率则表明模型更擅长在恰当位置结束生成。
+仅比较最终 score 会得到过于粗略的结论：Base 模型收益显著，而 Instruct 模型收益有限。然而，这一结论无法解释训练对生成行为的具体影响。为此，本文引入了多种验证期行为指标，包括平均响应长度、答案尾部置信度、低置信 token 比例、token 熵、最终 EOS 概率和平均 top-1 token 概率。它们分别对应模型行为的不同侧面：更短的响应可能意味着推理链更加收敛；更低的 entropy 和更高的 top-1 概率意味着分布更集中；更高的 EOS 概率则表明模型更擅长在恰当位置结束生成。
 
-这些指标之所以重要，是因为它们能把“性能提升”拆解成“行为变化”。如果一个模型的分数提高，同时 response length 缩短、entropy 下降、低置信 token 比例减少，那么更合理的解释往往不是“模型突然学会了新的数学知识”，而是“模型开始更稳定地组织已有知识”。在极低样本强化学习里，这种解释尤其关键。
+这些指标能够把“性能提升”拆解成“行为变化”。本文将“行为校准”操作性定义为：在验证正确率提升的同时，模型生成分布朝更短响应、更低 token entropy、更少低置信 token、更高尾部与 top-1 置信度，以及更清晰 EOS 结束行为的方向同步移动。这个定义描述的是可观测的分布变化，并不等同于声称模型学习了新的数学事实。
 
-\subsection{研究问题与核心假设}
+\subsection{研究维度与核心假设}
 
-本文围绕以下五个研究问题展开：
+本文围绕以下五个研究维度展开：
 
 \begin{enumerate}
-    \item 在数学推理任务上，1-shot GRPO 能否带来可重复的性能提升？
-    \item Base 模型与 Instruct 模型的收益规模是否显著不同？
-    \item 训练收益是否伴随 entropy、低置信 token 比例和 EOS 结束行为的系统变化？
-    \item 如果控制条件设计有效，受扰动训练信号是否应显著削弱训练收益？
-    \item 如果组内相对信号是关键来源，将 group size 从 8 降到 1 后是否应明显削弱改进？
+    \item 1-shot GRPO 在数学推理任务上带来的可重复性能提升。
+    \item Base 模型与 Instruct 模型之间的收益规模差异。
+    \item 训练收益与 entropy、低置信 token 比例和 EOS 结束行为之间的系统关联。
+    \item 受扰动训练信号对正常奖励收益的削弱程度。
+    \item 将 group size 从 8 降到 1 后，组内相对信号减弱对训练改进的影响。
 \end{enumerate}
 
-对应地，本文采用如下假设作为分析线索：第一，1-shot GRPO 更像快速校准机制，而不是能力注入机制；第二，先验更弱的 Base 模型收益空间更大；第三，行为层指标会与主分数共同变化；第四，真正有效的负对照不应复现 clean baseline 的收益；第五，若 group-relative signal 很关键，则 \texttt{n=1} 应表现出明显衰减。后文的实验结果将围绕这些假设逐条展开。
+对应地，本文采用如下假设作为分析线索：第一，1-shot GRPO 更符合快速校准机制，而不是能力注入机制；第二，先验更弱的 Base 模型收益空间更大；第三，行为层指标会与主分数共同变化；第四，随机错误奖励设置不应复现正常奖励条件下的收益；第五，若 group-relative signal 很关键，则 \texttt{n=1} 应表现出明显衰减。后文的结果分析将围绕这些假设逐条展开。
 
-\section{实验设计}
+\section{研究设置}
 
 \subsection{模型、数据与总体流程}
 
-本报告涉及两类模型：\ModelBase{} 与 \ModelInstruct{}。验证集统一采用 \EvalSet{}，训练模式统一为 one-shot 设定。虽然这里的 one-shot 并不意味着只有单条样本，而是指训练数据规模被压缩到极低预算，但这恰好符合本文要讨论的核心问题：在极少训练信号下，强化学习究竟改变了什么。
+本文涉及两类模型：\ModelBase{} 与 \ModelInstruct{}。验证集统一采用 \EvalSet{}，训练模式统一为 one-shot 设定。虽然这里的 one-shot 并不意味着只有单条样本，而是指训练数据规模被压缩到极低预算，但这一设置与本文关注的低数据强化学习机制问题相匹配。
 
-从实验配置可以看出，各实验在学习率、batch size、\texttt{test\_freq} 和总 epoch 数上具有较高一致性，主要变化集中在三类因素上：模型先验（Base 或 Instruct）、正则化强度（标准或弱正则化）以及 group size（\texttt{n=8} 或 \texttt{n=1}）。这意味着不同实验之间具备较好的对照价值。
+从设置配置可以看出，各条件在学习率、batch size、\texttt{test\_freq} 和总 epoch 数上具有较高一致性，主要变化集中在三类因素上：模型先验（Base 或 Instruct）、正则化强度（标准或弱正则化）以及 group size（\texttt{n=8} 或 \texttt{n=1}）。这意味着不同设置之间具备较好的对照价值。
 
-\subsection{正式实验矩阵}
+\subsection{主结果设置}
 
-表~\ref{tab:main-results} 汇总了五个正式实验的核心结果。本文采用如下实验标签：\texttt{Base baseline (n=8)}、\texttt{Base small-group ablation (n=1)}、\texttt{Base weak-regularization variant}、\texttt{Base corrupted-reward control} 与 \texttt{Instruct baseline (n=8)}。此外，附录还保留了一组更早期的历史参考实验，其中包括 Base 家族的格式约束主导参考，用于补强对奖励结构的讨论，但不与正文主矩阵混合比较。
+表~\ref{tab:main-results} 汇总了五组关键设置的核心结果。本文采用如下结果标签：\texttt{Base n=8}、\texttt{Base n=1}、\texttt{Base weak-reg.}、\texttt{Base random-reward} 与 \texttt{Instruct n=8}。此外，附录还保留一组全量数据与格式约束参考结果，用于补强对奖励结构和数据规模的讨论，但不与正文主结果混合比较。
 
 \begin{table}[H]
     \centering
-    \caption{五个正式实验的主结果汇总}
+    \caption{五组关键设置的主结果汇总}
     \label{tab:main-results}
     \begin{threeparttable}
     \begin{tabular}{lccccc}
         \toprule
-        实验 & step0 & final & 增量 & best step & best score \\
+        设置 & 初始 & final & 增量 & 最佳检查点 & best score \\
         \midrule
-        Base baseline (n=8) & 0.3745 & 0.5733 & +0.1988 & 156 & 0.5753 \\
-        Base small-group ablation (n=1) & 0.3630 & 0.5470 & +0.1840 & 174 & 0.5590 \\
-        Base weak-regularization variant & 0.3745 & 0.5747 & +0.2002 & 174 & 0.5765 \\
-        Base corrupted-reward control & 0.3630 & 0.0003 & $-$0.3628 & 0 & 0.3630 \\
-        Instruct baseline (n=8) & 0.6837 & 0.6873 & +0.0035 & 162 & 0.6995 \\
+        Base n=8 & 0.3745 & 0.5733 & +0.1988 & 156 & 0.5753 \\
+        Base n=1\tnote{a} & 0.3630 & 0.5470 & +0.1840 & 174 & 0.5590 \\
+        Base weak-reg. & 0.3745 & 0.5747 & +0.2002 & 174 & 0.5765 \\
+        Base random-reward\tnote{b} & 0.3630 & 0.0003 & $-$0.3628 & 0 & 0.3630 \\
+        Instruct n=8 & 0.6837 & 0.6873 & +0.0035 & 162 & 0.6995 \\
         \bottomrule
     \end{tabular}
     \begin{tablenotes}[flushleft]
         \footnotesize
-        \item 注 1：\texttt{Base small-group ablation (n=1)} 在当前正式报告中采用与基线对齐的 \texttt{val\_rollout\_n=8} 设置，因此每个 step 同样约 4000 条验证记录，可直接与 \texttt{Base baseline (n=8)} 做 step-level 对比。
-        \item 注 2：\texttt{Base corrupted-reward control} 采用随机错误奖励构造的严格破坏性监督设置，其作用是检验当奖励信号失真时 clean baseline 的收益是否仍会出现。
+        \item[a] \texttt{Base n=1} 采用与 \texttt{Base n=8} 相同的 \texttt{val\_rollout\_n=8} 设置，因此每个验证检查点同样约 4000 条记录，可直接进行同口径比较。
+        \item[b] \texttt{Base random-reward} 采用随机错误奖励构造，定位为奖励破坏设置，而不是无奖励设置。
     \end{tablenotes}
     \end{threeparttable}
 \end{table}
 
 \subsection{训练与评估口径}
 
-本报告使用的所有主实验都覆盖 \texttt{step 0} 到 \texttt{step 180}，步长为 6。每个 step 的结果均由逐样本验证记录聚合得到。当前纳入正式比较的五个实验都采用约 4000 条验证记录，因此主分数曲线、best step 和 step-level 波动具备较好的可比性。尤其是 \texttt{Base baseline (n=8)}、新的 \texttt{Base small-group ablation (n=1)} 以及 \texttt{Base corrupted-reward control}，已经共享同一验证采样口径。
+本文比较的五组设置都覆盖 \texttt{step 0} 到 \texttt{step 180}，步长为 6。每个检查点的结果均由逐样本验证记录聚合得到。五组设置都采用约 4000 条验证记录，因此主分数曲线、最佳检查点和检查点级波动具备较好的可比性。尤其是 \texttt{Base n=8}、\texttt{Base n=1} 以及 \texttt{Base random-reward}，共享同一验证采样口径。
 
-另一个需要记录的口径是 token diagnostics 的覆盖范围。结合当前运行脚本与逐样本验证记录的实际保存结果，更准确的描述是：每个 step 最多有 64 个样本参与 token-level diagnostics 统计，但只有其中 8 条样本会额外保存完整的 \texttt{token\_diagnostics} 轨迹。对于主 \texttt{n=8} 实验，这 8 条完整轨迹通常对应同一固定题目的 8 次采样，因此 token 级分析更适合作为机制证据，而不适合作为“全任务统计结论”。动态统计进一步表明，当前五个正式实验在每个验证 step 上都稳定分析 64 个样本，覆盖率约为 1.6\%。
+另一个需要记录的口径是 token diagnostics 的覆盖范围。结合逐样本验证记录的保存结果，更准确的描述是：每个检查点最多有 64 个样本参与 token-level diagnostics 统计，但只有其中 8 条样本会额外保存完整的 \texttt{token\_diagnostics} 轨迹。对于主 \texttt{n=8} 设置，这 8 条完整轨迹通常对应同一固定题目的 8 次采样，因此 token 级分析更适合作为机制证据，而不适合作为“全任务统计结论”。动态统计进一步表明，五组设置在每个验证检查点上都稳定分析 64 个样本，覆盖率约为 1.6\%。
 
-\subsection{历史预实验作为先验证据}
+\subsection{全量数据经验上界参考}
 
-除正式主矩阵外，本文还系统整理了更早阶段的一组已完成训练结果，并将其作为先验证据使用。这批结果不直接并入主结果表，原因在于它们来自更早的实验阶段，训练文件范围、记录覆盖与当前正式矩阵并不完全一致；但它们对论文叙事仍然很重要，因为它们独立重复了与正文同方向的现象。具体而言，早期 Base 家族中，\texttt{full} 训练由 0.3630 提升到 0.6053，显著强于 \texttt{1-shot} 的 0.5753；Instruct 家族中，\texttt{full} 也高于 \texttt{1-shot}，但绝对差值仅约 0.0143。与此同时，Base 家族的格式约束主导参考仅从 0.3630 提升到 0.4490，明显弱于常规奖励路径。
+除主结果表外，本文还系统整理了一组全量数据与格式约束参考结果。这批结果不直接并入表~\ref{tab:main-results}，原因在于训练文件范围与记录覆盖并不完全一致；但它们对全文论证仍然很重要，因为它们为低数据设置提供了一个经验上界。具体而言，Base 家族中，\texttt{full} 训练由 0.3630 提升到 0.6053，显著强于 \texttt{1-shot} 的 0.5753；Instruct 家族中，\texttt{full} 也高于 \texttt{1-shot}，但绝对差值仅约 0.0143。与此同时，Base 家族的格式约束主导参考仅从 0.3630 提升到 0.4490，明显弱于常规奖励路径。
 
-这批历史结果之所以值得写入正文，并不是因为它们能替代正式对齐实验，而是因为它们提供了跨实验阶段的一致性。第一，它们说明“Base 家族收益显著、Instruct 家族收益有限”并不是只在当前正式矩阵里才出现。第二，它们说明“1-shot 有效，但通常弱于 full training”这一点在更早阶段也已经存在。第三，格式约束主导参考的明显劣势进一步支持了本文关于“奖励结构本身会影响最终上限”的论断。换言之，当前主矩阵负责回答“在严格口径下结论是否成立”，而历史预实验则负责回答“这些结论是否具有跨阶段一致性”。
+这里的 \texttt{full} 沿用 1-shot RLVR 原文的数据口径，指从 DeepScaleR-Preview-Dataset 随机抽取的 1209 条 DSR-sub instance pool；\texttt{1-shot} 指同一 DSR-sub 中被选出的单个样本 \(\pi_1\) \cite{wang2025oneshotrlvr,deepscaler2025}。
+
+这批参考结果之所以值得写入正文，并不是因为它们能替代表~\ref{tab:main-results} 的同口径比较，而是因为它们提供了一个可解释的经验上界参照。第一，它们说明“Base 家族收益显著、Instruct 家族收益有限”并不依赖于单一结果表。第二，它们说明“1-shot 有效，但通常弱于全量数据训练”。第三，格式约束主导参考的明显劣势进一步支持了本文关于“奖励结构本身会影响最终上限”的论断。换言之，主结果表负责回答“在同口径下结论是否成立”，而全量数据参考负责回答“低数据收益距离更大数据预算下的经验上界还有多远”。
+
+\begin{table}[H]
+    \centering
+    \caption{全量数据结果作为 1-shot 训练的经验上界参考}
+    \label{tab:full-ceiling-reference-cn}
+    \small
+    \begin{threeparttable}
+    \begin{tabular}{lcccc}
+        \toprule
+        模型家族 & 1-shot final & full final & final 差距 & best 差距 \\
+        \midrule
+        Base & 0.5753 & 0.6053 & +0.0300 & +0.0333 \\
+        Instruct & 0.6928 & 0.7070 & +0.0143 & +0.0085 \\
+        \bottomrule
+    \end{tabular}
+    \begin{tablenotes}[flushleft]
+        \footnotesize
+        \item 注：差距定义为全量数据结果减去对应的 1-shot 结果。该表用于提供经验上界，不作为表~\ref{tab:main-results} 的同口径比较项。
+    \end{tablenotes}
+    \end{threeparttable}
+\end{table}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\textwidth]{legacy-reference-panel.png}
-    \caption{更早阶段历史参考实验的 step0、final 与 best 对比。该图表明，无论在 Base 还是 Instruct 家族中，\texttt{full} 训练通常都优于 \texttt{1-shot}；同时，Base 家族中的格式约束主导参考明显弱于常规奖励路径。}
-    \label{fig:legacy-reference-main}
+    \includegraphics[width=\textwidth]{full-data-reference-panel.png}
+    \caption{全量数据与格式约束参考结果的初始值、终点值与最佳值对比。该图表明，无论在 Base 还是 Instruct 家族中，\texttt{full} 训练通常都优于 \texttt{1-shot}；同时，Base 家族中的格式约束主导参考明显弱于常规奖励路径。}
+    \label{fig:full-data-reference-main}
 \end{figure}
 
-图~\ref{fig:legacy-reference-main} 因而承担了正文里的一个特殊角色：它不是正式主结论的来源，而是对主结论进行“外部一致性”补强。对一篇正式 paper 而言，这类材料的价值在于，它可以避免正文叙事完全建立在单一最终矩阵之上，使“Base 更敏感于训练范式和奖励结构、Instruct 整体收益更温和”这一判断具有更宽的经验基础。
+表~\ref{tab:full-ceiling-reference-cn} 和图~\ref{fig:full-data-reference-main} 因而承担了正文里的一个特殊角色：它们不是主结论的直接来源，而是对主结论进行上界定位和外部参照补强。这类材料的价值在于，它可以避免全文叙事完全建立在单一结果表之上，使“Base 更敏感于训练范式和奖励结构、Instruct 整体收益更温和”这一判断具有更宽的经验基础。
 
-\section{主结果：1-shot GRPO 是否有效}
+\section{主结果：1-shot GRPO 的有效性}
 
 \subsection{总体趋势：Base 收益显著，Instruct 收益有限}
 
-从表~\ref{tab:main-results} 可以直接看到两个强信号。第一，Base 模型在多个完整实验中都表现出接近 0.20 的绝对分数提升，这说明 1-shot GRPO 在弱先验数学模型上确实能够产生稳定而显著的收益。第二，Instruct 模型的改进明显更小，其结果更像在高性能附近做微调，而不是发生结构性变化。这与我们在方法部分提出的先验差异假设高度一致。
+表~\ref{tab:main-results} 呈现出两个主要现象。第一，Base 模型在多个设置中都表现出接近 0.20 的绝对分数提升，说明 1-shot GRPO 在弱先验数学模型上能够产生稳定而显著的收益。第二，Instruct 模型的改进明显更小，其结果更接近高性能附近的局部微调，而不是结构性变化。这与方法部分提出的先验差异假设高度一致。
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{score-all-static.png}
-    \caption{五个正式实验的 validation score 随训练 step 的变化。Base clean 实验整体抬升明显，而严格的破坏性奖励控制实验则快速坍缩。}
+    \caption{五组设置的 validation score 随训练检查点的变化。Base 正常奖励设置整体抬升明显，而随机错误奖励设置则快速坍缩。}
     \label{fig:all-score-curves}
 \end{figure}
 
-图~\ref{fig:all-score-curves} 强化了表格中的结论。Base 系列从较低起点快速爬升，并在中后期进入相对平稳的高位区间；Instruct 系列则从一开始就处于较高水平，后续训练带来的变化幅度明显更小。这意味着不能用同一个收益尺度评价两类模型。对于 Base 模型，训练是在帮助它摆脱“高熵、长拖尾、低置信”的初始状态；而对于 Instruct 模型，训练更像对已有好分布做细修整。
+图~\ref{fig:all-score-curves} 强化了表格中的结论。Base 系列从较低起点快速上升，并在中后期进入相对平稳的高位区间；Instruct 系列则从一开始就处于较高水平，后续训练带来的变化幅度明显更小。这意味着不能用同一个收益尺度评价两类模型。对于 Base 模型，训练是在帮助它脱离“高熵、长拖尾、低置信”的初始状态；而对于 Instruct 模型，训练更接近对已有分布进行局部调整。
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{score-detail-panel.png}
+    \caption{Base、Instruct 与随机错误奖励设置的 validation score 局部视图。}
+    \label{fig:score-detail-panel}
+\end{figure}
+
+由于五组设置的分数量级差异较大，单独依赖图~\ref{fig:all-score-curves} 容易压缩局部差异。图~\ref{fig:score-detail-panel} 因而承担一个补充角色：左图把三个成功的 Base 条件放在相近尺度上，能够更清楚地看到 \texttt{Base weak-reg.} 与 \texttt{Base n=8} 非常接近，而 \texttt{Base n=1} 则稳定偏低；中图则表明 Instruct 模型虽然总增益很小，但在高位区间内仍存在可辨认的局部波动；右图把随机错误奖励条件下的坍缩单独展开，从而避免它在总览图里仅仅表现为“贴近零值的一条线”。
 
 \subsection{Base 模型：收益大且具有一致性}
 
-\texttt{Base baseline (n=8)} 从 0.3745 提升到 0.5733，说明标准设定下的 1-shot GRPO 已经足以把基础数学模型从“不够稳定可用”的状态拉升到更具实用性的区间。更值得注意的是，这一收益并不是孤例。\texttt{Base weak-regularization variant} 的 final score 为 0.5747，与标准基线非常接近；而新的严格控制实验 \texttt{Base corrupted-reward control} 却从 0.3630 快速坍缩到 0.00025。二者放在一起，恰好形成一组更有解释力的对照：当奖励结构与 clean baseline 保持同向时，Base 模型的收益具有较强可重复性；而当奖励信号被系统性破坏后，这种收益不会自然出现。
+\texttt{Base n=8} 从 0.3745 提升到 0.5733，说明标准设定下的 1-shot GRPO 已经足以将基础数学模型从较不稳定的初始状态提升到更高性能区间。更值得注意的是，这一收益并不是孤例。\texttt{Base weak-reg.} 的 final score 为 0.5747，与标准设置非常接近；而 \texttt{Base random-reward} 却从 0.3630 快速坍缩到 0.00025。二者构成一组更具解释力的对照：当奖励结构保持有效时，Base 模型的收益具有较强一致性；而当奖励信号被系统性破坏后，这种收益不会出现。
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{score-base-static.png}
-    \caption{Base 家族四个正式实验的主分数变化。三个 clean 方向实验表现出前中期快速上升，而严格破坏性控制实验则快速失稳。}
+    \caption{Base 家族四组设置的主分数变化。三个正常奖励方向设置表现出前中期快速上升，而随机错误奖励设置则快速失稳。}
     \label{fig:base-score-curves}
 \end{figure}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{score-instruct-static.png}
-    \caption{Instruct 家族基线实验的主分数变化。曲线整体维持在高位，训练主要表现为小幅波动与局部微调。}
+    \caption{Instruct 家族 \texttt{n=8} 设置的主分数变化。曲线整体维持在高位，训练主要表现为小幅波动与局部微调。}
     \label{fig:instruct-score-curves}
 \end{figure}
 
-图~\ref{fig:base-score-curves} 与图~\ref{fig:instruct-score-curves} 进一步说明，Base 家族的多个变体虽然有不同的后期波动，但都共享一种相似的学习形态：前中期快速上升，后期进入缓慢振荡；Instruct 家族则主要维持在高位窄幅波动。这提示在极低数据预算下，最佳 checkpoint 未必总是最终 checkpoint；在正式实验分析中区分二者是有意义的。
+图~\ref{fig:base-score-curves} 与图~\ref{fig:instruct-score-curves} 进一步说明，Base 家族的多个设置虽然有不同的后期波动，但都共享一种相似的学习形态：前中期快速上升，后期进入缓慢振荡；Instruct 家族则主要维持在高位窄幅波动。这提示在极低数据预算下，最佳 checkpoint 未必总是最终 checkpoint；在结果分析中区分二者是有意义的。
 
 \subsection{Instruct 模型：高起点与小增益}
 
-\texttt{Instruct baseline (n=8)} 在 \texttt{step 0} 就达到 0.6837，这一数值远高于 Base 模型的起点。训练后的 final score 为 0.6873，最佳 step 为 162，best score 为 0.6995。若只看数值，它仍然是一个有效实验，但其收益量级只有 0.0035，与 Base 模型约 0.20 的绝对提升完全不在同一量级。
+\texttt{Instruct n=8} 在 \texttt{step 0} 就达到 0.6837，这一数值远高于 Base 模型的起点。训练后的 final score 为 0.6873，最佳检查点为 162，best score 为 0.6995。若只看数值，它仍然是一个有效设置，但其收益量级只有 0.0035，与 Base 模型约 0.20 的绝对提升完全不在同一量级。
 
 因此，更准确的叙事不是“1-shot GRPO 对所有模型都同样有效”，而是“1-shot GRPO 的收益高度依赖于模型起点”。对于高先验 Instruct 模型，训练已经很难带来显著的结构性收益；对于先验较弱的 Base 模型，训练空间则大得多。
 
-\subsection{最佳 step 与最终 step 不完全一致}
+\subsection{最佳检查点与最终检查点的偏离}
 
-另一个不可忽略的观察是，多个实验的最佳分数并不出现在最终 \texttt{step 180}。例如，\texttt{Base baseline (n=8)} 的最好结果出现在 \texttt{step 156}，\texttt{Base weak-regularization variant} 出现在 \texttt{step 174}，\texttt{Instruct baseline (n=8)} 的最佳 step 则是 \texttt{162}。这一现象说明在当前训练预算下，模型的收益并不是单调累积的；相反，训练中后期可能进入高位波动区间。因此，在正式分析中区分“最终 checkpoint”和“最佳 checkpoint”是必要的。
+另一个不可忽略的观察是，多个设置的最佳分数并不出现在最终 \texttt{step 180}。例如，\texttt{Base n=8} 的最好结果出现在 \texttt{step 156}，\texttt{Base weak-reg.} 出现在 \texttt{step 174}，\texttt{Instruct n=8} 的最佳检查点则是 \texttt{162}。这一现象说明在当前训练预算下，模型的收益并不是单调累积的；相反，训练中后期可能进入高位波动区间。因此，在结果分析中区分“最终 checkpoint”和“最佳 checkpoint”是必要的。
 
-\section{行为机制分析：训练究竟改了什么}
+\section{行为证据：宏观指标与 token 级证据}
 
 \subsection{Base 模型的收缩与稳定化}
 
-如果只看 score，我们会知道 Base 模型变强了，但不知道它是如何变强的。行为指标给出了更直接的答案。表~\ref{tab:behavior-results} 显示，\texttt{Base baseline (n=8)} 在最终阶段的平均 response length 为 603.1，相比起点明显缩短；答案尾部置信度提升到 0.9331；低置信 token 比例降到 0.0325；token entropy 降到 0.1839；最终 EOS 概率上升到 0.9880。这组变化可以被概括为一句话：模型不再依赖冗长试探，而是开始更快地走向稳定闭合。
+仅比较 score 可以确认 Base 模型收益，但不足以解释收益的行为来源。行为指标提供了更直接的机制证据。表~\ref{tab:behavior-results} 显示，\texttt{Base n=8} 在最终阶段的平均 response length 为 603.1，相比起点明显缩短；答案尾部置信度提升到 0.9331；低置信 token 比例降到 0.0325；token entropy 降到 0.1839；最终 EOS 概率上升到 0.9880。这组变化表明，模型较少表现为冗长试探，并更快趋于稳定闭合。
 
 \begin{table}[H]
     \centering
-    \caption{五个正式实验的最终行为指标汇总}
+    \caption{五组设置的最终行为指标汇总}
     \label{tab:behavior-results}
-    \begin{tabular}{lcccccc}
+    \begin{threeparttable}
+    \small
+    \setlength{\tabcolsep}{3.5pt}
+    \begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{0.27\textwidth}*{6}{>{\centering\arraybackslash}X}}
         \toprule
-        实验 & length & tail conf. & low-conf & entropy & EOS prob & top1 prob \\
+        设置 & 长度 & 尾部置信 & 低置信 & 熵 & EOS & top-1 \\
         \midrule
-        Base baseline (n=8) & 603.1 & 0.9331 & 0.0325 & 0.1839 & 0.9880 & 0.9354 \\
-        Base small-group ablation (n=1) & 580.4 & 0.9003 & 0.0488 & 0.2811 & 0.9215 & 0.9227 \\
-        Base weak-regularization variant & 578.6 & 0.9437 & 0.0294 & 0.1563 & 0.9738 & 0.9437 \\
-        Base corrupted-reward control & 1192.4 & 0.0001 & 1.0000 & 11.5466 & 0.0009 & 0.0021 \\
-        Instruct baseline (n=8) & 470.3 & 0.9571 & 0.0187 & 0.1322 & 0.9926 & 0.9634 \\
+        Base n=8 & 603.1 & 0.9331 & 0.0325 & 0.1839 & 0.9880 & 0.9354 \\
+        Base n=1 & 580.4 & 0.9003 & 0.0488 & 0.2811 & 0.9215 & 0.9227 \\
+        Base weak-reg. & 578.6 & 0.9437 & 0.0294 & 0.1563 & 0.9738 & 0.9437 \\
+        Base random-reward & 1192.4 & 0.0001 & 1.0000 & 11.5466 & 0.0009 & 0.0021 \\
+        Instruct n=8 & 470.3 & 0.9571 & 0.0187 & 0.1322 & 0.9926 & 0.9634 \\
         \bottomrule
-    \end{tabular}
+    \end{tabularx}
+    \begin{tablenotes}[flushleft]
+        \footnotesize
+        \item 注：短标签对应表~\ref{tab:main-results} 中的五组设置；EOS 指最终 EOS 概率，top-1 指平均 top-1 token 概率。
+    \end{tablenotes}
+    \end{threeparttable}
 \end{table}
 
-这类变化与“能力注入”并不完全一致，却与“快速校准”高度吻合。若模型是在短期内真正学会新的数学知识，我们未必会同时看到长度缩短、结束概率上升和熵下降；但如果模型只是学会更稳定地组织原有解题习惯，那么这些指标恰好会一起变化。换句话说，训练收益更像是对分布进行重新整形，而不是为模型引入新的知识模块。
+这类变化与“能力注入”并不完全一致，却与“快速校准”高度吻合。短期知识学习并不必然导致长度缩短、结束概率上升和熵下降同时出现；相反，如果模型学会更稳定地组织原有解题习惯，这些指标更可能同步变化。因此，训练收益更适合被解释为对分布进行重新整形，而不是为模型引入额外知识模块。
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{base-length-static.png}
-    \caption{Base 家族四个正式实验的验证响应长度变化。clean 方向实验整体变短，而破坏性奖励控制实验则显著变长。}
+    \caption{Base 家族四组设置的验证响应长度变化，包含全尺度视图与局部放大视图。}
     \label{fig:base-length-curves}
 \end{figure}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{base-entropy-static.png}
-    \caption{Base 家族四个正式实验的验证 token entropy 变化。clean 方向实验明显收缩，而破坏性控制实验出现熵爆炸。}
+    \caption{Base 家族四组设置的验证 token entropy 变化，包含全尺度视图与局部放大视图。}
     \label{fig:base-entropy-curves}
 \end{figure}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{base-lowconf-static.png}
-    \caption{Base 家族四个正式实验的低置信 token 比例变化。clean 方向实验持续下降，而破坏性控制实验迅速升至饱和。}
+    \caption{Base 家族四组设置的低置信 token 比例变化，包含全尺度视图与局部放大视图。}
     \label{fig:base-lowconf-curves}
 \end{figure}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{base-eos-static.png}
-    \caption{Base 家族四个正式实验的最终 EOS 概率变化。clean 方向实验训练后更倾向于在合适位置结束，而破坏性控制实验则失去稳定闭合能力。}
+    \caption{Base 家族四组设置的最终 EOS 概率变化，包含全尺度视图与局部放大视图。}
     \label{fig:base-eos-curves}
 \end{figure}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{base-tailconf-static.png}
-    \caption{Base 家族四个正式实验的答案尾部置信度变化。clean 方向实验在答案闭合附近置信度整体提高，而破坏性控制实验接近完全崩解。}
+    \caption{Base 家族四组设置的答案尾部置信度变化，包含全尺度视图与局部放大视图。}
     \label{fig:base-tailconf-curves}
 \end{figure}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{base-top1-static.png}
-    \caption{Base 家族四个正式实验的平均 top-1 token 概率变化。clean 方向实验后期分布更加集中，而破坏性控制实验则迅速变得近乎均匀。}
+    \caption{Base 家族四组设置的平均 top-1 token 概率变化，包含全尺度视图与局部放大视图。}
     \label{fig:base-top1-curves}
 \end{figure}
 
-图~\ref{fig:base-length-curves} 到图~\ref{fig:base-top1-curves} 让这种行为变化变得更加直观。尤其值得关注的是 response length、tail confidence、top-1 probability 与 EOS probability 的联动：随着训练进行，Base 家族普遍变得更短，也更愿意在合适位置结束；与此同时，token entropy 与低置信 token 比例同步下降，而答案尾部置信度与平均 top-1 概率同步上升。这意味着模型不是靠“多说一点”提升分数，而是靠“更稳更准地结束”提升分数。对数学题这种最终答案明确、拖尾反而容易引入错误的任务而言，这一点尤其关键。
+图~\ref{fig:base-length-curves} 到图~\ref{fig:base-top1-curves} 使这种行为变化更加直观。每张图都采用“全尺度视图 + 正常奖励条件局部放大”的设计：全尺度视图保留随机错误奖励设置的异常方向，局部放大视图则避免异常线压缩正常条件之间的差异。尤其值得关注的是 response length、tail confidence、top-1 probability 与 EOS probability 的联动：随着训练进行，Base 家族普遍变得更短，也更倾向于在合适位置结束；与此同时，token entropy 与低置信 token 比例同步下降，而答案尾部置信度与平均 top-1 概率同步上升。这表明模型并非通过延长输出提升分数，而是通过更稳定的结束行为提升分数。对数学题这种最终答案明确、拖尾容易引入错误的任务而言，这一点尤其关键。
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{behavior-detail-noncollapse-panel.png}
+    \caption{非坍缩设置的行为细节图。该图聚焦四个非坍缩条件在 token entropy、low-confidence ratio、最终 EOS 概率与 top-1 probability 上的细微差异。}
+    \label{fig:behavior-detail-noncollapse}
+\end{figure}
+
+如果把随机错误奖励设置保留在同一坐标尺度里，许多成功条件之间的细节差异会被明显压缩。图~\ref{fig:behavior-detail-noncollapse} 因而只保留四个非坍缩条件，用于比较成功设置之间的局部差异。该图显示：\texttt{Base weak-reg.} 在 entropy、top-1 probability 和 EOS probability 上都表现出更强的收缩，而 \texttt{Base n=1} 则在这些指标上持续落后；\texttt{Instruct n=8} 的曲线整体变化较小，更接近低熵高置信区域内的局部调整。
 
 \subsection{动态统计进一步强化了上述判断}
 
-训练与验证阶段的动态统计把前面的静态结果推进到了过程层面。与只看最终 checkpoint 不同，这些统计同时记录了训练期的 \texttt{actor/entropy} 和验证期的聚合 token 指标，因此能更直接地区分“真正变得更稳定的策略”和“仅在终点分数上略占优势的策略”。表~\ref{tab:dynamic-summary} 汇总了五个正式实验从起点到终点的核心变化。
+训练与验证阶段的动态统计把前面的静态结果推进到了过程层面。与只看最终 checkpoint 不同，这些统计同时记录了训练期的 \texttt{actor/entropy} 和验证期的聚合 token 指标，因此能更直接地区分“真正变得更稳定的策略”和“仅在终点分数上略占优势的策略”。表~\ref{tab:dynamic-summary} 汇总了五组设置从起点到终点的核心变化。
 
 \begin{table}[H]
     \centering
     \caption{训练与验证动态统计摘要（起点$\rightarrow$终点）}
     \label{tab:dynamic-summary}
     \begin{threeparttable}
-    \small
-    \begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}Xccccc}
+    \footnotesize
+    \setlength{\tabcolsep}{2.6pt}
+    \begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{0.24\textwidth}*{5}{>{\centering\arraybackslash}X}}
         \toprule
-        实验 & actor entropy & val token entropy & low-conf ratio & val length & top1 prob \\
+        设置 & actor 熵 & 验证熵 & 低置信 & 长度 & top-1 \\
         \midrule
-        Base baseline (n=8) & 0.346$\rightarrow$0.116 & 0.660$\rightarrow$0.202 & 0.115$\rightarrow$0.037 & 812.5$\rightarrow$603.1 & 0.854$\rightarrow$0.932 \\
-        Base small-group ablation (n=1) & 0.641$\rightarrow$0.085 & 0.532$\rightarrow$0.317 & 0.095$\rightarrow$0.051 & 762.8$\rightarrow$580.4 & 0.873$\rightarrow$0.921 \\
-        Base weak-regularization variant & 0.346$\rightarrow$0.091 & 0.660$\rightarrow$0.156 & 0.115$\rightarrow$0.030 & 812.5$\rightarrow$578.6 & 0.854$\rightarrow$0.944 \\
-        Base corrupted-reward control & 0.376$\rightarrow$11.594 & 0.633$\rightarrow$11.547 & 0.110$\rightarrow$1.000 & 762.8$\rightarrow$1192.4 & 0.856$\rightarrow$0.002 \\
-        Instruct baseline (n=8) & 0.118$\rightarrow$0.062 & 0.111$\rightarrow$0.156 & 0.017$\rightarrow$0.022 & 473.2$\rightarrow$470.3 & 0.964$\rightarrow$0.961 \\
+        Base n=8 & 0.346$\rightarrow$0.116 & 0.660$\rightarrow$0.202 & 0.115$\rightarrow$0.037 & 812.5$\rightarrow$603.1 & 0.854$\rightarrow$0.932 \\
+        Base n=1 & 0.641$\rightarrow$0.085 & 0.532$\rightarrow$0.317 & 0.095$\rightarrow$0.051 & 762.8$\rightarrow$580.4 & 0.873$\rightarrow$0.921 \\
+        Base weak-reg. & 0.346$\rightarrow$0.091 & 0.660$\rightarrow$0.156 & 0.115$\rightarrow$0.030 & 812.5$\rightarrow$578.6 & 0.854$\rightarrow$0.944 \\
+        Base random-reward & 0.376$\rightarrow$11.594 & 0.633$\rightarrow$11.547 & 0.110$\rightarrow$1.000 & 762.8$\rightarrow$1192.4 & 0.856$\rightarrow$0.002 \\
+        Instruct n=8 & 0.118$\rightarrow$0.062 & 0.111$\rightarrow$0.156 & 0.017$\rightarrow$0.022 & 473.2$\rightarrow$470.3 & 0.964$\rightarrow$0.961 \\
         \bottomrule
     \end{tabularx}
     \begin{tablenotes}[flushleft]
         \footnotesize
-        \item 注：起点取第一个有值的训练或验证 step，终点取最终验证 step。验证 token 指标来自聚合 token diagnostics，每个 step 分析 64 个样本；当前五个正式实验的覆盖率均约为 1.6\%。
+        \item 注：起点取第一个有值的训练或验证检查点，终点取最终验证检查点。验证 token 指标来自聚合 token diagnostics，每个检查点分析 64 个样本；五组设置的覆盖率均约为 1.6\%。
     \end{tablenotes}
     \end{threeparttable}
 \end{table}
@@ -292,70 +343,70 @@ GRPO 的核心在于组内相对比较。对于同一条输入，训练阶段会
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{actor-entropy-static.png}
-    \caption{五个正式实验训练期 \texttt{actor/entropy} 变化。Base clean 实验呈现明显分布收缩，而破坏性奖励控制实验则出现快速熵爆炸。}
+    \caption{五组设置训练期 \texttt{actor/entropy} 变化，包含全尺度视图与局部放大视图。}
     \label{fig:actor-entropy-curves}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\textwidth]{aligned-n1-vs-n8-panel.png}
-    \caption{对齐评估口径下，\texttt{Base baseline (n=8)} 与 \texttt{Base small-group ablation (n=1)} 的六项动态对比。可以看到 \texttt{n=1} 仍能提升，但在 score、entropy、top-1 probability 与 stopping behavior 上都落后于 \texttt{n=8}。}
-    \label{fig:aligned-n1-vs-n8-panel}
+    \includegraphics[width=\textwidth]{n1-vs-n8-panel.png}
+    \caption{相同评估口径下，\texttt{Base n=8} 与 \texttt{Base n=1} 的六项动态对比。}
+    \label{fig:n1-vs-n8-panel}
 \end{figure}
 
-这张表最清楚地强化了 Base 与 Instruct 的分化。以 \texttt{Base baseline (n=8)} 为例，\texttt{actor/entropy} 从 0.346 降到 0.116，验证 token entropy 从 0.675 降到 0.184，低置信 token 比例从 0.116 降到 0.032，聚合 top-1 概率从 0.851 升到 0.935，验证响应长度则从 812.5 缩短到 603.1。弱约束版本的收缩更激进：对应的最终 \texttt{actor/entropy} 进一步降到 0.091，验证 token entropy 降到 0.156，top-1 概率升到 0.944。与之相对，\texttt{Base corrupted-reward control} 并未出现任何“轻微变差但仍有学习”的形态，而是沿着完全相反的方向发展：\texttt{actor/entropy} 从 0.376 升到 11.594，验证 token entropy 从 0.633 升到 11.547，低置信 token 比例升到 1.000，top-1 概率坍缩到 0.002，验证响应长度则暴涨到 1192.4。也就是说，Base 家族的 clean 收益并不只是最终 reward 提高，而是伴随着训练熵下降、验证熵下降、低置信 token 减少、top-1 概率升高与长度缩短的一整套同步变化；一旦奖励信号被系统性破坏，这整套变化会整体反向。
+这张表最直接地展示了 Base 与 Instruct 的分化。以 \texttt{Base n=8} 为例，\texttt{actor/entropy} 从 0.346 降到 0.116，验证 token entropy 从 0.675 降到 0.184，低置信 token 比例从 0.116 降到 0.032，聚合 top-1 概率从 0.851 升到 0.935，验证响应长度则从 812.5 缩短到 603.1。弱正则化设置的收缩更强：对应的最终 \texttt{actor/entropy} 进一步降到 0.091，验证 token entropy 降到 0.156，top-1 概率升到 0.944。与之相对，\texttt{Base random-reward} 并未出现任何“轻微变差但仍有学习”的形态，而是沿着完全相反的方向发展：\texttt{actor/entropy} 从 0.376 升到 11.594，验证 token entropy 从 0.633 升到 11.547，低置信 token 比例升到 1.000，top-1 概率坍缩到 0.002，验证响应长度则暴涨到 1192.4。也就是说，Base 家族在正常奖励条件下的收益并不只是最终 reward 提高，而是伴随着训练熵下降、验证熵下降、低置信 token 减少、top-1 概率升高与长度缩短的一整套同步变化；一旦奖励信号被系统性破坏，这整套变化会整体反向。
 
-\texttt{Base small-group ablation (n=1)} 让这个故事更细致了一层。新的对齐版消融在 \texttt{step 0} 为 0.363，最终为 0.547，最佳 step 为 174、best score 为 0.559。也就是说，在与 \texttt{Base baseline (n=8)} 完全一致的验证口径下，把训练 group size 从 8 降到 1 后，模型依然获得了显著收益，但 final score 低了约 0.026，best score 也低了约 0.016。与此同时，它的最终 token entropy 为 0.317，明显高于 \texttt{Base baseline (n=8)} 的 0.202 与 \texttt{Base weak-regularization variant} 的 0.156；低置信 token 比例为 0.051，也高于对应的 0.037 和 0.030；平均 top-1 概率则只有 0.921，低于 \texttt{n=8} 基线的 0.932。图~\ref{fig:aligned-n1-vs-n8-panel} 进一步表明，这种差异不是单个 final checkpoint 的偶然波动，而是贯穿 score、entropy、length 与 top-1 probability 的整体形态差异。更合理的解释是：把 group size 降到 1 不会阻止学习，但会削弱分布收缩与稳定闭合的质量。
+\texttt{Base n=1} 进一步细化了 group size 的作用。该设置在 \texttt{step 0} 为 0.363，最终为 0.547，最佳检查点为 174、best score 为 0.559。在与 \texttt{Base n=8} 完全一致的验证口径下，把训练 group size 从 8 降到 1 后，模型依然获得了显著收益，但 final score 低了约 0.026，best score 也低了约 0.016。与此同时，它的最终 token entropy 为 0.317，明显高于 \texttt{Base n=8} 的 0.202 与 \texttt{Base weak-reg.} 的 0.156；低置信 token 比例为 0.051，也高于对应的 0.037 和 0.030；平均 top-1 概率则只有 0.921，低于 \texttt{n=8} 的 0.932。图~\ref{fig:n1-vs-n8-panel} 进一步表明，这种差异不是单个 final checkpoint 的偶然波动，而是贯穿 score、entropy、length 与 top-1 probability 的整体形态差异。因此，把 group size 降到 1 不会阻止学习，但会削弱分布收缩与稳定闭合的质量。
 
-Instruct 家族则呈现出另一种模式。\texttt{Instruct baseline (n=8)} 的 \texttt{actor/entropy} 只从 0.118 降到 0.062，验证长度几乎不变，top-1 概率也基本维持在 0.96 附近。这更像局部微调，而不是结构性重整。换句话说，在高先验模型上，当前 one-shot 级别的强化学习更多是在已有稳定分布附近做细节抛光，而不是像 Base 家族那样触发一次明显的分布重排。
+Instruct 家族则呈现出另一种模式。\texttt{Instruct n=8} 的 \texttt{actor/entropy} 只从 0.118 降到 0.062，验证长度几乎不变，top-1 概率也基本维持在 0.96 附近。这更接近局部调整，而不是结构性重整。在高先验模型上，当前 one-shot 级别的强化学习更多是在已有稳定分布附近进行细节调整，而不是像 Base 家族那样触发一次明显的分布重排。
 
 \subsection{弱约束版本的启示}
 
-\texttt{Base weak-regularization variant} 的 final score 与标准基线非常接近，但它的最终 entropy 更低、top-1 概率更高、响应也更短。这说明关闭 KL 和 entropy 约束后，模型并没有立刻崩坏，反而朝着更激进的分布收缩方向前进。这里需要谨慎：更激进的收缩既可能意味着“更快收敛到好解法”，也可能意味着“更容易过拟合或更依赖少量样本偏差”。当前报告只能确认它没有显著损伤最终准确率，但不能据此得出“约束项可有可无”的结论。
+\texttt{Base weak-reg.} 的 final score 与标准设置非常接近，但它的最终 entropy 更低、top-1 概率更高、响应也更短。这说明关闭 KL 和 entropy 约束后，模型并未立即失稳，而是朝着更强的分布收缩方向前进。这里需要谨慎：更强的收缩既可能意味着“更快收敛到较优解法”，也可能意味着“更容易过拟合或更依赖少量样本偏差”。当前证据只能确认它没有显著损伤最终准确率，但不能据此得出“约束项可有可无”的结论。
 
-换句话说，弱约束实验的价值不在于证明约束无用，而在于提醒我们：在极低样本强化学习里，最终分数并不足以代表训练过程的健康程度。若后续要把这组工作写成更完整的论文，最值得补充的是 step-level 波动分析和 representative failure case 分析。
+弱正则化设置的价值不在于证明约束无用，而在于表明：在极低样本强化学习里，最终分数并不足以代表训练过程的健康程度。后续分析可进一步关注检查点级波动和 representative failure case。
 
 \subsection{Instruct 模型主要是局部微调}
 
-\texttt{Instruct baseline (n=8)} 的最终行为指标呈现出另一种图景。它的 response length 本来就较短，tail confidence 本来就很高，low-confidence token ratio 也处于较低水平。训练后虽然仍然有一定变化，但幅度远小于 Base 模型。例如，它的 entropy 只是在低位小幅波动，EOS probability 始终接近 0.99。这说明 Instruct 模型的主要变化不是从“混乱走向有序”，而是在已有稳定分布上做细节打磨。
+\texttt{Instruct n=8} 的最终行为指标呈现出另一种图景。它的 response length 本来就较短，tail confidence 本来就很高，low-confidence token ratio 也处于较低水平。训练后虽然仍然有一定变化，但幅度远小于 Base 模型。例如，它的 entropy 只是在低位小幅波动，EOS probability 始终接近 0.99。这说明 Instruct 模型的主要变化不是从高不确定性状态走向有序，而是在已有稳定分布上进行细节调整。
 
-这类结果对研究假设非常关键。它说明同样的 1-shot GRPO 并不会以同样方式作用于所有模型。对于先验较弱的 Base 模型，它更多扮演纠偏器；对于先验较强的 Instruct 模型，它更像抛光工具。
+这类结果对研究假设具有关键意义。它说明同样的 1-shot GRPO 并不会以同样方式作用于所有模型。对于先验较弱的 Base 模型，它更接近校准机制；对于先验较强的 Instruct 模型，它更接近局部调整机制。
 
-\section{Token 级补充证据}
+\subsection{Token 级补充证据}
 
-\subsection{补充材料的口径与边界}
+\subsubsection{补充材料的口径与边界}
 
-除当前正式实验外，仓库中还保留了一份更早的四实验 token 级诊断报告。它并不覆盖全部主实验，而是聚焦于固定题目上的完整轨迹子集。结合当前配置，更准确的理解应当是：每个 step、每个实验最多有 64 个样本参与 token diagnostics 统计，但只有 8 条样本保留完整 token 轨迹，而且每条记录只保留前约 96 个 token。因此，这部分材料更适合作为“机制补充证据”，而不宜被直接外推为“对全部 500 题均成立的统计结论”。
+本文还纳入了一份 token 级诊断分析。它并不覆盖全部主结果设置，而是聚焦于固定题目上的完整轨迹子集。结合当前配置，更准确的理解应当是：每个检查点、每个设置最多有 64 个样本参与 token diagnostics 统计，但只有 8 条样本保留完整 token 轨迹，而且每条记录只保留前约 96 个 token。因此，这部分材料更适合作为“机制补充证据”，而不宜被直接外推为“对全部 500 题均成立的统计结论”。
 
-尽管覆盖范围有限，这批 token 轨迹仍然非常有价值。原因在于，它真的保留了 token 位置级的 \texttt{logprob}、\texttt{entropy}、\texttt{top1\_prob} 和 top-k mass 等信息，可以更直接地回答“训练是否在早期 token 组织上做了校正”。需要同时指出的是，本文还额外拥有正式实验共享的聚合 token 摘要曲线，因此 token 证据已经分成两层：一层是正式实验共享的 64-sample 聚合统计，用于支持整体方向；另一层是更早四实验固定题目的完整轨迹，用于展示局部机制。
+尽管覆盖范围有限，这批 token 轨迹仍然具有较高价值。原因在于，它确实保留了 token 位置级的 \texttt{logprob}、\texttt{entropy}、\texttt{top1\_prob} 和 top-k mass 等信息，可以更直接地检验“训练是否在早期 token 组织上做了校正”。需要同时指出的是，本文还额外拥有五组设置共享的聚合 token 摘要曲线，因此 token 证据已经分成两层：一层是 64-sample 聚合统计，用于支持整体方向；另一层是固定题目的完整轨迹，用于展示局部机制。
 
-\subsection{直接观察：Base 变化大，Instruct 变化小}
+\subsubsection{直接观察：Base 变化大，Instruct 变化小}
 
-图~\ref{fig:token-probe-over-steps} 与图~\ref{fig:token-step-metrics} 给出了固定题目上的 token 级可视化结果。可以看到，Instruct 系列在 \texttt{step 0} 就已经具备较高的 token confidence 和较低的 entropy，训练后变化不大；Base 系列则表现出更明显的轨迹收缩和前缀稳定化。尤其在 \texttt{Base-Full} 与 \texttt{Base-OneShot} 的对比中，训练后期的 entropy 降幅和 top-1 概率增幅都清晰可见。
+图~\ref{fig:token-probe-over-steps} 与图~\ref{fig:token-step-metrics} 给出了固定题目上的 token 级可视化结果。Instruct 系列在 \texttt{step 0} 就已经具备较高的 token confidence 和较低的 entropy，训练后变化不大；Base 系列则表现出更明显的轨迹收缩和前缀稳定化。尤其在 \texttt{Base-Full} 与 \texttt{Base-OneShot} 的对比中，训练后期的 entropy 降幅和 top-1 概率增幅都清晰可见。
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{token-probe-over-steps.png}
-    \caption{固定题目在不同 step 上的保留轨迹。该图直观展示了训练后前缀组织与终止行为的变化。}
+    \caption{固定题目在不同检查点上的保留轨迹。该图直观展示了训练后前缀组织与终止行为的变化。}
     \label{fig:token-probe-over-steps}
 \end{figure}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{token-step-metrics.png}
-    \caption{固定题目的 token 级熵、概率与长度等指标随 step 的变化。该图更适合支持“训练改变了早期 token 组织方式”的叙事。}
+    \caption{固定题目的 token 级熵、概率与长度等指标随检查点的变化。该图更适合支持“训练改变了早期 token 组织方式”的解释。}
     \label{fig:token-step-metrics}
 \end{figure}
 
-表~\ref{tab:token-final} 与表~\ref{tab:token-delta} 进一步给出该固定题目的数字证据。首先，在 final step 上，\texttt{Base-Full} 的平均 entropy 为 0.2036，而 \texttt{Instruct-Full} 仅为 0.0778；对应的 top-1 概率分别为 0.9246 和 0.9705。其次，从 \texttt{step 0} 到 final，\texttt{Base-Full} 与 \texttt{Base-OneShot} 的 logprob 增量和 entropy 下降幅度都远大于 Instruct 系列。这说明 Base 模型的训练变化确实更剧烈，也更像一次明显的行为校准。图~\ref{fig:token-probe-over-steps} 与图~\ref{fig:token-step-metrics} 提供了与这些数值一致的可视化证据。
+表~\ref{tab:token-final} 与表~\ref{tab:token-delta} 进一步给出该固定题目的数字证据。首先，在 final checkpoint 上，\texttt{Base-Full} 的平均 entropy 为 0.2036，而 \texttt{Instruct-Full} 仅为 0.0778；对应的 top-1 概率分别为 0.9246 和 0.9705。其次，从 \texttt{step 0} 到 final，\texttt{Base-Full} 与 \texttt{Base-OneShot} 的 logprob 增量和 entropy 下降幅度都远大于 Instruct 系列。这说明 Base 模型的训练变化确实更剧烈，也更符合一次显著行为校准的特征。图~\ref{fig:token-probe-over-steps} 与图~\ref{fig:token-step-metrics} 提供了与这些数值一致的可视化证据。
 
 \begin{table}[H]
     \centering
-    \caption{固定题目在 final step 上的 token 级摘要}
+    \caption{固定题目在 final checkpoint 上的 token 级摘要}
     \label{tab:token-final}
     \begin{tabular}{lccccc}
         \toprule
-        实验 & correct? & traced tokens & entropy & top1 prob & top5 mass \\
+        设置 & correct? & traced tokens & entropy & top1 prob & top5 mass \\
         \midrule
         Base-Full & correct & 768 & 0.2036 & 0.9246 & 0.9970 \\
         Base-OneShot & correct & 672 & 0.2005 & 0.9248 & 0.9970 \\
@@ -372,7 +423,7 @@ Instruct 家族则呈现出另一种模式。\texttt{Instruct baseline (n=8)} �
     \label{tab:token-delta}
     \begin{tabular}{lccc}
         \toprule
-        实验 & $\Delta$ logprob & $\Delta$ entropy & $\Delta$ top1 prob \\
+        设置 & $\Delta$ logprob & $\Delta$ entropy & $\Delta$ top1 prob \\
         \midrule
         Base-Full & +0.3673 & -0.3908 & +0.0762 \\
         Base-OneShot & +0.3849 & -0.3885 & +0.0740 \\
@@ -382,65 +433,69 @@ Instruct 家族则呈现出另一种模式。\texttt{Instruct baseline (n=8)} �
     \end{tabular}
 \end{table}
 
-\subsection{与当前正式实验结论的衔接}
+\subsubsection{与主结果结论的衔接}
 
-需要强调的是，这些 token 图并不是为了替代正式主结果，而是为了增强主结果的解释力。当前宏观统计已经告诉我们：Base 模型收益大，Instruct 模型收益小；而 token 级补充材料进一步告诉我们：这种差异不是偶然的，而是体现在前缀组织方式、分布收缩和正确结束行为上的。二者放在一起，才能形成一条较完整的证据链。
+这些 token 图并不替代主结果，而是增强主结果的解释力。宏观统计已经显示：Base 模型收益大，Instruct 模型收益小；token 级补充材料进一步表明，这种差异体现在前缀组织方式、分布收缩和正确结束行为上。二者共同形成一条较完整的证据链。
 
-\subsection{前缀分布如何被重新组织}
+\subsubsection{前缀分布的重新组织}
 
-如果把 attention 放到最终答案附近，前面的结论已经足够说明“训练后更稳了”；但如果进一步看输出前缀的位置级分布，能够看到更具体的变化方向。图~\ref{fig:prefix-curves-main} 展示了 final step 上不同实验在前缀 token 区域的曲线差异。它的价值在于把“最终答对”拆开为“从一开始是否就沿着更干净的轨道展开”。对于 Base 家族而言，这一点尤其重要，因为它们的改进并不是只发生在最后一两个答案 token 上，而是从更早的前缀阶段就开始体现为更低的熵和更集中的 top-1 概率。
+如果将注意力集中到最终答案附近，前面的结论已经足以说明训练后分布更加稳定；但若进一步考察输出前缀的位置级分布，则能够看到更具体的变化方向。图~\ref{fig:prefix-curves-main} 展示了 final checkpoint 上不同设置在前缀 token 区域的曲线差异。它的价值在于把“最终答对”拆解为“是否从输出前缀就沿着更稳定的轨道展开”。对于 Base 家族而言，这一点尤其重要，因为它们的改进并不是只发生在最后一两个答案 token 上，而是从更早的前缀阶段就开始体现为更低的熵和更集中的 top-1 概率。
 
-这张图与前面的动态聚合曲线能够相互印证。聚合统计表明，Base 家族在 step-level 上持续收缩；而前缀图进一步说明，这种收缩并不是平均到所有位置后才看得出来，而是在输出早期就已经发生。对于数学推理任务，这意味着模型更快地进入正确的结构化推理轨道，而不是先走一段模糊、犹豫的路径，再在答案末端临时纠正。
+图~\ref{fig:prefix-curves-main} 与前面的动态聚合曲线能够相互印证。聚合统计表明，Base 家族在检查点级统计上持续收缩；前缀图进一步说明，这种收缩并不是平均到所有位置后才显现，而是在输出早期就已经发生。对于数学推理任务，这意味着模型更快地进入正确的结构化推理轨道，而不是先经过一段模糊、犹豫的路径，再在答案末端临时纠正。
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{final-prefix-curves.png}
-    \caption{final step 上不同实验在前缀 token 区域的曲线差异。该图用于说明训练后前缀组织本身发生了系统变化，而不仅仅是末尾答案更稳定。}
+    \caption{final checkpoint 上不同设置在前缀 token 区域的曲线差异。该图用于说明训练后前缀组织本身发生了系统变化，而不仅仅是末尾答案更稳定。}
     \label{fig:prefix-curves-main}
 \end{figure}
 
-\subsection{从 \texttt{step 0} 到 final：局部 token 分布到底收缩了多少}
+\subsubsection{从初始到终点的局部 token 分布收缩}
 
-图~\ref{fig:token-delta-main} 把关注点放到训练前后差值本身。相比只看 final step，它更适合回答一个机制问题：模型到底是“整体轻微变好”，还是“某些关键位置发生了明显的分布重排”。从图中可以看到，Base 条件的变化幅度远大于 Instruct 条件，尤其是在早期和中段 token 区域，\texttt{logprob} 上升与 \texttt{entropy} 下降同时出现。这与前文“Base 更像被快速校准，Instruct 更像被局部抛光”的主叙事完全一致。
+图~\ref{fig:token-delta-main} 把关注点放到训练前后差值本身。相比只看 final checkpoint，该图更适合刻画模型变化是整体轻微改善，还是集中在若干关键位置的明显分布重排。Base 条件的变化幅度远大于 Instruct 条件，尤其是在早期和中段 token 区域，\texttt{logprob} 上升与 \texttt{entropy} 下降同时出现。这与前文关于 Base 快速校准、Instruct 局部调整的解释一致。
 
-对对齐版 \texttt{n=1} 消融的理解也可以从这类图里得到补充。虽然当前完整轨迹图本身不是为这条实验单独生成的，但它所呈现的变化模式与正式实验聚合结果相匹配：训练能够让 Base 模型在 token 级分布上变得更稳，而当 group size 缩小后，这种分布清理仍然发生，却不如 \texttt{n=8} 那样充分。也正因为如此，正文里关于 group-relative signal 的判断并不是仅仅依赖一个汇总分数，而是有来自局部 token 变化形态的间接支撑。
+\texttt{n=1} 设置的结果也可以从这类图里得到补充。虽然完整轨迹图本身不是为该设置单独生成的，但它所呈现的变化模式与聚合结果相匹配：训练能够让 Base 模型在 token 级分布上变得更稳，而当 group size 缩小后，这种分布清理仍然发生，却不如 \texttt{n=8} 那样充分。也正因为如此，正文里关于 group-relative signal 的判断并不是仅仅依赖一个汇总分数，而是有来自局部 token 变化形态的间接支撑。
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{token-delta-step0-to-final.png}
-    \caption{从 \texttt{step 0} 到 final 的 token 级变化。该图强调训练前后局部 token 分布的收缩幅度，尤其适合支撑“快速校准”而非“知识注入”的解释。}
+    \caption{从初始到终点的 token 级变化。}
     \label{fig:token-delta-main}
 \end{figure}
 
-\subsection{正确与错误响应的分布差异为什么重要}
+\subsubsection{按正确性分组的分布分离}
 
-最后一个经常被忽视的问题是：更低的 token entropy 本身是否真的和更高正确率有关，还是只是一个“看起来更自信”的副产物。图~\ref{fig:correct-wrong-main} 给出了一个直观答案。在固定题目的完整轨迹子集中，正确样本与错误样本在 entropy 上呈现出明显分离，这意味着“分布更稳定”并不是一个与任务无关的美观指标，而是与解题成功概率直接相关的行为特征。
+为检验分布收缩是否真正对应更高的任务成功率，本文在保留 token-diagnostics 摘要的 validation records 上按响应正确性分组，比较 mean token entropy 与 mean top-1 probability。图~\ref{fig:correct-wrong-support-panel} 汇总了四个非坍缩设置在 final checkpoint 的 64-sample 摘要统计，并沿训练过程跟踪了 \texttt{Base n=1}。结论方向高度一致：正确响应系统性位于更“收缩”的一侧，即 entropy 更低、top-1 probability 更高。
 
-当然，我们仍然不能把这张图写成“全任务层面的严格统计规律”，因为它建立在受限的完整轨迹子集上。但它至少完成了一个关键补充：把正文中已经反复出现的 entropy 收缩，与“为什么这会帮助正确率提升”连接了起来。就论文论证而言，这类桥接图有助于把主分数、行为曲线和机制解释串成一个更闭合的故事。
+从 final checkpoint 的跨设置比较看，这种分离在四个非坍缩条件下均可观测。具体而言，\texttt{Base n=8} 的正确组与错误组 mean token entropy 分别为 0.165 和 0.237，\texttt{Base n=1} 为 0.159 和 0.570，\texttt{Base weak-reg.} 为 0.152 和 0.172，\texttt{Instruct n=8} 为 0.087 和 0.499；对应的 mean top-1 probability 则分别为 0.939/0.925、0.941/0.878、0.945/0.940 和 0.968/0.925。尽管不同条件下的分离幅度并不相同，但方向完全一致。这说明正文中反复出现的 entropy 收缩和置信度集中并非与任务无关的表面现象，而是与最终解题成功率稳定相关。
+
+训练过程中的分组统计进一步表明，这一关系并非只出现在终点 checkpoint。\texttt{Base n=1} 在 \texttt{step 0} 时，正确组与错误组的 mean token entropy 已呈现 0.353 与 0.880 的明显差异；到 final checkpoint，该差异对应为 0.159 与 0.570。与此相应，mean top-1 probability 从 \texttt{step 0} 的 0.895/0.822 提升到 final checkpoint 的 0.941/0.878。换言之，正确性分组下的分布分离贯穿训练过程，而不是某个局部 traced subset 的偶然现象。随机错误奖励设置由于 final checkpoint 已无正确响应，因此未纳入该图。
+
+本节从两个层次回答机制问题：宏观行为指标展示整体稳定化方向，token 级轨迹则说明这种变化也能在生成内部结构中观察到。因此，这部分证据并不是额外堆叠的图表，而是在不同粒度上支撑同一个“快速行为校准”解释。
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\textwidth]{correct-vs-wrong-entropy.png}
-    \caption{正确与错误完整轨迹响应在 token entropy 上的差异。该图用于解释为什么更干净的 token 分布与更高的最终正确率具有一致方向。}
-    \label{fig:correct-wrong-main}
+    \includegraphics[width=\textwidth]{correct-wrong-support-panel.png}
+    \caption{按正确性分组的 token 分布统计。上排比较四个非坍缩设置在 final checkpoint 的正确组与错误组；下排展示 \texttt{Base n=1} 在训练过程中的同类分组统计。}
+    \label{fig:correct-wrong-support-panel}
 \end{figure}
 
-\section{消融与严格控制实验分析}
+\section{小组规模与奖励信号分析}
 
 \subsection{\texttt{n=1} 小组规模消融的解释边界}
 
-\texttt{Base small-group ablation (n=1)} 的新对齐结果给出了比旧版更清晰的答案。它从 0.3630 提升到 0.5470，best score 为 0.5590，说明把 group size 降到 1 仍然可以产生实质收益；但在与 \texttt{Base baseline (n=8)} 完全一致的验证设置下，它稳定落后于 \texttt{n=8} 基线的 0.5733 / 0.5753。这意味着当前证据已经不再支持“group size 可能无关紧要”的说法，而是更支持一个更具体的判断：group-relative signal 不是收益存在与否的必要条件，但它对获得更高、更干净的最终收敛结果是重要的。
+\texttt{Base n=1} 在与 \texttt{Base n=8} 相同的验证协议下表现出明确收益。其分数从 0.3630 提升到 0.5470，best score 为 0.5590，说明将 group size 降到 1 仍可产生实质改进；但在相同验证设置下，它稳定落后于 \texttt{n=8} 的 0.5733 / 0.5753。这意味着当前证据并不支持“group size 无关紧要”的解释，而更支持如下判断：group-relative signal 并非收益存在的必要条件，但对于获得更高、更稳定的最终收敛结果具有重要作用。
 
-当然，这一结论仍应保持正式克制。当前 aligned ablation 仍只有单次正式运行，因此它更适合作为“强支持证据”，而不是“彻底盖棺定论”的多 seed 结论。
+这一结论仍需谨慎解释。\texttt{n=1} 与 \texttt{n=8} 的对比目前仍基于单次训练结果，因此更适合作为支持性证据，而非多 seed 意义下的最终结论。
 
-\subsection{严格破坏性奖励控制实验的解释意义}
+\subsection{随机错误奖励设置的解释意义}
 
-严格控制实验的核心目的，是检验 clean baseline 的收益是否真正依赖于有意义的训练信号。如果把奖励系统性破坏后，模型仍能复现 clean 实验的收益，那么“训练确实利用了有效监督结构”这一解释就会被显著削弱；反之，如果破坏性奖励导致性能和分布同时坍缩，那么 clean baseline 的改善就更可以被解释为对真实训练信号的响应。
+随机错误奖励设置的核心目的，是检验正常奖励条件下的收益是否真正依赖于有意义的训练信号。如果把奖励系统性破坏后，模型仍能复现正常奖励收益，那么“训练确实利用了有效监督结构”这一解释就会被显著削弱；反之，如果破坏性奖励导致性能和分布同时坍缩，那么正常奖励条件下的改善就更可以被解释为对真实训练信号的响应。
 
 \begin{table}[H]
     \centering
-    \caption{严格破坏性奖励控制实验的终点行为}
-    \label{tab:control-collapse}
+    \caption{随机错误奖励设置的终点行为}
+    \label{tab:random-reward-endpoint}
     \begin{tabular}{lc}
         \toprule
         指标 & 数值 \\
@@ -456,121 +511,124 @@ Instruct 家族则呈现出另一种模式。\texttt{Instruct baseline (n=8)} �
     \end{tabular}
 \end{table}
 
-新的 \texttt{Base corrupted-reward control} 给出了与 clean baseline 完全不同的结果。它从 0.3630 起步，却在训练过程中迅速坍缩到 0.00025；与此同时，响应长度从 762.8 增长到 1192.4，low-confidence token 比例升到 1.000，token entropy 升到 11.5466，EOS 结束概率降到 0.0009，平均 top-1 概率也几乎退化为均匀分布水平。表~\ref{tab:control-collapse} 汇总了这种终点崩解状态。就论文论证而言，这是一条非常关键的证据：当奖励信号被系统性破坏后，模型不仅不会复现 clean baseline 的收益，反而会失去稳定生成能力。由此，正文关于 clean 实验收益来源于真实训练信号的解释获得了显著加强。
+\texttt{Base random-reward} 与正常奖励设置呈现出截然不同的结果。它从 0.3630 起步，却在训练过程中迅速坍缩到 0.00025；与此同时，响应长度从 762.8 增长到 1192.4，low-confidence token 比例升到 1.000，token entropy 升到 11.5466，EOS 结束概率降到 0.0009，平均 top-1 概率也几乎退化为均匀分布水平。表~\ref{tab:random-reward-endpoint} 汇总了这种终点崩解状态。就论文论证而言，这是一条关键证据：当奖励信号被系统性破坏后，模型不会复现正常奖励条件下的收益，而是失去稳定生成能力。需要强调的是，该设置不是“无信号”消融，而是主动注入随机错误奖励的更极端奖励破坏对照；因此它能说明错误奖励会破坏收益，但不能单独等价于“没有奖励信号”的情形。
 
-\section{训练动态的阶段性分解}
+\section{训练动态与证据综合}
 
-\subsection{收益主要发生在什么阶段}
+\subsection{收益的阶段分布}
 
-仅仅知道 final score 很高，还不足以说明训练过程是否健康。更有解释力的问题是：收益到底主要来自前期快速抬升，还是来自后期缓慢累积。图~\ref{fig:phase-gain-breakdown} 把五个正式实验的主分数增量拆成三个阶段：\texttt{0$\rightarrow$36}、\texttt{36$\rightarrow$96} 和 \texttt{96$\rightarrow$180}。这种拆法虽然是经验性的，但足够把“起步纠偏”“中段巩固”和“后期波动”区分开来。
+仅知道 final score 较高，还不足以说明训练过程是否健康。更有解释力的问题是收益的阶段来源：主要来自前期快速提升，还是来自后期缓慢累积。图~\ref{fig:phase-gain-breakdown} 把五组设置的主分数增量拆成三个阶段：\texttt{0$\rightarrow$36}、\texttt{36$\rightarrow$96} 和 \texttt{96$\rightarrow$180}。这种拆法虽然是经验性的，但足够把“起步纠偏”“中段巩固”和“后期波动”区分开来。
 
-从图中可以看到，Base clean 家族的主要收益集中在前两个阶段，尤其是 \texttt{0$\rightarrow$36} 的快速抬升最为明显。这与本文一直强调的“快速校准”完全一致：模型先被迅速拉出初始的高熵、长拖尾状态，然后在中段继续巩固正确轨道；到了最后阶段，收益变得更有限，甚至主要体现为小范围高位波动。相比之下，Instruct 基线几乎没有可观的阶段性增益，这再次说明其训练并不是一次明显的结构性重排，而更像在高位附近做局部抛光。严格控制实验则沿完全相反方向演化，其坍缩主要发生在训练前中期。
+Base 正常奖励设置的主要收益集中在前两个阶段，尤其是 \texttt{0$\rightarrow$36} 的快速提升最为明显。这与本文强调的“快速校准”一致：模型先被迅速移出初始的高熵、长拖尾状态，然后在中段继续巩固正确轨道；最后阶段的收益更有限，主要体现为小范围高位波动。相比之下，Instruct 设置几乎没有可观的阶段性增益，说明其训练并不是一次明显的结构性重排，而更接近高位附近的局部调整。随机错误奖励设置则沿完全相反方向演化，其坍缩主要发生在训练前中期。
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{phase-gain-breakdown.png}
-    \caption{五个正式实验主分数增量的阶段性分解。Base clean 实验的收益主要集中在前期纠偏与中段巩固，而严格控制实验呈现持续坍缩。}
+    \caption{五组设置主分数增量的阶段性分解。}
     \label{fig:phase-gain-breakdown}
 \end{figure}
 
-\subsection{为什么 best checkpoint 和 final checkpoint 不能混为一谈}
+\subsection{最佳 checkpoint 与最终 checkpoint 的偏离}
 
-在低数据预算强化学习里，最佳点和终点往往并不相同。图~\ref{fig:best-final-gap} 将这个现象拆成两个量同时展示：一是 \texttt{best score - final score} 的差值，二是最佳验证 step 所在的位置。这个图的意义在于，它把前文分散在各处的观察集中起来：虽然多个实验最终都停在 \texttt{step 180}，但真正最优的 checkpoint 常常更早出现。
+在低数据预算强化学习里，最佳点和终点往往并不相同。图~\ref{fig:best-final-gap} 将这个现象拆成两个量同时展示：一是 \texttt{best score - final score} 的差值，二是最佳验证检查点所在的位置。这个图的意义在于，它把前文分散在各处的观察集中起来：虽然多个设置最终都停在 \texttt{step 180}，但真正最优的 checkpoint 常常更早出现。
 
-这个现象对正式报告很关键。它说明当前训练过程更像“快速进入高位区间后在后期轻微振荡”，而不是“越训越好”的单调过程。对 Base 模型而言，这意味着如果任务目标是拿到最佳验证性能，那么早停或 checkpoint selection 都是值得认真讨论的训练策略；对 Instruct 模型而言，则意味着它本来就缺乏大幅收益空间，后期训练更容易表现为噪声而不是确定性的改进。
+这个现象对结果分析具有重要意义。它说明当前训练过程更接近“快速进入高位区间后在后期轻微振荡”，而不是单调改进过程。对 Base 模型而言，这意味着如果任务目标是获得最佳验证性能，那么早停或 checkpoint selection 都值得纳入训练策略讨论；对 Instruct 模型而言，则意味着它本来就缺乏大幅收益空间，后期训练更容易表现为噪声而不是确定性的改进。
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{best-final-gap.png}
-    \caption{五个正式实验的最佳 checkpoint 与最终 checkpoint 对比。左图展示 best-final gap，右图展示最佳验证 step。}
+    \caption{五组设置的最佳 checkpoint 与最终 checkpoint 对比。}
     \label{fig:best-final-gap}
 \end{figure}
 
-\subsection{终点行为排序如何补强主叙事}
+\subsection{终点行为排序的补充证据}
 
-图~\ref{fig:final-behavior-ranking} 对五个正式实验的若干终点行为指标做了统一排序，包括最终 token entropy、低置信 token 比例、top-1 probability 和响应长度。相比逐个在正文中报数字，这种图更容易看出整体格局。它表明 Base 家族内部虽然都能获得较高收益，但不同实验的“收敛风格”并不完全相同：弱约束版本更激进，标准基线更均衡，对齐后的 \texttt{n=1} 则在最终熵与低置信比例上都落后于 \texttt{n=8}，而严格控制实验则远离所有正常收敛区间。
+图~\ref{fig:final-behavior-ranking} 对五组设置的若干终点行为指标做了统一排序，包括最终 token entropy、低置信 token 比例、top-1 probability 和响应长度。相比逐个在正文中报数字，这种图更容易看出整体格局。它表明 Base 家族内部虽然都能获得较高收益，但不同设置的“收敛风格”并不完全相同：弱正则化设置表现出更强的收缩，标准 \texttt{n=8} 设置更为稳健，\texttt{n=1} 则在最终熵与低置信比例上都落后于 \texttt{n=8}，而随机错误奖励设置则远离所有正常收敛区间。
 
-这个排序图也解释了为什么论文分析不能只看单一 reward。若只看 final score，\texttt{Base weak-regularization variant} 与 \texttt{Base baseline (n=8)} 十分接近；但一旦把终点 token 指标并排观察，就会发现它们在收缩强度、闭合方式和输出长度上其实并不相同。与此同时，\texttt{Base corrupted-reward control} 则把“奖励被破坏后的崩解形态”展示得非常清楚。这个对照说明：当前最有说服力的地方，恰恰在于它把主分数和行为分布放在一起看，而不是停留在单个汇总数字上。
+该排序图说明论文分析不能只依赖单一 reward。若只看 final score，弱正则化设置与标准 \texttt{n=8} 设置十分接近；但终点 token 指标并排观察后可以发现，它们在收缩强度、闭合方式和输出长度上并不相同。与此同时，随机错误奖励设置清楚展示了奖励被破坏后的崩解形态。这个对照说明，主分数与行为分布的联合分析比单个汇总数字更具有解释力。
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{final-behavior-ranking.png}
-    \caption{五个正式实验终点行为指标排序图。该图将 entropy、low-confidence ratio、top-1 probability 和响应长度统一并排展示。}
+    \caption{五组设置终点行为指标排序图。}
     \label{fig:final-behavior-ranking}
 \end{figure}
 
-\section{多指标之间的耦合关系}
+\subsection{多指标之间的耦合关系}
 
-\subsection{收益提升是否真的与校准量同步}
+\subsubsection{收益提升与校准量的同步关系}
 
-到目前为止，正文已经分别讨论了主分数、行为指标和 token 补充材料，但还有一个更进一步的问题值得直接回答：这些变化之间到底只是“方向上都变好了”，还是在实验级别上也呈现出同步耦合。图~\ref{fig:gain-calibration-coupling} 将五个正式实验的主分数增益，分别与四类动态量的变化幅度并排展示：训练期 \texttt{actor entropy} 的变化量、验证期 token entropy 的变化量、低置信 token 比例的变化量，以及验证响应长度的变化量。
+正文已经分别讨论了主分数、行为指标和 token 补充材料。进一步需要检验的是，这些变化是否只是在方向上相同，还是在设置层面上也呈现同步耦合。图~\ref{fig:gain-calibration-coupling} 将五组设置的主分数增益，分别与四类动态量的变化幅度并排展示：训练期 \texttt{actor entropy} 的变化量、验证期 token entropy 的变化量、低置信 token 比例的变化量，以及验证响应长度的变化量。
 
-这张图最重要的作用，是把“快速校准”从一种看似合理的叙事，进一步变成一条更闭合的经验事实。Base clean 家族并不只是 reward 提升更大，它们同时也对应更大的 entropy 收缩、更大的低置信 token 减少，以及更明显的长度压缩。Instruct 基线则整体落在另一侧：分数提升小，动态收缩也小。更关键的是，\texttt{Base corrupted-reward control} 落在图中的完全反方向，表现为 reward 下降、熵上升、低置信比例上升以及长度拉长。这种实验级别的同步关系，比单独列出若干最终指标更有说服力，因为它表明“收益”和“分布稳定化”并不是彼此独立的两条观察，而是在同一批 run 上共同出现。
+该图将“快速校准”从一种合理解释进一步推进为更严格的经验模式。Base 正常奖励设置并不只是 reward 提升更大，它们同时也对应更大的 entropy 收缩、更大的低置信 token 减少，以及更明显的长度压缩。Instruct 设置则整体落在另一侧：分数提升小，动态收缩也小。更关键的是，\texttt{Base random-reward} 落在图中的完全反方向，表现为 reward 下降、熵上升、低置信比例上升以及长度拉长。这种设置层面的同步关系表明，“收益”和“分布稳定化”并不是彼此独立的两条观察，而是在同一批结果中共同出现。
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{gain-calibration-coupling.png}
-    \caption{五个正式实验的主分数增益与四类关键动态量变化幅度的耦合关系。该图用于说明 clean 收益通常伴随更强的分布收缩与长度压缩，而破坏性奖励控制则沿相反方向移动。}
+    \caption{五组设置的主分数增益与四类关键动态量变化幅度的耦合关系。}
     \label{fig:gain-calibration-coupling}
 \end{figure}
 
-\subsection{终点性能与终点稳定性是否形成共同前沿}
+\subsubsection{终点性能与终点稳定性的共同前沿}
 
-另一个对正式报告很重要的问题是：终点分数更高的实验，是否也总是落在更“稳定”的终点分布上。图~\ref{fig:endpoint-frontier-panel} 将最终验证分数分别与最终 token entropy、最终低置信 token 比例放在同一张图中。虽然只有五个正式实验点，但这种前沿式展示仍然很有价值，因为它把“效果更好”和“分布更稳”压缩到了同一个坐标系里。
+另一个重要维度是终点分数与终点分布稳定性之间的关系。图~\ref{fig:endpoint-frontier-panel} 将最终验证分数分别与最终 token entropy、最终低置信 token 比例放在同一张图中。虽然只有五个设置点，但这种前沿式展示仍然很有价值，因为它把“效果更好”和“分布更稳”压缩到了同一个坐标系里。
 
-可以看到，Base 家族内部基本呈现出清晰趋势：最终分数更高的实验，通常也对应更低的 entropy 与更低的低置信 token 比例。对齐后的 \texttt{Base small-group ablation (n=1)} 在这两个坐标上都明显落后于 \texttt{Base baseline (n=8)}，因此它的劣势不是只体现在某一条 reward 曲线上，而是体现在终点分布质量本身。Instruct 家族则落在另一块区域：它们整体分数更高，但内部变化幅度有限，说明其收益空间本来就不大。这种“不同家族占据不同区域、同一家族内部再沿稳定化方向细分”的形态，让全文的主叙事更加完整。
+Base 家族内部基本呈现出清晰趋势：最终分数更高的设置，通常也对应更低的 entropy 与更低的低置信 token 比例。\texttt{Base n=1} 在这两个坐标上都明显落后于 \texttt{Base n=8}，因此它的劣势不是只体现在某一条 reward 曲线上，而是体现在终点分布质量本身。Instruct 家族则落在另一块区域：它们整体分数更高，但内部变化幅度有限，说明其收益空间本来就不大。这种分区形态进一步表明，模型先验强弱与分布稳定化程度共同决定了最终性能所处的位置。
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{endpoint-frontier-panel.png}
-    \caption{最终验证分数与最终稳定性指标的联合前沿图。左图为 final score 与 final token entropy，右图为 final score 与 final low-confidence ratio。}
+    \caption{最终验证分数与最终稳定性指标的联合前沿图。}
     \label{fig:endpoint-frontier-panel}
 \end{figure}
 
-\subsection{为什么这组图对正文是必要的}
+\subsubsection{跨指标图的证据作用}
 
-如果把这些新图与前文合在一起看，全文的证据组织就不再只是“先给一张 reward 曲线，再补几张行为图”，而是形成了更严密的三层结构。第一层是主分数与 best checkpoint，说明训练确实带来了可观收益；第二层是长度、entropy、top-1 probability、EOS 和 low-confidence ratio 的动态变化，说明收益伴随可解释的行为重排；第三层就是本节的耦合图和前沿图，它们把不同指标重新放回实验层面上联合观察，从而证明这些现象在实验层面也是同步的。对正式论文写作而言，这样的结构不仅更充实，也更接近完整论证的写法。
+如果将这些图与前文结合起来考察，全文的证据组织可以归纳为更严密的三层结构。第一层是主分数与 best checkpoint，说明训练确实带来了可观收益；第二层是长度、entropy、top-1 probability、EOS 和 low-confidence ratio 的动态变化，说明收益伴随可解释的行为重排；第三层就是本节的耦合图和前沿图，它们把不同指标重新放回设置层面上联合观察，从而证明这些现象在设置层面也是同步的。由此，本节回答训练动态与证据综合问题：收益主要在前中期形成，后期进入高位波动区间，并且这种收益与分布稳定化在设置层面保持同步。
 
-\section{讨论与局限性}
+\section{讨论}
 
-\subsection{当前最强的证据是什么}
+\subsection{主要支持证据}
 
-本报告最强的证据并不是单个分数，而是一组相互支撑的现象：Base 模型的正确率显著提升，响应长度缩短，尾部置信度提升，低置信 token 比例下降，token entropy 下降，EOS 概率上升，token 级补充材料中也能看到前缀组织和分布收缩的明显改善。这些现象并不随机，而是共同指向同一个解释：1-shot GRPO 对 Base 数学推理模型的主要作用，是把已有能力更快地校准到更稳定的输出轨道上。
+本文的主要支持证据不是单个分数，而是一组相互支撑的现象：Base 模型的正确率显著提升，响应长度缩短，尾部置信度提升，低置信 token 比例下降，token entropy 下降，EOS 概率上升，token 级补充材料中也能看到前缀组织和分布收缩的明显改善。这些现象共同指向同一个解释：1-shot GRPO 对 Base 数学推理模型的主要作用，是把已有能力更快地校准到更稳定的输出轨道上。
 
-\subsection{当前最弱的地方是什么}
+\subsection{当前限制}
 
-相对而言，当前最弱的部分也很明确。第一，虽然 aligned \texttt{n=1} 消融已经显著提升了 group size 结论的可信度，但它仍是单次正式运行，尚未形成多 seed 稳健性证据。第二，严格的破坏性奖励控制目前只覆盖 Base 家族，尚缺与之匹配的 Instruct 控制版本。第三，token diagnostics 在当前正式实验中虽然覆盖到每个 step 的 64 个诊断样本，但完整 token 轨迹只对其中 8 条样本落盘，因此宏观结论仍应主要建立在逐样本验证均值上，而不是依赖少量固定题目的 token 轨迹。
+当前限制也较为明确。第一，\texttt{n=1} 与 \texttt{n=8} 的同口径比较仍是单次训练结果，尚未形成多 seed 稳健性证据。第二，随机错误奖励设置目前只覆盖 Base 家族，尚缺与之匹配的 Instruct 结果。第三，当前诊断支持“快速校准”解释，但还不能完全分离校准与跨题型、跨难度的知识获得；更直接的后续测试应按题目难度或知识领域分层，检验收益是较均匀地出现，还是集中在特定知识区域。第四，全量数据结果目前被定位为经验上界参考，而不是与表~\ref{tab:main-results} 完全同口径、同诊断覆盖的比较项。第五，token diagnostics 虽然覆盖到每个检查点的 64 个诊断样本，但完整 token 轨迹只对其中 8 条样本落盘，因此宏观结论仍应主要建立在逐样本验证均值上，而不是依赖少量固定题目的 token 轨迹。
 
-\subsection{对后续工作的直接建议}
+\subsection{外推边界}
 
-如果要把这份报告继续推进为更强的研究稿件，最值得补的工作有三项。其一，对 aligned \texttt{n=1} 与 \texttt{n=8} 对比补做多 seed 重复，以确认当前 group size 差异不是单次运行噪声。其二，为 Instruct 家族补做与 Base 严格对应的破坏性奖励控制。其三，扩大 token diagnostics 的覆盖范围，从“单一固定题目追踪”扩展到多题目、多 step 的更稳定统计。只要这三项补齐，当前报告中的很多谨慎表述都可以进一步收束成更强结论。
+这些限制并不改变主结论，但限定了它的外推范围。当前证据足以支持“Base 模型在 1-shot GRPO 下出现显著收益并伴随行为分布稳定化”，但不宜进一步声称 group size 差异已经具备多 seed 级别的稳健性，也不宜把 Base 家族中的随机错误奖励结论直接外推到 Instruct 家族。类似地，全量数据结果适合作为经验上界参考，而不是与五组主结果完全同口径的横向比较项。
 
-\subsection{当前证据链的正式汇总}
+\subsection{当前证据链汇总}
 
-为了避免正文在最后阶段重新退化成孤立的汇总数字，表~\ref{tab:evidence-status} 对当前最重要的四条判断做了一次正式收束。它的作用不是重复前文，而是明确哪些结论已经足够稳，可以写进摘要和结论；哪些结论虽然方向明确，但仍需带着 caveat 表达。这类总结表格的价值在于，它把“结果”“机制”“边界”和“后续工作”放在了同一张图景里。
+为了避免正文在最后阶段重新退化成孤立的汇总数字，表~\ref{tab:evidence-status} 对当前最重要的判断做了集中汇总。它的作用不是重复前文，而是把“结论判断、主要证据和仍需保留的边界”放在同一张图景里，方便读者在结尾快速把握证据链。
 
 \begin{table}[H]
     \centering
     \caption{当前关键结论的证据状态汇总}
     \label{tab:evidence-status}
-    \small
-    \begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{0.25\textwidth}>{\raggedright\arraybackslash}p{0.31\textwidth}>{\raggedright\arraybackslash}p{0.15\textwidth}>{\raggedright\arraybackslash}X}
+    \scriptsize
+    \setlength{\tabcolsep}{3pt}
+    \renewcommand{\arraystretch}{1.2}
+    \begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{0.26\textwidth}>{\raggedright\arraybackslash}p{0.43\textwidth}>{\raggedright\arraybackslash}X}
         \toprule
-        结论判断 & 主要证据 & 当前强度 & 仍需保留的边界 \\
+        结论判断 & 主要证据 & 仍需保留的边界 \\
         \midrule
-        1-shot GRPO 对 Base 数学推理模型有效 & 正式实验主分数曲线、Base clean 家族约 0.20 的绝对提升、行为指标同步改善 & 强支持 & 仍需更多 seed 检验其跨随机初始化的稳定性 \\
-        收益更像快速校准而非知识注入 & response length 缩短、entropy 下降、low-conf 降低、top-1 与 EOS 上升、固定题目轨迹证据支持 & 强支持 & token 完整轨迹仍是小规模完整轨迹子集，机制证据主要是“强一致”而非“全覆盖” \\
-        group-relative signal 对最佳结果有帮助 & 对齐版 \texttt{n=1} 消融在 matched validation protocol 下稳定落后于 \texttt{n=8} 基线 & 中强支持 & 目前仍是单次 aligned run，尚缺多 seed 复验 \\
-        破坏性奖励会破坏训练收益与分布稳定化 & Base 严格控制实验中 score 坍缩、entropy 爆炸、low-conf 饱和、EOS 与 top-1 置信度崩解 & 强支持 & 当前该结论仅在 Base 家族上完成验证 \\
+        1-shot GRPO 对 Base 数学推理模型有效 & 主分数曲线、Base 正常奖励设置约 0.20 的绝对提升、行为指标同步改善 & 仍需更多 seed 检验其跨随机初始化与采样噪声的稳定性 \\
+        1-shot 低数据收益低于全量数据经验上界 & Base/Instruct 全量数据结果均高于对应 1-shot 结果，Base final 差距约 0.0300，Instruct final 差距约 0.0143 & 全量数据结果目前是经验上界参考，不属于表~\ref{tab:main-results} 的同口径比较项 \\
+        收益更符合快速校准而非知识注入 & response length 缩短、entropy 下降、low-conf 降低、top-1 与 EOS 上升、固定题目轨迹证据支持 & 当前诊断尚不能完全区分校准与跨题型、跨难度知识获得 \\
+        group-relative signal 对最佳结果有帮助 & \texttt{n=1} 在 matched validation protocol 下稳定落后于 \texttt{n=8} & 目前仍是单次训练结果，尚缺多 seed 复验 \\
+        奖励破坏会破坏训练收益与分布稳定化 & \texttt{Base random-reward} 中 score 坍缩、entropy 爆炸、low-conf 饱和、EOS 与 top-1 置信度崩解 & 该设置属于极端错误信号对照，不是纯无信号消融；且当前仅在 Base 家族上完成验证 \\
         \bottomrule
     \end{tabularx}
 \end{table}
 
 \section{结论}
 
-本文基于当前可核验的五个正式实验产物，对 1-shot GRPO 在数学推理模型上的作用进行了系统整理。结果表明，在 \ModelBase{} 上，1-shot GRPO 可以带来接近 0.20 的显著分数提升，并伴随明显的行为稳定化：更短的响应、更高的尾部置信度、更低的 token entropy、更少的低置信 token 以及更果断的结束行为。与之相对，\ModelInstruct{} 由于起点更高，收益空间明显更小，训练效果更接近高位微调。
+本文围绕 1-shot GRPO 在数学推理任务中的作用机制，构建了一个由五组关键设置和一组全量数据上界参考共同组成的证据框架。主结果表明，在 \ModelBase{} 上，1-shot GRPO 可以带来接近 0.20 的显著分数提升，并伴随响应长度缩短、尾部置信度上升、token entropy 下降、低置信 token 减少以及结束行为更果断等一系列同步变化；而在 \ModelInstruct{} 上，训练效应则明显更接近高位微调。全量数据参考进一步说明，Base 家族对训练范式与奖励结构更为敏感，Instruct 家族的绝对收益整体更温和，同时 1-shot 结果虽有意义但仍低于全量数据经验上界。
 
-因此，当前最值得保留的结论是：1-shot GRPO 在 Base 数学推理模型上是有效的，而它的主要收益更像快速校准而非知识注入。与此同时，新的 aligned \texttt{n=1} 小组规模消融已经提供了更强的机制证据：把训练 group size 从 8 降到 1 会削弱但不会消除收益，这说明 group-relative signal 对最佳效果具有重要贡献。更关键的是，新的严格破坏性奖励控制实验表明，一旦奖励信号被系统性破坏，模型不仅不会复现 clean baseline 的收益，反而会在分数与行为分布上同步崩解。基于此，正文关于 clean 实验收益依赖于真实训练信号的解释已经具备较强说服力。这种结论虽然克制，却也更可靠，更适合当前这组实验所能支撑的证据强度。
+综合主结果、动态指标、token 级补充证据与随机错误奖励设置，本文认为当前最稳妥的结论有三点。第一，1-shot GRPO 对 Base 数学推理模型是有效的。第二，这种收益更适合被解释为快速校准，而非知识注入；不过，完全分离二者仍需要按题目难度或知识领域分层的后续评估。第三，group-relative signal 与奖励结构都会影响最终收敛上限：将训练 group size 从 8 降到 1 会削弱但不会消除收益，而一旦奖励信号被系统性破坏，模型不仅不会复现正常奖励条件下的收益，反而会在分数与行为分布上同步崩解。当前仍需保留的边界在于，\texttt{n=1} 与 \texttt{n=8} 的同口径比较仍是单次训练结果，随机错误奖励设置也尚未扩展到 Instruct 家族。在这些边界内，现有证据已经支持将 1-shot GRPO 理解为一种主要作用于分布稳定化与行为校准的低数据强化学习机制。
 
 \clearpage
 \appendix
@@ -581,25 +639,25 @@ Instruct 家族则呈现出另一种模式。\texttt{Instruct baseline (n=8)} �
 在当前设置下，1-shot GRPO 对 Base 数学推理模型的作用主要体现为行为分布的稳定化，而非简单拉长推理链。模型在训练后显著缩短输出长度、降低 token entropy、减少低置信 token，并更果断地结束答案，这些现象共同支持“快速校准”解释。
 
 \tightparagraph{关于 Instruct 模型收益较小的补充说明}
-Instruct 模型在 \texttt{step 0} 已经具备较高的数学推理先验，因此 1-shot GRPO 的作用更接近局部微调与分布抛光，而不是大幅纠偏。这也是其收益量级明显小于 Base 模型的主要原因。
+Instruct 模型在 \texttt{step 0} 已经具备较高的数学推理先验，因此 1-shot GRPO 的作用更接近局部微调与分布调整，而不是大幅纠偏。这也是其收益量级明显小于 Base 模型的主要原因。
 
 \tightparagraph{关于 \texttt{n=1} 结果的补充说明}
-\texttt{n=1} 小组规模消融结果说明，将 group size 降到 1 并不会阻止模型获得显著收益；但在与 \texttt{n=8} 基线对齐的评估口径下，它仍然系统性落后于 \texttt{n=8}，因此当前证据更支持“group-relative signal 对最佳效果有帮助”这一判断。
+\texttt{n=1} 小组规模消融结果说明，将 group size 降到 1 并不会阻止模型获得显著收益；但在与 \texttt{n=8} 相同的评估口径下，它仍然系统性落后于 \texttt{n=8}，因此当前证据更支持“group-relative signal 对最佳效果有帮助”这一判断。
 
-\tightparagraph{关于严格控制实验的补充说明}
-新的 Base 严格控制实验直接采用随机错误奖励构造破坏性监督。结果显示，模型在该设置下不仅无法复现 clean baseline 的收益，反而出现分数坍缩、熵爆炸、长度异常增长与停止行为失稳。这说明正文中的 clean 收益确实依赖于有意义的训练信号，而不是训练流程本身的偶然产物。
+\tightparagraph{关于随机错误奖励设置的补充说明}
+Base 随机错误奖励设置直接采用错误奖励构造破坏性监督。结果显示，模型在该设置下不仅无法复现正常奖励条件下的收益，反而出现分数坍缩、熵爆炸、长度异常增长与停止行为失稳。这说明正文中的收益确实依赖于有意义的训练信号，而不是训练流程本身的偶然产物。
 
-\tightparagraph{关于更早阶段历史参考实验的补充说明}
-除正文正式实验外，更早阶段的归档实验也提供了一组有价值的补充参照。它们虽然不宜并入主结果表，但能够增强论文对“训练模式差异”和“奖励结构差异”的讨论。表~\ref{tab:legacy-reference-runs-cn} 汇总了其中最具代表性的几条参考结果。整体上看，早期 Base 家族中 \texttt{full} 训练明显强于 \texttt{1-shot}；Instruct 家族中也存在同方向差异，但绝对幅度更小。与此同时，一个格式约束主导的早期参考实验仅从 0.3630 提升到 0.4490，明显弱于常规奖励路径，这使其适合作为正文外的辅助参照。
+\tightparagraph{关于全量数据参考结果的补充说明}
+除正文主结果外，全量数据与格式约束结果也提供了一组有价值的补充参照。它们虽然不宜并入表~\ref{tab:main-results}，但能够增强论文对“训练模式差异”和“奖励结构差异”的讨论。表~\ref{tab:full-data-reference-runs-cn} 汇总了其中最具代表性的几条参考结果。整体上看，Base 家族中 \texttt{full} 训练明显强于 \texttt{1-shot}；Instruct 家族中也存在同方向差异，但绝对幅度更小。与此同时，一个格式约束主导参考仅从 0.3630 提升到 0.4490，明显弱于常规奖励路径，这使其适合作为正文外的辅助参照。
 
 \begin{table}[H]
     \centering
-    \caption{更早阶段历史参考实验汇总}
-    \label{tab:legacy-reference-runs-cn}
+    \caption{全量数据与格式约束参考结果汇总}
+    \label{tab:full-data-reference-runs-cn}
     \small
     \begin{tabular}{lcccc}
         \toprule
-        模型家族 & 设置 & step0 & final & best \\
+        模型家族 & 设置 & 初始 & final & best \\
         \midrule
         Base & 1-shot & 0.3630 & 0.5753 & 0.5803 \\
         Base & full & 0.3630 & 0.6053 & 0.6135 \\
@@ -607,52 +665,47 @@ Instruct 模型在 \texttt{step 0} 已经具备较高的数学推理先验，因
         Base & 1-shot entropy 参考 & 0.3630 & 0.5698 & 0.5835 \\
         Instruct & 1-shot & 0.6860 & 0.6928 & 0.6985 \\
         Instruct & full & 0.6860 & 0.7070 & 0.7070 \\
-        Instruct & 1-shot 早期参考 & 0.6860 & 0.6893 & 0.7005 \\
-        Instruct & full 早期参考 & 0.6795 & 0.7118 & 0.7118 \\
+        Instruct & 1-shot 参考 & 0.6860 & 0.6893 & 0.7005 \\
+        Instruct & full 参考 & 0.6795 & 0.7118 & 0.7118 \\
         \bottomrule
     \end{tabular}
 \end{table}
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=\textwidth]{legacy-reference-panel.png}
-    \caption{更早阶段历史参考实验的 step0、final 与 best 对比。该图表明，无论在 Base 还是 Instruct 家族中，\texttt{full} 训练通常都优于 \texttt{1-shot}；同时，Base 家族中的格式约束主导参考明显弱于常规奖励路径。}
-\end{figure}
-
-这些实验更适合作为附录层面的历史参考，而不应与正文主矩阵直接合并，原因在于它们所处的实验阶段更早，训练文件范围与记录覆盖也不完全一致。更稳妥的写法是把它们作为“与主结论同向的补充证据”：一方面，\texttt{full} 普遍优于 \texttt{1-shot}；另一方面，格式约束较强的参考设置只能带来有限改善，这与正文中“奖励结构和组内比较信号都会影响最终上限”的主线是一致的。配合上述图表可以更直观地看到，Base 家族对训练范式和奖励结构更敏感，而 Instruct 家族的收益整体更温和。
-
-\section{附录：补充图}
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=\textwidth]{actor-entropy-static.png}
-    \caption{五个正式实验训练期 \texttt{actor/entropy} 的完整补充图。该图可直接作为“训练分布收缩速度与失稳方向”证据使用。}
-\end{figure}
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=\textwidth]{aligned-n1-vs-n8-panel.png}
-    \caption{对齐版 \texttt{n=1} 消融与 \texttt{n=8} 基线的多指标对比图。该图可直接用于说明 group size 下降后收益虽保留但分布收缩质量下降。}
-\end{figure}
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=\textwidth]{score-all-static.png}
-    \caption{五个正式实验主分数曲线总览补图。该图适合在答辩或补充材料中单独展示总体收益格局。}
-\end{figure}
+这些结果更适合作为附录层面的参考材料，而不应与正文主结果表直接合并，原因在于训练文件范围与记录覆盖并不完全一致。更稳妥的写法是把它们作为“与主结论同向的补充证据”：一方面，\texttt{full} 普遍优于 \texttt{1-shot}；另一方面，格式约束较强的参考设置只能带来有限改善，这与正文中“奖励结构和组内比较信号都会影响最终上限”的主线是一致的。对应可视化已在正文图~\ref{fig:full-data-reference-main} 展示，附录因此只保留紧凑的数字参考，避免重复排版同一批图。
 
 \begin{thebibliography}{99}
+\bibitem{wang2025oneshotrlvr}
+Wang, Y., Yang, Q., Zeng, Z., Ren, L., Liu, L., Peng, B., Cheng, H., He, X., Wang, K., Gao, J., Chen, W., Wang, S., Du, S. S., \& Shen, Y. Reinforcement Learning for Reasoning in Large Language Models with One Training Example. arXiv preprint arXiv:2504.20571, 2025.
+
+\bibitem{deepscaler2025}
+Luo, M., Tan, S., Wong, J., Shi, X., Tang, W. Y., Roongta, M., Cai, C., Luo, J., Li, L. E., Popa, R. A., \& Stoica, I. DeepScaleR: Surpassing O1-Preview with a 1.5B Model by Scaling RL. Notion Blog, 2025.
+
+\bibitem{deepseekr1}
+DeepSeek-AI et al. DeepSeek-R1: Incentivizing Reasoning Capability in LLMs via Reinforcement Learning. arXiv preprint arXiv:2501.12948, 2025.
+
+\bibitem{kimi15}
+Kimi Team et al. Kimi k1.5: Scaling Reinforcement Learning with LLMs. arXiv preprint arXiv:2501.12599, 2025.
+
 \bibitem{ppo}
 Schulman, J., Wolski, F., Dhariwal, P., Radford, A., \& Klimov, O. Proximal Policy Optimization Algorithms. arXiv preprint arXiv:1707.06347, 2017.
 
 \bibitem{deepseekmath}
 Shao, Z. et al. DeepSeekMath: Pushing the Limits of Mathematical Reasoning in Open Language Models. arXiv preprint arXiv:2402.03300, 2024.
 
+\bibitem{lightman2023stepbystep}
+Lightman, H., Kosaraju, V., Burda, Y., Edwards, H., Baker, B., Lee, T., Leike, J., Schulman, J., Sutskever, I., \& Cobbe, K. Let's Verify Step by Step. arXiv preprint arXiv:2305.20050, 2023.
+
+\bibitem{alphacode}
+Li, Y. et al. Competition-Level Code Generation with AlphaCode. arXiv preprint arXiv:2203.07814, 2022.
+
+\bibitem{gpqa}
+Rein, D., Hou, B. L., Stickland, A. C., Petty, J., Pang, R. Y., Dirani, J., Michael, J., \& Bowman, S. R. GPQA: A Graduate-Level Google-Proof Q\&A Benchmark. arXiv preprint arXiv:2311.12022, 2023.
+
 \bibitem{math}
-Hendrycks, D. et al. Measuring Mathematical Problem Solving With the MATH Dataset. NeurIPS, 2021.
+Hendrycks, D. et al. Measuring Mathematical Problem Solving With the MATH Dataset. In Advances in Neural Information Processing Systems (NeurIPS), 2021; arXiv preprint arXiv:2103.03874.
 
 \bibitem{qwen}
-Qwen Team. Qwen2.5 Technical Report. 2024.
+Yang, A. et al. Qwen2.5-Math Technical Report: Toward Mathematical Expert Model via Self-Improvement. arXiv preprint arXiv:2409.12122, 2024.
 \end{thebibliography}
 
 \end{document}

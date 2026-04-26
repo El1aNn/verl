@@ -1,0 +1,119 @@
+\subsection{保存 checkpoint 的全量 token 离线诊断}
+
+为弥补训练期 validation diagnostics 只保留前缀 token 的限制，本文对保存 checkpoint 进行离线重评估。该流程从保存的 actor checkpoint 恢复模型，在 \EvalSet{} validation set 上重新生成响应，并对每条响应的全部生成 token 计算 logprob、entropy、EOS probability、top-1 probability 与 top-k mass。与原训练日志中的前缀诊断不同，本节覆盖完整响应长度，因此更适合作为 checkpoint 级行为分析。
+
+本次离线评估覆盖 step 0 到 step 180，每个 step 包含 32 道题、128 条采样响应。最终 checkpoint 的平均 score 为 0.6172，最佳 checkpoint 为 step 60，best score 为 0.6172。从行为指标看，最终平均 response length 为 662.9，token entropy 为 0.2188，低置信 token 比例为 0.0398，平均 top-1 probability 为 0.9256。
+
+\begin{table}[H]
+    \centering
+    \caption{保存 checkpoint 的离线全量 token 评估摘要}
+    \label{tab:full-token-ckpt-audit}
+    \small
+    \setlength{\tabcolsep}{4pt}
+    \begin{tabular}{rrrrrrr}
+        \toprule
+        Step & score & length & entropy & low-conf. & top-1 & tail conf. \\
+        \midrule
+        0 & 0.3047 & 812.1 & 0.6982 & 0.1254 & 0.8385 & 0.7755 \\
+        60 & 0.6172 & 609.9 & 0.2394 & 0.0452 & 0.9184 & 0.9220 \\
+        120 & 0.5859 & 608.9 & 0.2710 & 0.0492 & 0.9149 & 0.9066 \\
+        180 & 0.6172 & 662.9 & 0.2188 & 0.0398 & 0.9256 & 0.9066 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+更关键的是，这组结果不仅重复了“分数提高”这个结论，而是把分数变化拆成了可解释的生成行为变化。step 0 到 step 60 是最明显的相变区间：score 从 0.3047 升到 0.6172，平均 response length 从 812.1 降到 609.9，token entropy 从 0.6982 降到 0.2394，低置信 token 比例从 0.1254 降到 0.0452，top-1 probability 从 0.8385 升到 0.9184。这说明保存 checkpoint 审计中观察到的主要收益不是来自更长的搜索，而是来自更短、更集中、更少低置信 token 的输出轨迹。
+
+step 60、120 和 180 之间的差异也值得保留，而不是只报告最终数值。step 60 与 step 180 的 score 同为 0.6172，但二者的行为形态不同：step 180 的 entropy 更低、top-1 probability 更高、低置信 token 比例更低，却比 step 60 平均长约 53 个 token，tail confidence 也从 0.9220 降到 0.9066。step 120 则在长度几乎不变的情况下 score 降到 0.5859，同时 entropy 和低置信比例略有回升。这个对比表明，checkpoint 质量不能只由“更短”或“更尖锐”单个指标决定；更合理的解释是，训练在分数、长度、置信度和尾部闭合之间移动，而较好 checkpoint 位于这些指标的平衡区间。
+
+EOS token 的变化需要单独解释。这里的 EOS 指标表示在每个生成位置上模型分布分给 EOS token 的概率，以及 EOS 是否进入高概率或 top-1 区域，而不是简单的“样本是否以 EOS 结束”。表~\ref{tab:full-token-eos-summary} 将数值统一乘以 $10^4$ 以便阅读。整体上，训练并没有把模型推向随处高 EOS 概率的状态：mean EOS probability 从 step 0 的 2.613 降到 step 60 的 0.827，并在 step 120 进一步降到 0.098；step 180 回升到 0.806，但仍明显低于初始水平。final-position EOS probability 也呈现类似的非单调变化，step 60 和 step 120 显著低于 step 0，step 180 末端有所回升但仍低于初始。这个结果说明，分数提升并不是通过更强的提前停止完成的；更合理的解读是，训练先压低不必要的 EOS 压力，让模型更稳定地产生解题轨迹，而最终 checkpoint 在响应尾部重新出现一定的闭合倾向。
+
+\begin{table}[H]
+    \centering
+    \caption{全量 token 离线评估中的 EOS 概率变化（数值均为原始比例 $\times 10^4$）}
+    \label{tab:full-token-eos-summary}
+    \small
+    \setlength{\tabcolsep}{5pt}
+    \begin{tabular}{rrrrr}
+        \toprule
+        Step & mean EOS & final EOS & EOS $>0.1$ ratio & EOS top-1 ratio \\
+        \midrule
+        0 & 2.613 & 8.906 & 2.547 & 2.399 \\
+        60 & 0.827 & 0.408 & 1.488 & 0.548 \\
+        120 & 0.098 & 0.230 & 0.069 & 0.108 \\
+        180 & 0.806 & 2.586 & 2.121 & 0.961 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+按正确性分组的全量 token 统计进一步加强了这一点。在 final checkpoint 上，按 token 加权后，正确响应的 entropy 为 0.1850，错误响应为 0.2619；正确响应的 top-1 probability 为 0.9345，错误响应为 0.9156。样本级均值给出了更直观的对照。表~\ref{tab:full-token-correct-wrong-sample-summary} 显示，在每个 checkpoint 上，正确组都显著短于错误组，并且具有更低 entropy、更低低置信 token 比例、更高 tail confidence 与更高 top-1 probability。最终 checkpoint 上，正确样本平均长度为 476.5，而错误样本为 963.4；正确样本 entropy 为 0.1765，错误样本为 0.2871；正确样本 low-confidence ratio 为 0.0301，错误样本为 0.0555。这说明完整响应级别的正确样本不仅更自信，而且更短、更稳定、更接近有效闭合。
+
+\begin{table}[H]
+    \centering
+    \caption{全量 token 离线评估中的正确/错误样本级分组统计}
+    \label{tab:full-token-correct-wrong-sample-summary}
+    \scriptsize
+    \setlength{\tabcolsep}{3pt}
+    \begin{tabular}{rlrrrrrr}
+        \toprule
+        Step & group & $n$ & length & entropy & low-conf. & tail conf. & top-1 \\
+        \midrule
+        0 & correct & 39 & 482.4 & 0.3282 & 0.0619 & 0.8875 & 0.8978 \\
+        0 & wrong & 89 & 956.5 & 0.8603 & 0.1533 & 0.7264 & 0.8125 \\
+        60 & correct & 79 & 482.5 & 0.2231 & 0.0412 & 0.9286 & 0.9229 \\
+        60 & wrong & 49 & 815.4 & 0.2657 & 0.0517 & 0.9114 & 0.9112 \\
+        120 & correct & 75 & 473.1 & 0.2126 & 0.0388 & 0.9298 & 0.9268 \\
+        120 & wrong & 53 & 801.2 & 0.3537 & 0.0639 & 0.8737 & 0.8980 \\
+        180 & correct & 79 & 476.5 & 0.1765 & 0.0301 & 0.9381 & 0.9362 \\
+        180 & wrong & 49 & 963.4 & 0.2871 & 0.0555 & 0.8559 & 0.9084 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+这些正确/错误分组结果与正文中七组设置的聚合 token diagnostics 一致，因此全量离线诊断不是孤立的可视化材料，而是把“正确性与分布稳定化相关”这个机制结论从保留前缀扩展到了完整生成轨迹。它也进一步限定了 EOS 指标的解释：有效训练并不等于简单提高 EOS 概率，而是在不制造提前停止压力的情况下，使正确响应更短、更低熵、更高置信，并在尾部形成更稳定的闭合。
+
+图~\ref{fig:trajectory-text-entropy-math500-18} 进一步把这种变化落实到可读的推理文本上。该图追踪同一道 held-out MATH500 题在 step 0、60、120 和 180 的生成结果：图中直接显示模型生成的单词或公式片段，背景颜色表示对应 token 的 entropy。可以看到，step 0 的推理文本中高熵区域更多，推理路径也更不稳定；最终 checkpoint 的可见推理片段更结构化、更低熵，并且给出正确答案。由于完整响应较长，图中只展示可读片段，因此它应被理解为定性轨迹证据，而不是完整输出转录。
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{trajectory-text-entropy-math500-18.png}
+    \caption{代表性样本的词级 entropy 轨迹图。图中每个单词或公式片段均来自模型生成文本，背景越暖表示该位置 token entropy 越高。}
+    \label{fig:trajectory-text-entropy-math500-18}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{full-token-score-length.png}
+    \caption{保存 checkpoint 的离线全量 token 评估：validation score 与响应长度随 checkpoint 变化。}
+    \label{fig:full-token-score-length}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{full-token-confidence-panel.png}
+    \caption{保存 checkpoint 的全量 token 置信度与 entropy 指标。该图使用完整响应 token，而非训练期保留的前缀子集。}
+    \label{fig:full-token-confidence-panel}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{full-token-eos-topk-panel.png}
+    \caption{保存 checkpoint 的 EOS 行为、top-1 probability 与 top-k mass。EOS probability 衡量每个生成位置上模型分布分给 EOS token 的概率。}
+    \label{fig:full-token-eos-topk-panel}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{full-token-position-final.png}
+    \caption{最终 checkpoint 上按响应位置分桶的全量 token 指标。横轴为响应内相对位置 decile。}
+    \label{fig:full-token-position-final}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{full-token-correctness-final.png}
+    \caption{最终 checkpoint 上按正确性分组的全量 token 指标。}
+    \label{fig:full-token-correctness-final}
+\end{figure}
+
+这组结果应作为现有 token 级补充证据的加强版来解读：训练期记录能展示早期 token 的局部轨迹，而离线重评估可以覆盖更大的 held-out 子集与完整响应长度。二者方向一致，说明“分布稳定化”并非只发生在少量固定题目的前缀区域，而是能在完整生成轨迹上观察到。它同时也给出一个更细的边界：full-data checkpoint 的收益确实伴随更强校准，但最终 checkpoint 不一定在所有行为指标上同时最优，因此后续分析仍应同时报告 best checkpoint、final checkpoint 和关键 token 行为指标。

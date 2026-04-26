@@ -37,23 +37,23 @@
 \@writefile{toc}{\contentsline {section}{\numberline {3}研究设置}{3}{section.3}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.1}模型、数据与总体流程}{3}{subsection.3.1}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.2}主结果设置}{3}{subsection.3.2}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces 五组关键设置的主结果汇总\relax }}{3}{table.caption.2}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces 七组主结果设置的核心分数比较\relax }}{3}{table.caption.2}\protected@file@percent }
 \providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
-\newlabel{tab:main-results}{{1}{3}{五组关键设置的主结果汇总\relax }{table.caption.2}{}}
+\newlabel{tab:main-results}{{1}{3}{七组主结果设置的核心分数比较\relax }{table.caption.2}{}}
 \citation{wang2025oneshotrlvr}
 \citation{deepscaler2025}
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.3}训练与评估口径}{4}{subsection.3.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.4}全量数据经验上界参考}{4}{subsection.3.4}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces 全量数据结果作为 1-shot 训练的经验上界参考\relax }}{4}{table.caption.4}\protected@file@percent }
-\newlabel{tab:full-ceiling-reference-cn}{{2}{4}{全量数据结果作为 1-shot 训练的经验上界参考\relax }{table.caption.4}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces 全量数据与格式约束参考结果的初始值、终点值与最佳值对比。该图表明，无论在 Base 还是 Instruct 家族中，\texttt  {full} 训练通常都优于 \texttt  {1-shot}；同时，Base 家族中的格式约束主导参考明显弱于常规奖励路径。\relax }}{5}{figure.caption.6}\protected@file@percent }
-\newlabel{fig:full-data-reference-main}{{1}{5}{全量数据与格式约束参考结果的初始值、终点值与最佳值对比。该图表明，无论在 Base 还是 Instruct 家族中，\texttt {full} 训练通常都优于 \texttt {1-shot}；同时，Base 家族中的格式约束主导参考明显弱于常规奖励路径。\relax }{figure.caption.6}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.4}matched full-data 对照}{4}{subsection.3.4}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces 同口径 one-shot 与 full-data 的分数差距\relax }}{4}{table.caption.4}\protected@file@percent }
+\newlabel{tab:full-ceiling-reference-cn}{{2}{4}{同口径 one-shot 与 full-data 的分数差距\relax }{table.caption.4}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Base 与 Instruct 家族中 one-shot 和 full-data 的初始、终点与最佳分数对照。Matched full-data 结果显示，扩大数据预算在两类模型上都能带来收益，但 Base 家族的增量更大。\relax }}{5}{figure.caption.6}\protected@file@percent }
+\newlabel{fig:full-data-reference-main}{{1}{5}{Base 与 Instruct 家族中 one-shot 和 full-data 的初始、终点与最佳分数对照。Matched full-data 结果显示，扩大数据预算在两类模型上都能带来收益，但 Base 家族的增量更大。\relax }{figure.caption.6}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {4}主结果：1-shot GRPO 的有效性}{5}{section.4}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.1}总体趋势：Base 收益显著，Instruct 收益有限}{5}{subsection.4.1}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces 五组设置的 validation score 随训练检查点的变化。Base 正常奖励设置整体抬升明显，而随机错误奖励设置则快速坍缩。\relax }}{6}{figure.caption.7}\protected@file@percent }
-\newlabel{fig:all-score-curves}{{2}{6}{五组设置的 validation score 随训练检查点的变化。Base 正常奖励设置整体抬升明显，而随机错误奖励设置则快速坍缩。\relax }{figure.caption.7}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Base、Instruct 与随机错误奖励设置的 validation score 局部视图。\relax }}{6}{figure.caption.8}\protected@file@percent }
-\newlabel{fig:score-detail-panel}{{3}{6}{Base、Instruct 与随机错误奖励设置的 validation score 局部视图。\relax }{figure.caption.8}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces 七组主结果设置的 validation score 随训练检查点变化。Matched full-data 曲线表明，在 Base 与 Instruct 两个家族中，扩大训练数据预算都能继续提高分数，但 Base 家族的增量更大。\relax }}{6}{figure.caption.7}\protected@file@percent }
+\newlabel{fig:all-score-curves}{{2}{6}{七组主结果设置的 validation score 随训练检查点变化。Matched full-data 曲线表明，在 Base 与 Instruct 两个家族中，扩大训练数据预算都能继续提高分数，但 Base 家族的增量更大。\relax }{figure.caption.7}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces 七组主结果的局部放大视图：左图比较 Base 家族中的 one-shot 与 full-data 条件，中图比较 Instruct 家族中的 one-shot 与 full-data 条件，右图单独显示随机错误奖励对照。\relax }}{6}{figure.caption.8}\protected@file@percent }
+\newlabel{fig:score-detail-panel}{{3}{6}{七组主结果的局部放大视图：左图比较 Base 家族中的 one-shot 与 full-data 条件，中图比较 Instruct 家族中的 one-shot 与 full-data 条件，右图单独显示随机错误奖励对照。\relax }{figure.caption.8}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Base 模型：收益大且具有一致性}{7}{subsection.4.2}\protected@file@percent }
 \@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Base 家族四组设置的主分数变化。三个正常奖励方向设置表现出前中期快速上升，而随机错误奖励设置则快速失稳。\relax }}{7}{figure.caption.9}\protected@file@percent }
 \newlabel{fig:base-score-curves}{{4}{7}{Base 家族四组设置的主分数变化。三个正常奖励方向设置表现出前中期快速上升，而随机错误奖励设置则快速失稳。\relax }{figure.caption.9}{}}
@@ -63,86 +63,118 @@
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.4}最佳检查点与最终检查点的偏离}{8}{subsection.4.4}\protected@file@percent }
 \@writefile{toc}{\contentsline {section}{\numberline {5}行为证据：宏观指标与 token 级证据}{9}{section.5}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {5.1}Base 模型的收缩与稳定化}{9}{subsection.5.1}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces 五组设置的最终行为指标汇总\relax }}{9}{table.caption.11}\protected@file@percent }
-\newlabel{tab:behavior-results}{{3}{9}{五组设置的最终行为指标汇总\relax }{table.caption.11}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces Base 家族四组设置的验证响应长度变化，包含全尺度视图与局部放大视图。\relax }}{9}{figure.caption.13}\protected@file@percent }
-\newlabel{fig:base-length-curves}{{6}{9}{Base 家族四组设置的验证响应长度变化，包含全尺度视图与局部放大视图。\relax }{figure.caption.13}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces Base 家族四组设置的验证 token entropy 变化，包含全尺度视图与局部放大视图。\relax }}{10}{figure.caption.14}\protected@file@percent }
-\newlabel{fig:base-entropy-curves}{{7}{10}{Base 家族四组设置的验证 token entropy 变化，包含全尺度视图与局部放大视图。\relax }{figure.caption.14}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {8}{\ignorespaces Base 家族四组设置的低置信 token 比例变化，包含全尺度视图与局部放大视图。\relax }}{10}{figure.caption.15}\protected@file@percent }
-\newlabel{fig:base-lowconf-curves}{{8}{10}{Base 家族四组设置的低置信 token 比例变化，包含全尺度视图与局部放大视图。\relax }{figure.caption.15}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {9}{\ignorespaces Base 家族四组设置的最终 EOS 概率变化，包含全尺度视图与局部放大视图。\relax }}{10}{figure.caption.16}\protected@file@percent }
-\newlabel{fig:base-eos-curves}{{9}{10}{Base 家族四组设置的最终 EOS 概率变化，包含全尺度视图与局部放大视图。\relax }{figure.caption.16}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {10}{\ignorespaces Base 家族四组设置的答案尾部置信度变化，包含全尺度视图与局部放大视图。\relax }}{11}{figure.caption.17}\protected@file@percent }
-\newlabel{fig:base-tailconf-curves}{{10}{11}{Base 家族四组设置的答案尾部置信度变化，包含全尺度视图与局部放大视图。\relax }{figure.caption.17}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {11}{\ignorespaces Base 家族四组设置的平均 top-1 token 概率变化，包含全尺度视图与局部放大视图。\relax }}{11}{figure.caption.18}\protected@file@percent }
-\newlabel{fig:base-top1-curves}{{11}{11}{Base 家族四组设置的平均 top-1 token 概率变化，包含全尺度视图与局部放大视图。\relax }{figure.caption.18}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {12}{\ignorespaces 非坍缩设置的行为细节图。该图聚焦四个非坍缩条件在 token entropy、low-confidence ratio、最终 EOS 概率与 top-1 probability 上的细微差异。\relax }}{12}{figure.caption.19}\protected@file@percent }
-\newlabel{fig:behavior-detail-noncollapse}{{12}{12}{非坍缩设置的行为细节图。该图聚焦四个非坍缩条件在 token entropy、low-confidence ratio、最终 EOS 概率与 top-1 probability 上的细微差异。\relax }{figure.caption.19}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.2}动态统计进一步强化了上述判断}{12}{subsection.5.2}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces 训练与验证动态统计摘要（起点$\rightarrow $终点）\relax }}{13}{table.caption.20}\protected@file@percent }
-\newlabel{tab:dynamic-summary}{{4}{13}{训练与验证动态统计摘要（起点$\rightarrow $终点）\relax }{table.caption.20}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {13}{\ignorespaces 五组设置训练期 \texttt  {actor/entropy} 变化，包含全尺度视图与局部放大视图。\relax }}{13}{figure.caption.22}\protected@file@percent }
-\newlabel{fig:actor-entropy-curves}{{13}{13}{五组设置训练期 \texttt {actor/entropy} 变化，包含全尺度视图与局部放大视图。\relax }{figure.caption.22}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {14}{\ignorespaces 相同评估口径下，\texttt  {Base n=8} 与 \texttt  {Base n=1} 的六项动态对比。\relax }}{14}{figure.caption.23}\protected@file@percent }
-\newlabel{fig:n1-vs-n8-panel}{{14}{14}{相同评估口径下，\texttt {Base n=8} 与 \texttt {Base n=1} 的六项动态对比。\relax }{figure.caption.23}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.3}弱约束版本的启示}{15}{subsection.5.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.4}Instruct 模型主要是局部微调}{15}{subsection.5.4}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.5}Token 级补充证据}{16}{subsection.5.5}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.5.1}补充材料的口径与边界}{16}{subsubsection.5.5.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.5.2}直接观察：Base 变化大，Instruct 变化小}{16}{subsubsection.5.5.2}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {15}{\ignorespaces 固定题目在不同检查点上的保留轨迹。该图直观展示了训练后前缀组织与终止行为的变化。\relax }}{16}{figure.caption.24}\protected@file@percent }
-\newlabel{fig:token-probe-over-steps}{{15}{16}{固定题目在不同检查点上的保留轨迹。该图直观展示了训练后前缀组织与终止行为的变化。\relax }{figure.caption.24}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {16}{\ignorespaces 固定题目的 token 级熵、概率与长度等指标随检查点的变化。该图更适合支持“训练改变了早期 token 组织方式”的解释。\relax }}{17}{figure.caption.25}\protected@file@percent }
-\newlabel{fig:token-step-metrics}{{16}{17}{固定题目的 token 级熵、概率与长度等指标随检查点的变化。该图更适合支持“训练改变了早期 token 组织方式”的解释。\relax }{figure.caption.25}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {5}{\ignorespaces 固定题目在 final checkpoint 上的 token 级摘要\relax }}{17}{table.caption.26}\protected@file@percent }
-\newlabel{tab:token-final}{{5}{17}{固定题目在 final checkpoint 上的 token 级摘要\relax }{table.caption.26}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {6}{\ignorespaces 固定题目从 \texttt  {step 0} 到 final 的 token 级变化量\relax }}{18}{table.caption.27}\protected@file@percent }
-\newlabel{tab:token-delta}{{6}{18}{固定题目从 \texttt {step 0} 到 final 的 token 级变化量\relax }{table.caption.27}{}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.5.3}与主结果结论的衔接}{18}{subsubsection.5.5.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.5.4}前缀分布的重新组织}{18}{subsubsection.5.5.4}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {17}{\ignorespaces final checkpoint 上不同设置在前缀 token 区域的曲线差异。该图用于说明训练后前缀组织本身发生了系统变化，而不仅仅是末尾答案更稳定。\relax }}{18}{figure.caption.28}\protected@file@percent }
-\newlabel{fig:prefix-curves-main}{{17}{18}{final checkpoint 上不同设置在前缀 token 区域的曲线差异。该图用于说明训练后前缀组织本身发生了系统变化，而不仅仅是末尾答案更稳定。\relax }{figure.caption.28}{}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.5.5}从初始到终点的局部 token 分布收缩}{19}{subsubsection.5.5.5}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {18}{\ignorespaces 从初始到终点的 token 级变化。\relax }}{19}{figure.caption.29}\protected@file@percent }
-\newlabel{fig:token-delta-main}{{18}{19}{从初始到终点的 token 级变化。\relax }{figure.caption.29}{}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.5.6}按正确性分组的分布分离}{19}{subsubsection.5.5.6}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {19}{\ignorespaces 按正确性分组的 token 分布统计。上排比较四个非坍缩设置在 final checkpoint 的正确组与错误组；下排展示 \texttt  {Base n=1} 在训练过程中的同类分组统计。\relax }}{20}{figure.caption.30}\protected@file@percent }
-\newlabel{fig:correct-wrong-support-panel}{{19}{20}{按正确性分组的 token 分布统计。上排比较四个非坍缩设置在 final checkpoint 的正确组与错误组；下排展示 \texttt {Base n=1} 在训练过程中的同类分组统计。\relax }{figure.caption.30}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {6}小组规模与奖励信号分析}{20}{section.6}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {6.1}\texttt  {n=1} 小组规模消融的解释边界}{20}{subsection.6.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {6.2}随机错误奖励设置的解释意义}{21}{subsection.6.2}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {7}{\ignorespaces 随机错误奖励设置的终点行为\relax }}{21}{table.caption.31}\protected@file@percent }
-\newlabel{tab:random-reward-endpoint}{{7}{21}{随机错误奖励设置的终点行为\relax }{table.caption.31}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {7}训练动态与证据综合}{21}{section.7}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {7.1}收益的阶段分布}{21}{subsection.7.1}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {20}{\ignorespaces 五组设置主分数增量的阶段性分解。\relax }}{22}{figure.caption.32}\protected@file@percent }
-\newlabel{fig:phase-gain-breakdown}{{20}{22}{五组设置主分数增量的阶段性分解。\relax }{figure.caption.32}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {7.2}最佳 checkpoint 与最终 checkpoint 的偏离}{22}{subsection.7.2}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {21}{\ignorespaces 五组设置的最佳 checkpoint 与最终 checkpoint 对比。\relax }}{23}{figure.caption.33}\protected@file@percent }
-\newlabel{fig:best-final-gap}{{21}{23}{五组设置的最佳 checkpoint 与最终 checkpoint 对比。\relax }{figure.caption.33}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {7.3}终点行为排序的补充证据}{23}{subsection.7.3}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {22}{\ignorespaces 五组设置终点行为指标排序图。\relax }}{24}{figure.caption.34}\protected@file@percent }
-\newlabel{fig:final-behavior-ranking}{{22}{24}{五组设置终点行为指标排序图。\relax }{figure.caption.34}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {7.4}多指标之间的耦合关系}{24}{subsection.7.4}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {7.4.1}收益提升与校准量的同步关系}{24}{subsubsection.7.4.1}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {23}{\ignorespaces 五组设置的主分数增益与四类关键动态量变化幅度的耦合关系。\relax }}{25}{figure.caption.35}\protected@file@percent }
-\newlabel{fig:gain-calibration-coupling}{{23}{25}{五组设置的主分数增益与四类关键动态量变化幅度的耦合关系。\relax }{figure.caption.35}{}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {7.4.2}终点性能与终点稳定性的共同前沿}{25}{subsubsection.7.4.2}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {24}{\ignorespaces 最终验证分数与最终稳定性指标的联合前沿图。\relax }}{26}{figure.caption.36}\protected@file@percent }
-\newlabel{fig:endpoint-frontier-panel}{{24}{26}{最终验证分数与最终稳定性指标的联合前沿图。\relax }{figure.caption.36}{}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {7.4.3}跨指标图的证据作用}{26}{subsubsection.7.4.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {8}讨论}{27}{section.8}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {8.1}主要支持证据}{27}{subsection.8.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {8.2}当前限制}{27}{subsection.8.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {8.3}外推边界}{27}{subsection.8.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {8.4}当前证据链汇总}{27}{subsection.8.4}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {8}{\ignorespaces 当前关键结论的证据状态汇总\relax }}{28}{table.caption.37}\protected@file@percent }
-\newlabel{tab:evidence-status}{{8}{28}{当前关键结论的证据状态汇总\relax }{table.caption.37}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {9}结论}{28}{section.9}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {A}附录：补充讨论}{29}{appendix.A}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {9}{\ignorespaces 全量数据与格式约束参考结果汇总\relax }}{29}{table.caption.38}\protected@file@percent }
-\newlabel{tab:full-data-reference-runs-cn}{{9}{29}{全量数据与格式约束参考结果汇总\relax }{table.caption.38}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces 七组主结果设置的最终行为指标汇总\relax }}{9}{table.caption.11}\protected@file@percent }
+\newlabel{tab:behavior-results}{{3}{9}{七组主结果设置的最终行为指标汇总\relax }{table.caption.11}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.2}七组设置的聚合 token 诊断}{9}{subsection.5.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces 七组主结果设置的聚合 token 行为指标对比。该图用于把 matched full-data 对照纳入与 one-shot、group-size 和奖励破坏设置相同的行为诊断框架。\relax }}{10}{figure.caption.13}\protected@file@percent }
+\newlabel{fig:behavior-detail-main-settings}{{6}{10}{七组主结果设置的聚合 token 行为指标对比。该图用于把 matched full-data 对照纳入与 one-shot、group-size 和奖励破坏设置相同的行为诊断框架。\relax }{figure.caption.13}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces Base 家族四组设置的验证响应长度变化，包含全尺度视图与局部放大视图。\relax }}{11}{figure.caption.14}\protected@file@percent }
+\newlabel{fig:base-length-curves}{{7}{11}{Base 家族四组设置的验证响应长度变化，包含全尺度视图与局部放大视图。\relax }{figure.caption.14}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {8}{\ignorespaces Base 家族四组设置的验证 token entropy 变化，包含全尺度视图与局部放大视图。\relax }}{11}{figure.caption.15}\protected@file@percent }
+\newlabel{fig:base-entropy-curves}{{8}{11}{Base 家族四组设置的验证 token entropy 变化，包含全尺度视图与局部放大视图。\relax }{figure.caption.15}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {9}{\ignorespaces Base 家族四组设置的低置信 token 比例变化，包含全尺度视图与局部放大视图。\relax }}{12}{figure.caption.16}\protected@file@percent }
+\newlabel{fig:base-lowconf-curves}{{9}{12}{Base 家族四组设置的低置信 token 比例变化，包含全尺度视图与局部放大视图。\relax }{figure.caption.16}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {10}{\ignorespaces Base 家族四组设置的最终 EOS 概率变化，包含全尺度视图与局部放大视图。\relax }}{12}{figure.caption.17}\protected@file@percent }
+\newlabel{fig:base-eos-curves}{{10}{12}{Base 家族四组设置的最终 EOS 概率变化，包含全尺度视图与局部放大视图。\relax }{figure.caption.17}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {11}{\ignorespaces Base 家族四组设置的答案尾部置信度变化，包含全尺度视图与局部放大视图。\relax }}{12}{figure.caption.18}\protected@file@percent }
+\newlabel{fig:base-tailconf-curves}{{11}{12}{Base 家族四组设置的答案尾部置信度变化，包含全尺度视图与局部放大视图。\relax }{figure.caption.18}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {12}{\ignorespaces Base 家族四组设置的平均 top-1 token 概率变化，包含全尺度视图与局部放大视图。\relax }}{13}{figure.caption.19}\protected@file@percent }
+\newlabel{fig:base-top1-curves}{{12}{13}{Base 家族四组设置的平均 top-1 token 概率变化，包含全尺度视图与局部放大视图。\relax }{figure.caption.19}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {13}{\ignorespaces 非坍缩设置的行为细节图。该图聚焦四个非坍缩条件在 token entropy、low-confidence ratio、最终 EOS 概率与 top-1 probability 上的细微差异。\relax }}{14}{figure.caption.20}\protected@file@percent }
+\newlabel{fig:behavior-detail-noncollapse}{{13}{14}{非坍缩设置的行为细节图。该图聚焦四个非坍缩条件在 token entropy、low-confidence ratio、最终 EOS 概率与 top-1 probability 上的细微差异。\relax }{figure.caption.20}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.3}动态统计进一步强化了上述判断}{14}{subsection.5.3}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces 训练与验证动态统计摘要（起点$\rightarrow $终点）\relax }}{15}{table.caption.21}\protected@file@percent }
+\newlabel{tab:dynamic-summary}{{4}{15}{训练与验证动态统计摘要（起点$\rightarrow $终点）\relax }{table.caption.21}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {14}{\ignorespaces 五组诊断设置训练期 \texttt  {actor/entropy} 变化，包含全尺度视图与局部放大视图。\relax }}{15}{figure.caption.23}\protected@file@percent }
+\newlabel{fig:actor-entropy-curves}{{14}{15}{五组诊断设置训练期 \texttt {actor/entropy} 变化，包含全尺度视图与局部放大视图。\relax }{figure.caption.23}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {15}{\ignorespaces 相同评估口径下，\texttt  {Base n=8} 与 \texttt  {Base n=1} 的六项动态对比。\relax }}{16}{figure.caption.24}\protected@file@percent }
+\newlabel{fig:n1-vs-n8-panel}{{15}{16}{相同评估口径下，\texttt {Base n=8} 与 \texttt {Base n=1} 的六项动态对比。\relax }{figure.caption.24}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.4}弱约束版本的启示}{17}{subsection.5.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.5}Instruct 模型主要是局部微调}{17}{subsection.5.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.6}Token 级补充证据}{18}{subsection.5.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.6.1}补充材料的口径与边界}{18}{subsubsection.5.6.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.6.2}直接观察：Base 变化大，Instruct 变化小}{18}{subsubsection.5.6.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {16}{\ignorespaces 固定题目在不同检查点上的保留轨迹。该图直观展示了训练后前缀组织与终止行为的变化。\relax }}{18}{figure.caption.25}\protected@file@percent }
+\newlabel{fig:token-probe-over-steps}{{16}{18}{固定题目在不同检查点上的保留轨迹。该图直观展示了训练后前缀组织与终止行为的变化。\relax }{figure.caption.25}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {17}{\ignorespaces 固定题目的 token 级熵、概率与长度等指标随检查点的变化。该图更适合支持“训练改变了早期 token 组织方式”的解释。\relax }}{19}{figure.caption.26}\protected@file@percent }
+\newlabel{fig:token-step-metrics}{{17}{19}{固定题目的 token 级熵、概率与长度等指标随检查点的变化。该图更适合支持“训练改变了早期 token 组织方式”的解释。\relax }{figure.caption.26}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {5}{\ignorespaces 固定题目在 final checkpoint 上的 token 级摘要\relax }}{19}{table.caption.27}\protected@file@percent }
+\newlabel{tab:token-final}{{5}{19}{固定题目在 final checkpoint 上的 token 级摘要\relax }{table.caption.27}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {6}{\ignorespaces 固定题目从 \texttt  {step 0} 到 final 的 token 级变化量\relax }}{20}{table.caption.28}\protected@file@percent }
+\newlabel{tab:token-delta}{{6}{20}{固定题目从 \texttt {step 0} 到 final 的 token 级变化量\relax }{table.caption.28}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.6.3}与主结果结论的衔接}{20}{subsubsection.5.6.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.6.4}前缀分布的重新组织}{20}{subsubsection.5.6.4}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {18}{\ignorespaces final checkpoint 上不同设置在前缀 token 区域的曲线差异。该图用于说明训练后前缀组织本身发生了系统变化，而不仅仅是末尾答案更稳定。\relax }}{20}{figure.caption.29}\protected@file@percent }
+\newlabel{fig:prefix-curves-main}{{18}{20}{final checkpoint 上不同设置在前缀 token 区域的曲线差异。该图用于说明训练后前缀组织本身发生了系统变化，而不仅仅是末尾答案更稳定。\relax }{figure.caption.29}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.6.5}从初始到终点的局部 token 分布收缩}{21}{subsubsection.5.6.5}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {19}{\ignorespaces 从初始到终点的 token 级变化。\relax }}{21}{figure.caption.30}\protected@file@percent }
+\newlabel{fig:token-delta-main}{{19}{21}{从初始到终点的 token 级变化。\relax }{figure.caption.30}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.6.6}按正确性分组的分布分离}{21}{subsubsection.5.6.6}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {20}{\ignorespaces 按正确性分组的 token 分布统计。上排比较六个非坍缩设置在 final checkpoint 的正确组与错误组；下排展示 Base 与 Instruct 家族中 one-shot/full-data matched pairs 的正确性分组差距随训练变化。\relax }}{22}{figure.caption.31}\protected@file@percent }
+\newlabel{fig:correct-wrong-support-panel}{{20}{22}{按正确性分组的 token 分布统计。上排比较六个非坍缩设置在 final checkpoint 的正确组与错误组；下排展示 Base 与 Instruct 家族中 one-shot/full-data matched pairs 的正确性分组差距随训练变化。\relax }{figure.caption.31}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {7}{\ignorespaces final checkpoint 上按正确性分组的 token 分布摘要\relax }}{23}{table.caption.32}\protected@file@percent }
+\newlabel{tab:correct-wrong-final-summary}{{7}{23}{final checkpoint 上按正确性分组的 token 分布摘要\relax }{table.caption.32}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {8}{\ignorespaces matched one-shot/full-data pairs 的正确性分组差距\relax }}{23}{table.caption.33}\protected@file@percent }
+\newlabel{tab:correct-wrong-gap-summary}{{8}{23}{matched one-shot/full-data pairs 的正确性分组差距\relax }{table.caption.33}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.7}保存 checkpoint 的全量 token 离线诊断}{23}{subsection.5.7}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {9}{\ignorespaces 保存 checkpoint 的离线全量 token 评估摘要\relax }}{24}{table.caption.34}\protected@file@percent }
+\newlabel{tab:full-token-ckpt-audit}{{9}{24}{保存 checkpoint 的离线全量 token 评估摘要\relax }{table.caption.34}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {10}{\ignorespaces 全量 token 离线评估中的 EOS 概率变化（数值均为原始比例 $\times 10^4$）\relax }}{25}{table.caption.35}\protected@file@percent }
+\newlabel{tab:full-token-eos-summary}{{10}{25}{全量 token 离线评估中的 EOS 概率变化（数值均为原始比例 $\times 10^4$）\relax }{table.caption.35}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {11}{\ignorespaces 全量 token 离线评估中的正确/错误样本级分组统计\relax }}{25}{table.caption.36}\protected@file@percent }
+\newlabel{tab:full-token-correct-wrong-sample-summary}{{11}{25}{全量 token 离线评估中的正确/错误样本级分组统计\relax }{table.caption.36}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {21}{\ignorespaces 代表性样本的词级 entropy 轨迹图。图中每个单词或公式片段均来自模型生成文本，背景越暖表示该位置 token entropy 越高。\relax }}{26}{figure.caption.37}\protected@file@percent }
+\newlabel{fig:trajectory-text-entropy-math500-18}{{21}{26}{代表性样本的词级 entropy 轨迹图。图中每个单词或公式片段均来自模型生成文本，背景越暖表示该位置 token entropy 越高。\relax }{figure.caption.37}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {22}{\ignorespaces 保存 checkpoint 的离线全量 token 评估：validation score 与响应长度随 checkpoint 变化。\relax }}{27}{figure.caption.38}\protected@file@percent }
+\newlabel{fig:full-token-score-length}{{22}{27}{保存 checkpoint 的离线全量 token 评估：validation score 与响应长度随 checkpoint 变化。\relax }{figure.caption.38}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {23}{\ignorespaces 保存 checkpoint 的全量 token 置信度与 entropy 指标。该图使用完整响应 token，而非训练期保留的前缀子集。\relax }}{27}{figure.caption.39}\protected@file@percent }
+\newlabel{fig:full-token-confidence-panel}{{23}{27}{保存 checkpoint 的全量 token 置信度与 entropy 指标。该图使用完整响应 token，而非训练期保留的前缀子集。\relax }{figure.caption.39}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {24}{\ignorespaces 保存 checkpoint 的 EOS 行为、top-1 probability 与 top-k mass。EOS probability 衡量每个生成位置上模型分布分给 EOS token 的概率。\relax }}{28}{figure.caption.40}\protected@file@percent }
+\newlabel{fig:full-token-eos-topk-panel}{{24}{28}{保存 checkpoint 的 EOS 行为、top-1 probability 与 top-k mass。EOS probability 衡量每个生成位置上模型分布分给 EOS token 的概率。\relax }{figure.caption.40}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {25}{\ignorespaces 最终 checkpoint 上按响应位置分桶的全量 token 指标。横轴为响应内相对位置 decile。\relax }}{28}{figure.caption.41}\protected@file@percent }
+\newlabel{fig:full-token-position-final}{{25}{28}{最终 checkpoint 上按响应位置分桶的全量 token 指标。横轴为响应内相对位置 decile。\relax }{figure.caption.41}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {26}{\ignorespaces 最终 checkpoint 上按正确性分组的全量 token 指标。\relax }}{28}{figure.caption.42}\protected@file@percent }
+\newlabel{fig:full-token-correctness-final}{{26}{28}{最终 checkpoint 上按正确性分组的全量 token 指标。\relax }{figure.caption.42}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {6}小组规模与奖励信号分析}{29}{section.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.1}\texttt  {n=1} 小组规模消融的解释边界}{29}{subsection.6.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.2}随机错误奖励设置的解释意义}{29}{subsection.6.2}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {12}{\ignorespaces 随机错误奖励设置的终点行为\relax }}{29}{table.caption.43}\protected@file@percent }
+\newlabel{tab:random-reward-endpoint}{{12}{29}{随机错误奖励设置的终点行为\relax }{table.caption.43}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {7}训练动态与证据综合}{30}{section.7}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.1}收益的阶段分布}{30}{subsection.7.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {27}{\ignorespaces 七组主结果设置主分数增量的阶段性分解。\relax }}{30}{figure.caption.44}\protected@file@percent }
+\newlabel{fig:phase-gain-breakdown}{{27}{30}{七组主结果设置主分数增量的阶段性分解。\relax }{figure.caption.44}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.2}最佳 checkpoint 与最终 checkpoint 的偏离}{30}{subsection.7.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {28}{\ignorespaces 七组主结果设置的最佳 checkpoint 与最终 checkpoint 对比。\relax }}{31}{figure.caption.45}\protected@file@percent }
+\newlabel{fig:best-final-gap}{{28}{31}{七组主结果设置的最佳 checkpoint 与最终 checkpoint 对比。\relax }{figure.caption.45}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.3}终点行为排序的补充证据}{31}{subsection.7.3}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {29}{\ignorespaces 七组主结果设置终点行为指标排序图。\relax }}{32}{figure.caption.46}\protected@file@percent }
+\newlabel{fig:final-behavior-ranking}{{29}{32}{七组主结果设置终点行为指标排序图。\relax }{figure.caption.46}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.4}多指标之间的耦合关系}{32}{subsection.7.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {7.4.1}收益提升与校准量的同步关系}{32}{subsubsection.7.4.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {30}{\ignorespaces 七组主结果设置的主分数增益与四类关键动态量变化幅度的耦合关系。训练期 \texttt  {actor entropy} 面板按日志可用性显示设置点。\relax }}{33}{figure.caption.47}\protected@file@percent }
+\newlabel{fig:gain-calibration-coupling}{{30}{33}{七组主结果设置的主分数增益与四类关键动态量变化幅度的耦合关系。训练期 \texttt {actor entropy} 面板按日志可用性显示设置点。\relax }{figure.caption.47}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {7.4.2}终点性能与终点稳定性的共同前沿}{34}{subsubsection.7.4.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {31}{\ignorespaces 最终验证分数与最终稳定性指标的联合前沿图。\relax }}{34}{figure.caption.48}\protected@file@percent }
+\newlabel{fig:endpoint-frontier-panel}{{31}{34}{最终验证分数与最终稳定性指标的联合前沿图。\relax }{figure.caption.48}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {7.4.3}跨指标图的证据作用}{34}{subsubsection.7.4.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {8}讨论}{35}{section.8}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {8.1}主要支持证据}{35}{subsection.8.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {8.2}当前限制}{35}{subsection.8.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {8.3}外推边界}{35}{subsection.8.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {8.4}当前证据链汇总}{35}{subsection.8.4}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {13}{\ignorespaces 当前关键结论的证据状态汇总\relax }}{36}{table.caption.49}\protected@file@percent }
+\newlabel{tab:evidence-status}{{13}{36}{当前关键结论的证据状态汇总\relax }{table.caption.49}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {9}统一机制解释}{36}{section.9}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {9.1}从分数提升到分布稳定化}{36}{subsection.9.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {9.2}full-data 对照的解释位置}{37}{subsection.9.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {9.3}group size 与奖励结构的作用}{37}{subsection.9.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {9.4}正确性分组证据的作用}{38}{subsection.9.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {9.5}当前证据的整体边界}{38}{subsection.9.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {10}结论}{40}{section.10}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {A}附录：补充讨论}{41}{appendix.A}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {14}{\ignorespaces 全量数据与格式约束参考结果汇总\relax }}{41}{table.caption.50}\protected@file@percent }
+\newlabel{tab:full-data-reference-runs-cn}{{14}{41}{全量数据与格式约束参考结果汇总\relax }{table.caption.50}{}}
 \bibcite{wang2025oneshotrlvr}{1}
 \bibcite{deepscaler2025}{2}
 \bibcite{deepseekr1}{3}
@@ -154,4 +186,4 @@
 \bibcite{gpqa}{9}
 \bibcite{math}{10}
 \bibcite{qwen}{11}
-\gdef \@abspage@last{34}
+\gdef \@abspage@last{46}

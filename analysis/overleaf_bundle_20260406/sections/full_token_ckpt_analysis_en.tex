@@ -1,0 +1,121 @@
+\subsection{Offline full-token checkpoint audit}
+
+The retained training-time token traces are useful for mechanism inspection, but they have two important limits: they are narrow retained traces, and the detailed token fields only cover an early response prefix. The saved-checkpoint audit tests whether the same stabilization pattern survives when checkpoints are reloaded directly. The audit restores the saved actor checkpoints, regenerates responses on a fixed held-out subset of \EvalSet{}, and scores every generated response token rather than only the first retained prefix tokens.
+
+The audit covers checkpoint step 0 through step 180. For each checkpoint, it evaluates 32 held-out problems with 128 sampled responses in total. This is still a subset audit rather than a replacement for the full validation curve, but it is stricter than the earlier fixed-prompt trace view because the token statistics are recomputed from the saved checkpoints over complete generated sequences.
+
+\begin{table}[H]
+    \centering
+    \caption{Offline full-token audit across saved checkpoints}
+    \label{tab:en-full-token-ckpt-audit}
+    \small
+    \setlength{\tabcolsep}{4pt}
+    \begin{tabular}{rrrrrrr}
+        \toprule
+        Step & score & length & entropy & low-conf. & top-1 & tail conf. \\
+        \midrule
+        0 & 0.3047 & 812.1 & 0.6982 & 0.1254 & 0.8385 & 0.7755 \\
+        60 & 0.6172 & 609.9 & 0.2394 & 0.0452 & 0.9184 & 0.9220 \\
+        120 & 0.5859 & 608.9 & 0.2710 & 0.0492 & 0.9149 & 0.9066 \\
+        180 & 0.6172 & 662.9 & 0.2188 & 0.0398 & 0.9256 & 0.9066 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+The checkpoint-level pattern is directionally consistent with the broader calibration account. From step 0 to step 180, score changes by 0.3125, average response length changes by -149.2 tokens, mean token entropy changes by -0.4794, the low-confidence-token ratio changes by -0.0856, and mean top-1 probability changes by 0.0871. The best score in this audit is 0.6172 at step 60, so the saved-checkpoint view again warns against reading the last checkpoint as the only meaningful endpoint.
+
+The largest behavioral transition happens early, between the base model and step 60. Over this interval, score rises from 0.3047 to 0.6172, average length falls from 812.1 to 609.9 tokens, entropy falls from 0.6982 to 0.2394, low-confidence mass falls from 0.1254 to 0.0452, and mean top-1 probability rises from 0.8385 to 0.9184. This is the cleanest full-response evidence for the calibration interpretation: the gain is not produced by longer exploration, but by shorter and more concentrated generations with fewer low-confidence tokens.
+
+The later checkpoints add a useful nuance. Steps 60 and 180 tie in score at 0.6172, but they are not behaviorally identical. Step 180 has lower entropy, lower low-confidence mass, and higher mean top-1 probability than step 60, while being about 53 tokens longer on average and having lower tail confidence. Step 120 has nearly the same length as step 60 but a lower score, together with slightly higher entropy and low-confidence mass. These contrasts show why no single token metric should be treated as the whole mechanism. The useful region is a balance among correctness, response economy, confidence, and stable termination.
+
+EOS behavior needs a separate reading. In this audit, the EOS metrics describe the probability assigned to the EOS token at each generated position, and whether EOS enters a high-probability or top-1 region; they are not a direct count of whether a sampled response terminates with EOS. Table~\ref{tab:en-full-token-eos-summary} multiplies the raw ratios by $10^4$ for readability. The main pattern is not a monotonic increase in stopping pressure. Mean EOS probability falls from 2.613 at step 0 to 0.827 at step 60 and 0.098 at step 120, then rebounds to 0.806 at step 180. Final-position EOS probability follows a similar non-monotonic pattern: steps 60 and 120 are far below step 0, while step 180 recovers part of the tail-end EOS mass but remains below the initial checkpoint. Thus the score gain is not explained by a model that simply becomes more eager to stop everywhere. A more careful interpretation is that training first suppresses unnecessary EOS pressure while producing a more stable reasoning trajectory, and the final checkpoint restores some tail-end closure without returning to the initial high-uncertainty regime.
+
+\begin{table}[H]
+    \centering
+    \caption{EOS behavior in the offline full-token audit (raw ratios $\times 10^4$)}
+    \label{tab:en-full-token-eos-summary}
+    \small
+    \setlength{\tabcolsep}{5pt}
+    \begin{tabular}{rrrrr}
+        \toprule
+        Step & mean EOS & final EOS & EOS $>0.1$ ratio & EOS top-1 ratio \\
+        \midrule
+        0 & 2.613 & 8.906 & 2.547 & 2.399 \\
+        60 & 0.827 & 0.408 & 1.488 & 0.548 \\
+        120 & 0.098 & 0.230 & 0.069 & 0.108 \\
+        180 & 0.806 & 2.586 & 2.121 & 0.961 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+The correctness-conditioned full-token rows support the same interpretation. At the final checkpoint, token-weighted correct responses have lower entropy than wrong responses (0.1850 vs. 0.2619) and higher mean top-1 probability (0.9345 vs. 0.9156). The sample-level grouping in Table~\ref{tab:en-full-token-correct-wrong-sample-summary} makes the contrast more concrete. At every checkpoint, the correct group is much shorter than the wrong group and also has lower entropy, lower low-confidence-token ratio, higher tail confidence, and higher mean top-1 probability. At the final checkpoint, correct samples average 476.5 tokens while wrong samples average 963.4 tokens; correct-sample entropy is 0.1765 versus 0.2871 for wrong samples; and the low-confidence-token ratio is 0.0301 versus 0.0555. Thus successful full responses are not merely sharper in a token-weighted average; they are shorter, more stable, and more confidently closed at the sample level.
+
+\begin{table}[H]
+    \centering
+    \caption{Sample-level correct/wrong grouping in the offline full-token audit}
+    \label{tab:en-full-token-correct-wrong-sample-summary}
+    \scriptsize
+    \setlength{\tabcolsep}{3pt}
+    \begin{tabular}{rlrrrrrr}
+        \toprule
+        Step & group & $n$ & length & entropy & low-conf. & tail conf. & top-1 \\
+        \midrule
+        0 & correct & 39 & 482.4 & 0.3282 & 0.0619 & 0.8875 & 0.8978 \\
+        0 & wrong & 89 & 956.5 & 0.8603 & 0.1533 & 0.7264 & 0.8125 \\
+        60 & correct & 79 & 482.5 & 0.2231 & 0.0412 & 0.9286 & 0.9229 \\
+        60 & wrong & 49 & 815.4 & 0.2657 & 0.0517 & 0.9114 & 0.9112 \\
+        120 & correct & 75 & 473.1 & 0.2126 & 0.0388 & 0.9298 & 0.9268 \\
+        120 & wrong & 53 & 801.2 & 0.3537 & 0.0639 & 0.8737 & 0.8980 \\
+        180 & correct & 79 & 476.5 & 0.1765 & 0.0301 & 0.9381 & 0.9362 \\
+        180 & wrong & 49 & 963.4 & 0.2871 & 0.0555 & 0.8559 & 0.9084 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+These grouped results preserve the same direction observed in the aggregate token diagnostics, so the offline audit functions as mechanism evidence rather than only as a visual diagnostic: it extends the correctness-calibration link from retained prefixes to complete generated sequences. It also sharpens the interpretation of EOS. Useful training is not equivalent to raising EOS probability everywhere. Instead, the better checkpoints combine lower entropy, fewer low-confidence tokens, shorter correct responses, and a controlled rather than globally inflated EOS tendency.
+
+The trajectory-level rendering in Figure~\ref{fig:en-trajectory-text-entropy-math500-18} shows the same pattern at the level of readable generated text. The figure follows one held-out MATH500 trajectory across checkpoint steps 0, 60, 120, and 180. Each word-like unit is printed directly, and its background color encodes token entropy. The step-0 response contains many high-entropy regions and an unstable reasoning path; by the final checkpoint, the visible reasoning is more structured, lower-entropy, and correct. The image is intentionally truncated for readability, so it should be read as a qualitative trajectory view rather than as a full response transcript.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{trajectory-text-entropy-math500-18.png}
+    \caption{Representative word-level entropy trajectory across saved checkpoints. Each displayed word or formula fragment is drawn from the generated response, with warmer backgrounds indicating higher token entropy.}
+    \label{fig:en-trajectory-text-entropy-math500-18}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{full-token-score-length.png}
+    \caption{Offline full-token audit: validation score and response length across saved checkpoints.}
+    \label{fig:en-full-token-score-length}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{full-token-confidence-panel.png}
+    \caption{Offline full-token audit: token entropy, low-confidence mass, tail confidence, and chosen-token probability across saved checkpoints.}
+    \label{fig:en-full-token-confidence-panel}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{full-token-eos-topk-panel.png}
+    \caption{Offline full-token audit: EOS behavior, top-1 probability, and top-k mass across saved checkpoints.}
+    \label{fig:en-full-token-eos-topk-panel}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{full-token-position-final.png}
+    \caption{Final-checkpoint full-token statistics by relative response position. The x-axis bins generated tokens into response-position deciles.}
+    \label{fig:en-full-token-position-final}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{full-token-correctness-final.png}
+    \caption{Final-checkpoint full-token statistics grouped by response correctness.}
+    \label{fig:en-full-token-correctness-final}
+\end{figure}
+
+The audit strengthens the evidence hierarchy in the paper. The original validation curves show that performance improves; the aggregate token summaries show that the improvement is accompanied by shorter and sharper generations; and this checkpoint audit shows that the same behavior is visible when saved checkpoints are used for fresh full-response inference. Because the audit is based on 32 held-out problems, its numerical values should be read as subset estimates. Its role is mechanism validation: it checks whether the token-level story remains coherent when the analysis is expanded from retained prefixes to complete generated sequences, while also showing why best-checkpoint, final-checkpoint, and token-behavior evidence should be reported together.

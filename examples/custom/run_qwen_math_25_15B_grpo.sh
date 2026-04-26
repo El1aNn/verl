@@ -1,6 +1,15 @@
 #!/usr/bin/env bash
 set -xeuo pipefail
 
+# Ensure `screen`/non-interactive shells also get the verl env.
+CONDA_BASE=${CONDA_BASE:-"/home/vipuser/miniconda3"}
+if [ -f "${CONDA_BASE}/etc/profile.d/conda.sh" ]; then
+    # shellcheck source=/dev/null
+    source "${CONDA_BASE}/etc/profile.d/conda.sh"
+    conda activate verl || true
+fi
+export PATH="${CONDA_BASE}/envs/verl/bin:${CONDA_BASE}/bin:${CONDA_BASE}/condabin:${PATH}"
+
 # 可选：如需 WandB，请在此设置（或依赖外部已导出）
 export WANDB_API_KEY="f408d6f1e1f982b94e6034176c0cd1f72cf9ab62"
 export SWANLAB_API_KEY="B2gwMFDhC9KMZAu6T8UXL"  # 添加这一行
@@ -70,7 +79,7 @@ if [ -z "$RAY_CMD" ]; then
     fi
     # Fallback to known path if still not found
     if [ -z "$RAY_CMD" ] || [ ! -x "$RAY_CMD" ]; then
-        RAY_CMD="/root/miniconda3/envs/verl_debug/bin/ray"
+        RAY_CMD="${CONDA_BASE}/envs/verl/bin/ray"
     fi
 fi
 
@@ -80,12 +89,18 @@ if [ ! -x "$RAY_CMD" ]; then
 fi
 
 # 检查 Ray 是否运行，如果没有则启动（仅对本机 head 进行自动启动）
-if ! "$RAY_CMD" status --address "${RAY_GCS_ADDRESS}" > /dev/null 2>&1; then
+ray_running=1
+if command -v timeout >/dev/null 2>&1; then
+    timeout 8s "$RAY_CMD" status --address "${RAY_GCS_ADDRESS}" > /dev/null 2>&1 || ray_running=0
+else
+    "$RAY_CMD" status --address "${RAY_GCS_ADDRESS}" > /dev/null 2>&1 || ray_running=0
+fi
+if [ "${ray_running}" -ne 1 ]; then
     if [ "${_ray_head_host}" = "127.0.0.1" ] || [ "${_ray_head_host}" = "localhost" ]; then
         echo "Ray is not running at ${RAY_GCS_ADDRESS}. Starting local Ray cluster..."
         # 清理可能存在的残留进程
         "$RAY_CMD" stop --force || true
-        "$RAY_CMD" start --head --port 6379 --dashboard-host 0.0.0.0 --dashboard-port 8265 --num-gpus "${N_GPUS}" --disable-usage-stats
+        "$RAY_CMD" start --head --node-ip-address 127.0.0.1 --port 6379 --dashboard-host 127.0.0.1 --dashboard-port 8265 --num-gpus "${N_GPUS}" --disable-usage-stats
     else
         echo "Error: cannot reach Ray cluster at ${RAY_GCS_ADDRESS}."
         echo "- If your head node is ${_ray_head_host}, start Ray there (ensure dashboard listens on 0.0.0.0:8265)."

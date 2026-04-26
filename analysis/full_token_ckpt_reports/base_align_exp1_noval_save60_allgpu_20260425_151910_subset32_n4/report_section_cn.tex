@@ -1,0 +1,28 @@
+\subsection{新增 checkpoint 的全量 token 离线诊断}
+
+为弥补训练期 validation diagnostics 只保留前缀 token 的限制，本文对新增 checkpoint 进行离线重评估。该流程从保存的 actor checkpoint 恢复模型，在 \EvalSet{} validation set 上重新生成响应，并对每条响应的全部生成 token 计算 logprob、entropy、EOS probability、top-1 probability 与 top-k mass。与原训练日志中的前缀诊断不同，本节覆盖完整响应长度，因此更适合作为 checkpoint 级行为分析。
+
+本次离线评估覆盖 step 0 到 step 180，每个 step 包含 32 道题、128 条采样响应。最终 checkpoint 的平均 score 为 0.6172，最佳 checkpoint 为 step 60，best score 为 0.6172。从行为指标看，最终平均 response length 为 662.9，token entropy 为 0.2188，低置信 token 比例为 0.0398，平均 top-1 probability 为 0.9256。
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{full-token-score-length.png}
+    \caption{新增 checkpoint 的离线全量 token 评估：validation score 与响应长度随 checkpoint 变化。}
+    \label{fig:full-token-score-length}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{full-token-confidence-panel.png}
+    \caption{新增 checkpoint 的全量 token 置信度与 entropy 指标。该图使用完整响应 token，而非训练期保留的前缀子集。}
+    \label{fig:full-token-confidence-panel}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{full-token-position-final.png}
+    \caption{最终 checkpoint 上按响应位置分桶的全量 token 指标。横轴为响应内相对位置 decile。}
+    \label{fig:full-token-position-final}
+\end{figure}
+
+这组结果应作为现有 token 级补充证据的加强版来解读：训练期记录能展示早期 token 的局部轨迹，而离线重评估可以覆盖整个 validation set 与完整响应长度。二者若方向一致，则说明“分布稳定化”并非只发生在少量固定题目的前缀区域，而是能在完整生成轨迹上观察到。

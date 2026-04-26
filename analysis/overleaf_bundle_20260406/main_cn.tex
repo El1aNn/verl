@@ -26,11 +26,11 @@
 \pagenumbering{Roman}
 
 \begin{abstract}
-本文研究极低数据强化学习场景下 1-shot GRPO 对数学推理模型的作用机制。近期关于 1-shot RLVR 的研究表明，即使只使用一个带可验证奖励的训练样本，强化学习仍可能显著提升数学推理表现 \cite{wang2025oneshotrlvr}。在这一发现的基础上，本文比较 \ModelBase{} 与 \ModelInstruct{} 上的五组结果设置，并结合验证正确率、响应长度、置信度、熵和停止行为等诊断指标分析训练后的生成分布变化。
+本文研究极低数据强化学习场景下 1-shot GRPO 对数学推理模型的作用机制。近期关于 1-shot RLVR 的研究表明，即使只使用一个带可验证奖励的训练样本，强化学习仍可能显著提升数学推理表现 \cite{wang2025oneshotrlvr}。在这一发现的基础上，本文在 \ModelBase{} 与 \ModelInstruct{} 上构建七组主结果设置，并将七组设置全部纳入聚合行为与 token diagnostics 分析；其中训练期 \texttt{actor entropy} 和固定题目完整轨迹则按可用记录范围作为补充证据使用。全文结合验证正确率、响应长度、置信度、熵和停止行为等指标分析训练后的生成分布变化。
 
 结果呈现出清晰的模型家族差异：Base 模型在有意义奖励监督下获得约 0.20 的验证分数提升，而 Instruct 模型由于起点更高，只表现出小幅局部变化。将训练 group size 从 \texttt{n=8} 降到 \texttt{n=1} 会削弱但不会消除收益；采用随机错误奖励时，Base 模型不再复现正常奖励条件下的提升，而是在分数与行为指标上同步坍缩。除主分数外，Base 模型在正常奖励条件下还同时表现出响应长度缩短、答案尾部置信度上升、低置信 token 比例下降、token entropy 下降以及 EOS 结束概率上升等一致变化。
 
-这些结果支持一个直接解释：在当前设置下，1-shot GRPO 对 Base 数学推理模型的主要作用是快速行为校准，而不是注入额外数学知识。本文的贡献在于提供了 group size 与奖励有效性的同口径比较、围绕分布稳定化的多指标证据链，以及用于定位低数据收益的全量数据经验上界参考。
+这些结果支持一个直接解释：在当前设置下，1-shot GRPO 对 Base 数学推理模型的主要作用是快速行为校准，而不是注入额外数学知识。本文的贡献在于提供了 group size 与奖励有效性的同口径比较、围绕分布稳定化的多指标证据链，以及与 one-shot 共享训练日程和验证口径的 full-data 对照结果。
 \end{abstract}
 
 \noindent\textbf{关键词：}\ReportKeywordsCN
@@ -40,7 +40,7 @@
 \textbf{English Abstract}
 \end{center}
 \noindent
-This paper studies 1-shot GRPO for mathematical reasoning under an extremely low-data reinforcement-learning regime. Motivated by recent evidence that verifiable reward can remain effective with a single training example \cite{wang2025oneshotrlvr}, it asks what kind of generation behavior changes when the data budget is so small. The analysis compares five result settings across Base and Instruct model families and combines validation accuracy with diagnostics for length, confidence, entropy, and stopping behavior.
+This paper studies 1-shot GRPO for mathematical reasoning under an extremely low-data reinforcement-learning regime. Motivated by recent evidence that verifiable reward can remain effective with a single training example \cite{wang2025oneshotrlvr}, it asks what kind of generation behavior changes when the data budget is so small. The primary comparison covers seven settings across Base and Instruct model families, and all seven settings are included in the aggregate behavioral and token-diagnostic analysis; training-time actor entropy and fixed-prompt full traces are used according to their available coverage. The analysis combines validation accuracy with diagnostics for length, confidence, entropy, and stopping behavior.
 
 The main finding is a strong asymmetry across model families. The Base model gains roughly 0.20 validation score under meaningful reward supervision, while the Instruct model moves only slightly from an already strong starting point. Reducing the training group size from \texttt{n=8} to \texttt{n=1} weakens but does not remove the gain, and reward corruption causes the Base model to collapse rather than reproduce the meaningful-reward improvement. Across the successful Base settings, training also shortens outputs, lowers entropy, reduces low-confidence token mass, raises tail confidence, and makes stopping behavior sharper. These results support interpreting 1-shot GRPO primarily as fast behavioral calibration for the Base math model.
 
@@ -61,7 +61,7 @@ Wang 等人关于 1-shot RLVR 的近期工作进一步把这一问题推向了�
 
 在极低数据预算下，GRPO 对模型行为的影响需要更细的受控比较来刻画。本文关注三个问题：1-shot GRPO 是否主要改变已有推理行为而不只是提高分数；这种变化在 Base 与 Instruct 先验之间是否不同；以及它是否依赖 group-relative signal 和有效奖励信号。由此，本文引入 token-level diagnostics、相同验证口径的 \texttt{n=1} 设置和随机错误奖励设置，用于把低数据 RLVR 从单纯分数比较推进到行为机制分析。
 
-围绕这些问题，本文的主要贡献可以概括为三点。第一，本文在 1-shot RLVR 研究脉络下，统一比较五组关键结果设置，并将 \texttt{n=1} 小组规模设置与随机错误奖励设置纳入同一分析框架。第二，本文不仅比较最终 score，还系统整理了多种行为指标与训练过程中的动态统计，从而给出“训练如何改写推理分布”的直接证据。第三，本文进一步引入全量数据训练结果作为经验上界，用于评估 1-shot 收益距离更大数据预算下可达到效果还有多远。后文将依次给出方法背景、研究设置、主结果、行为证据、token 级证据与训练动态综合。
+围绕这些问题，本文的主要贡献可以概括为三点。第一，本文在 1-shot RLVR 研究脉络下，统一比较七组关键结果设置，并将 \texttt{n=1} 小组规模设置、随机错误奖励设置以及两组 matched full-data 对照纳入同一结果框架。第二，本文不仅比较最终 score，还系统整理了多种行为指标与训练过程中的动态统计，从而给出“训练如何改写推理分布”的直接证据。第三，本文进一步把 full-data 结果从附属参考提升为主结果对照，用于评估 1-shot 收益在同一训练日程下距离更大数据预算结果还有多远。后文将依次给出方法背景、研究设置、主结果、行为证据、token 级证据与训练动态综合。
 
 \section{方法背景与研究问题}
 
@@ -101,11 +101,11 @@ GRPO 的核心在于组内相对比较。对于同一条输入，训练阶段会
 
 \subsection{主结果设置}
 
-表~\ref{tab:main-results} 汇总了五组关键设置的核心结果。本文采用如下结果标签：\texttt{Base n=8}、\texttt{Base n=1}、\texttt{Base weak-reg.}、\texttt{Base random-reward} 与 \texttt{Instruct n=8}。此外，附录还保留一组全量数据与格式约束参考结果，用于补强对奖励结构和数据规模的讨论，但不与正文主结果混合比较。
+表~\ref{tab:main-results} 汇总了七组设置的核心结果，具体标签见表中。两组 full-data 结果与对应 one-shot baseline 共享验证集、\texttt{rollout\_n=8}、batch size 与 \texttt{test\_freq}；主差异是训练数据由单样本 \texttt{pi1\_one\_ans.parquet} 扩展为 \texttt{train.parquet}。
 
 \begin{table}[H]
     \centering
-    \caption{五组关键设置的主结果汇总}
+    \caption{七组主结果设置的核心分数比较}
     \label{tab:main-results}
     \begin{threeparttable}
     \begin{tabular}{lccccc}
@@ -113,37 +113,40 @@ GRPO 的核心在于组内相对比较。对于同一条输入，训练阶段会
         设置 & 初始 & final & 增量 & 最佳检查点 & best score \\
         \midrule
         Base n=8 & 0.3745 & 0.5733 & +0.1988 & 156 & 0.5753 \\
+        Base full-data\tnote{b} & 0.3745 & 0.6105 & +0.2360 & 180 & 0.6105 \\
         Base n=1\tnote{a} & 0.3630 & 0.5470 & +0.1840 & 174 & 0.5590 \\
         Base weak-reg. & 0.3745 & 0.5747 & +0.2002 & 174 & 0.5765 \\
-        Base random-reward\tnote{b} & 0.3630 & 0.0003 & $-$0.3628 & 0 & 0.3630 \\
+        Base random-reward\tnote{c} & 0.3630 & 0.0003 & $-$0.3628 & 0 & 0.3630 \\
         Instruct n=8 & 0.6837 & 0.6873 & +0.0035 & 162 & 0.6995 \\
+        Instruct full-data\tnote{b} & 0.6837 & 0.7018 & +0.0180 & 144 & 0.7063 \\
         \bottomrule
     \end{tabular}
     \begin{tablenotes}[flushleft]
         \footnotesize
         \item[a] \texttt{Base n=1} 采用与 \texttt{Base n=8} 相同的 \texttt{val\_rollout\_n=8} 设置，因此每个验证检查点同样约 4000 条记录，可直接进行同口径比较。
-        \item[b] \texttt{Base random-reward} 采用随机错误奖励构造，定位为奖励破坏设置，而不是无奖励设置。
+        \item[b] 两组 full-data 结果与对应 one-shot baseline 共享相同验证口径与训练日程；主要差异是训练文件由 \texttt{pi1\_one\_ans.parquet} 改为 \texttt{train.parquet}。
+        \item[c] \texttt{Base random-reward} 采用随机错误奖励构造，定位为奖励破坏设置，而不是无奖励设置。
     \end{tablenotes}
     \end{threeparttable}
 \end{table}
 
 \subsection{训练与评估口径}
 
-本文比较的五组设置都覆盖 \texttt{step 0} 到 \texttt{step 180}，步长为 6。每个检查点的结果均由逐样本验证记录聚合得到。五组设置都采用约 4000 条验证记录，因此主分数曲线、最佳检查点和检查点级波动具备较好的可比性。尤其是 \texttt{Base n=8}、\texttt{Base n=1} 以及 \texttt{Base random-reward}，共享同一验证采样口径。
+主结果中的七组设置都覆盖 \texttt{step 0} 到 \texttt{step 180}，步长为 6。每个检查点的结果均由逐样本验证记录聚合得到，且每组都采用约 4000 条验证记录，因此主分数曲线、最佳检查点和检查点级波动具备较好的可比性。尤其是 \texttt{Base n=8} 与 \texttt{Base full-data}、\texttt{Instruct n=8} 与 \texttt{Instruct full-data}，共享相同验证采样口径和训练日程，可直接用来衡量数据预算扩大后的收益增量。
 
-另一个需要记录的口径是 token diagnostics 的覆盖范围。结合逐样本验证记录的保存结果，更准确的描述是：每个检查点最多有 64 个样本参与 token-level diagnostics 统计，但只有其中 8 条样本会额外保存完整的 \texttt{token\_diagnostics} 轨迹。对于主 \texttt{n=8} 设置，这 8 条完整轨迹通常对应同一固定题目的 8 次采样，因此 token 级分析更适合作为机制证据，而不适合作为“全任务统计结论”。动态统计进一步表明，五组设置在每个验证检查点上都稳定分析 64 个样本，覆盖率约为 1.6\%。
+后文采用分层诊断口径。聚合行为指标与 token diagnostics 覆盖七组主结果设置，因此两组 full-data 实验不仅作为分数级对照，也进入终点 token 指标、正确性分组统计和 one-shot/full-data 对比分析。训练期 \texttt{actor entropy} 曲线仍主要覆盖五组低数据与控制条件，因为这部分依赖训练日志字段；固定题目的完整 token 轨迹也只覆盖较窄的保留子集。更准确地说，每个检查点最多有 64 个样本参与 token-level diagnostics 聚合统计，但只有其中 8 条样本会额外保存完整的 \texttt{token\_diagnostics} 轨迹。对于主 \texttt{n=8} 设置，这 8 条完整轨迹通常对应同一固定题目的 8 次采样，因此完整轨迹更适合作为机制证据，而不适合作为“全任务统计结论”。
 
-\subsection{全量数据经验上界参考}
+\subsection{matched full-data 对照}
 
-除主结果表外，本文还系统整理了一组全量数据与格式约束参考结果。这批结果不直接并入表~\ref{tab:main-results}，原因在于训练文件范围与记录覆盖并不完全一致；但它们对全文论证仍然很重要，因为它们为低数据设置提供了一个经验上界。具体而言，Base 家族中，\texttt{full} 训练由 0.3630 提升到 0.6053，显著强于 \texttt{1-shot} 的 0.5753；Instruct 家族中，\texttt{full} 也高于 \texttt{1-shot}，但绝对差值仅约 0.0143。与此同时，Base 家族的格式约束主导参考仅从 0.3630 提升到 0.4490，明显弱于常规奖励路径。
+两组 matched full-data 结果使本文能够在同一训练日程下直接比较 one-shot 与更大数据预算。以 Base 家族为例，\texttt{Base full-data} 从 0.3745 提升到 0.6105，相比 \texttt{Base n=8} 的 0.5733 多出 0.0373 的 final 分数；在最佳 checkpoint 上，差距为 0.0353。Instruct 家族同样呈现相同方向，但绝对差距较小：\texttt{Instruct full-data} 的 final 为 0.7018，相比 \texttt{Instruct n=8} 的 0.6873 高出 0.0145，最佳 checkpoint 差距为 0.0068。
 
-这里的 \texttt{full} 沿用 1-shot RLVR 原文的数据口径，指从 DeepScaleR-Preview-Dataset 随机抽取的 1209 条 DSR-sub instance pool；\texttt{1-shot} 指同一 DSR-sub 中被选出的单个样本 \(\pi_1\) \cite{wang2025oneshotrlvr,deepscaler2025}。
+这里的 \texttt{full-data} 沿用 1-shot RLVR 原文的数据口径，指从 DeepScaleR-Preview-Dataset 抽取的 DSR-sub 训练池；\texttt{one-shot} 指同一 DSR-sub 中被选出的单个样本 \(\pi_1\) \cite{wang2025oneshotrlvr,deepscaler2025}。由于当前这两组 full-data 运行与对应 one-shot baseline 共享 \texttt{rollout\_n=8}、验证集、batch size 与 \texttt{test\_freq}，它们可以被视为“仅扩大训练数据预算”的 matched 对照。
 
-这批参考结果之所以值得写入正文，并不是因为它们能替代表~\ref{tab:main-results} 的同口径比较，而是因为它们提供了一个可解释的经验上界参照。第一，它们说明“Base 家族收益显著、Instruct 家族收益有限”并不依赖于单一结果表。第二，它们说明“1-shot 有效，但通常弱于全量数据训练”。第三，格式约束主导参考的明显劣势进一步支持了本文关于“奖励结构本身会影响最终上限”的论断。换言之，主结果表负责回答“在同口径下结论是否成立”，而全量数据参考负责回答“低数据收益距离更大数据预算下的经验上界还有多远”。
+这组 matched 对照使主结果叙事更完整。第一，它表明“Base 家族收益显著、Instruct 家族收益有限”的结论在扩大数据预算后仍然保持相同方向。第二，它更精确地定位了 one-shot 的上限位置：1-shot 并非无效，但在同一训练日程下通常仍低于 full-data。第三，它说明数据预算的边际收益具有明显的模型家族差异，Base 家族从 full-data 中获得的附加收益更大，而 Instruct 家族的提升更接近温和增量。
 
 \begin{table}[H]
     \centering
-    \caption{全量数据结果作为 1-shot 训练的经验上界参考}
+    \caption{同口径 one-shot 与 full-data 的分数差距}
     \label{tab:full-ceiling-reference-cn}
     \small
     \begin{threeparttable}
@@ -151,49 +154,49 @@ GRPO 的核心在于组内相对比较。对于同一条输入，训练阶段会
         \toprule
         模型家族 & 1-shot final & full final & final 差距 & best 差距 \\
         \midrule
-        Base & 0.5753 & 0.6053 & +0.0300 & +0.0333 \\
-        Instruct & 0.6928 & 0.7070 & +0.0143 & +0.0085 \\
+        Base & 0.5733 & 0.6105 & +0.0373 & +0.0353 \\
+        Instruct & 0.6873 & 0.7018 & +0.0145 & +0.0068 \\
         \bottomrule
     \end{tabular}
     \begin{tablenotes}[flushleft]
         \footnotesize
-        \item 注：差距定义为全量数据结果减去对应的 1-shot 结果。该表用于提供经验上界，不作为表~\ref{tab:main-results} 的同口径比较项。
+        \item 注：差距定义为 full-data 结果减去对应 one-shot baseline 结果。当前两组对照共享验证口径与训练日程，主差异为训练数据预算。
     \end{tablenotes}
     \end{threeparttable}
 \end{table}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\textwidth]{full-data-reference-panel.png}
-    \caption{全量数据与格式约束参考结果的初始值、终点值与最佳值对比。该图表明，无论在 Base 还是 Instruct 家族中，\texttt{full} 训练通常都优于 \texttt{1-shot}；同时，Base 家族中的格式约束主导参考明显弱于常规奖励路径。}
+    \includegraphics[width=\textwidth]{matched-full-data-panel.png}
+    \caption{Base 与 Instruct 家族中 one-shot 和 full-data 的初始、终点与最佳分数对照。Matched full-data 结果显示，扩大数据预算在两类模型上都能带来收益，但 Base 家族的增量更大。}
     \label{fig:full-data-reference-main}
 \end{figure}
 
-表~\ref{tab:full-ceiling-reference-cn} 和图~\ref{fig:full-data-reference-main} 因而承担了正文里的一个特殊角色：它们不是主结论的直接来源，而是对主结论进行上界定位和外部参照补强。这类材料的价值在于，它可以避免全文叙事完全建立在单一结果表之上，使“Base 更敏感于训练范式和奖励结构、Instruct 整体收益更温和”这一判断具有更宽的经验基础。
+表~\ref{tab:full-ceiling-reference-cn} 和图~\ref{fig:full-data-reference-main} 因而不再只是附属参照，而是主结果的重要补充部分。它们直接回答了一个此前无法严格回答的问题：在相同验证口径与训练日程下，把数据预算从 one-shot 扩展到 full-data 后，收益还能增加多少。当前答案是明确的，即两类模型都继续获益，但 Base 家族的边际提升更大。
 
 \section{主结果：1-shot GRPO 的有效性}
 
 \subsection{总体趋势：Base 收益显著，Instruct 收益有限}
 
-表~\ref{tab:main-results} 呈现出两个主要现象。第一，Base 模型在多个设置中都表现出接近 0.20 的绝对分数提升，说明 1-shot GRPO 在弱先验数学模型上能够产生稳定而显著的收益。第二，Instruct 模型的改进明显更小，其结果更接近高性能附近的局部微调，而不是结构性变化。这与方法部分提出的先验差异假设高度一致。
+表~\ref{tab:main-results} 呈现出三个主要现象。第一，Base 模型在多个 one-shot 设置中都表现出接近 0.20 的绝对分数提升，说明 1-shot GRPO 在弱先验数学模型上能够产生稳定而显著的收益。第二，在 matched full-data 对照下，Base 家族的终点分数进一步提升到 0.6105，而 Instruct 家族只从 0.6873 提升到 0.7018，显示数据预算扩展后的边际收益仍然存在明显家族差异。第三，随机错误奖励会使 Base 模型在分数上直接坍缩，从而把“有意义奖励”与“训练流程本身”区分开来。
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\textwidth]{score-all-static.png}
-    \caption{五组设置的 validation score 随训练检查点的变化。Base 正常奖励设置整体抬升明显，而随机错误奖励设置则快速坍缩。}
+    \includegraphics[width=\textwidth]{score-main-seven-settings.png}
+    \caption{七组主结果设置的 validation score 随训练检查点变化。Matched full-data 曲线表明，在 Base 与 Instruct 两个家族中，扩大训练数据预算都能继续提高分数，但 Base 家族的增量更大。}
     \label{fig:all-score-curves}
 \end{figure}
 
-图~\ref{fig:all-score-curves} 强化了表格中的结论。Base 系列从较低起点快速上升，并在中后期进入相对平稳的高位区间；Instruct 系列则从一开始就处于较高水平，后续训练带来的变化幅度明显更小。这意味着不能用同一个收益尺度评价两类模型。对于 Base 模型，训练是在帮助它脱离“高熵、长拖尾、低置信”的初始状态；而对于 Instruct 模型，训练更接近对已有分布进行局部调整。
+图~\ref{fig:all-score-curves} 强化了表格中的结论。Base 系列从较低起点快速上升，并在中后期进入相对平稳的高位区间；其中 \texttt{Base full-data} 进一步把终点抬高到 0.6105。Instruct 系列则从一开始就处于较高水平，后续训练带来的变化幅度明显更小，即便扩展到 full-data，收益也仍然属于温和增量。这意味着不能用同一个收益尺度评价两类模型。对于 Base 模型，训练是在帮助它脱离“高熵、长拖尾、低置信”的初始状态；对于 Instruct 模型，训练更接近在已有较强先验上的局部调整。
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\textwidth]{score-detail-panel.png}
-    \caption{Base、Instruct 与随机错误奖励设置的 validation score 局部视图。}
+    \includegraphics[width=\textwidth]{score-main-detail-panel.png}
+    \caption{七组主结果的局部放大视图：左图比较 Base 家族中的 one-shot 与 full-data 条件，中图比较 Instruct 家族中的 one-shot 与 full-data 条件，右图单独显示随机错误奖励对照。}
     \label{fig:score-detail-panel}
 \end{figure}
 
-由于五组设置的分数量级差异较大，单独依赖图~\ref{fig:all-score-curves} 容易压缩局部差异。图~\ref{fig:score-detail-panel} 因而承担一个补充角色：左图把三个成功的 Base 条件放在相近尺度上，能够更清楚地看到 \texttt{Base weak-reg.} 与 \texttt{Base n=8} 非常接近，而 \texttt{Base n=1} 则稳定偏低；中图则表明 Instruct 模型虽然总增益很小，但在高位区间内仍存在可辨认的局部波动；右图把随机错误奖励条件下的坍缩单独展开，从而避免它在总览图里仅仅表现为“贴近零值的一条线”。
+由于七组设置的分数量级差异较大，单独依赖图~\ref{fig:all-score-curves} 容易压缩局部差异。图~\ref{fig:score-detail-panel} 因而承担一个补充角色：左图把 Base 家族中四条成功曲线放在相近尺度上，能够更清楚地看到 \texttt{Base full-data} 明显高于 one-shot 条件，而 \texttt{Base n=1} 则稳定偏低；中图表明 Instruct 模型即便在较高起点上，full-data 仍能带来可辨认但有限的增量；右图把随机错误奖励条件下的坍缩单独展开，从而避免它在总览图里仅仅表现为“贴近零值的一条线”。
 
 \subsection{Base 模型：收益大且具有一致性}
 
@@ -233,7 +236,7 @@ GRPO 的核心在于组内相对比较。对于同一条输入，训练阶段会
 
 \begin{table}[H]
     \centering
-    \caption{五组设置的最终行为指标汇总}
+    \caption{七组主结果设置的最终行为指标汇总}
     \label{tab:behavior-results}
     \begin{threeparttable}
     \small
@@ -243,20 +246,41 @@ GRPO 的核心在于组内相对比较。对于同一条输入，训练阶段会
         设置 & 长度 & 尾部置信 & 低置信 & 熵 & EOS & top-1 \\
         \midrule
         Base n=8 & 603.1 & 0.9331 & 0.0325 & 0.1839 & 0.9880 & 0.9354 \\
+        Base full-data & 536.0 & 0.9320 & 0.0308 & 0.1718 & 0.9549 & 0.9378 \\
         Base n=1 & 580.4 & 0.9003 & 0.0488 & 0.2811 & 0.9215 & 0.9227 \\
         Base weak-reg. & 578.6 & 0.9437 & 0.0294 & 0.1563 & 0.9738 & 0.9437 \\
         Base random-reward & 1192.4 & 0.0001 & 1.0000 & 11.5466 & 0.0009 & 0.0021 \\
         Instruct n=8 & 470.3 & 0.9571 & 0.0187 & 0.1322 & 0.9926 & 0.9634 \\
+        Instruct full-data & 452.7 & 0.9673 & 0.0115 & 0.0837 & 0.9983 & 0.9710 \\
         \bottomrule
     \end{tabularx}
     \begin{tablenotes}[flushleft]
         \footnotesize
-        \item 注：短标签对应表~\ref{tab:main-results} 中的五组设置；EOS 指最终 EOS 概率，top-1 指平均 top-1 token 概率。
+        \item 注：短标签对应七组主结果设置；EOS 指最终 EOS 概率，top-1 指平均 top-1 token 概率。
     \end{tablenotes}
     \end{threeparttable}
 \end{table}
 
 这类变化与“能力注入”并不完全一致，却与“快速校准”高度吻合。短期知识学习并不必然导致长度缩短、结束概率上升和熵下降同时出现；相反，如果模型学会更稳定地组织原有解题习惯，这些指标更可能同步变化。因此，训练收益更适合被解释为对分布进行重新整形，而不是为模型引入额外知识模块。
+
+\subsection{七组设置的聚合 token 诊断}
+
+将两组 full-data 结果纳入 token diagnostics 后，行为证据的结构更加完整。表~\ref{tab:behavior-results} 已经给出七组设置的终点行为指标，图~\ref{fig:behavior-detail-main-settings} 进一步把关键 token 指标放在同一个视觉框架中。这里的重点不是简单确认 full-data 分数更高，而是观察更大数据预算是否也沿着同一类分布稳定化方向移动。结果表明，Base 与 Instruct 的 full-data 设置都没有破坏前文的解释框架：它们仍然表现为更短输出、更低 entropy、更少低置信 token 和更高 top-1 probability。
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{behavior-detail-main-settings-panel.png}
+    \caption{七组主结果设置的聚合 token 行为指标对比。该图用于把 matched full-data 对照纳入与 one-shot、group-size 和奖励破坏设置相同的行为诊断框架。}
+    \label{fig:behavior-detail-main-settings}
+\end{figure}
+
+Base 家族中，\texttt{Base full-data} 的 final score 达到 0.6105，同时 response length 降到 536.0，低置信 token 比例为 0.0308，token entropy 为 0.1718，平均 top-1 probability 为 0.9378。与 \texttt{Base n=8} 相比，它不仅分数更高，而且输出更短、低置信 token 更少、平均 top-1 概率更高；与 \texttt{Base weak-reg.} 相比，它的 entropy 略高，但分数明显更高。这说明 full-data 的优势并不是单纯来自更强的分布收缩，而是来自更好的“收缩程度与正确性”平衡。
+
+Instruct 家族中，\texttt{Instruct full-data} 的终点变化同样集中在稳定性指标上。它相对 \texttt{Instruct n=8} 将 response length 从 470.3 降到 452.7，将低置信 token 比例从 0.0187 降到 0.0115，将 token entropy 从 0.1322 降到 0.0837，并将 top-1 probability 从 0.9634 提升到 0.9710。虽然分数增量只有 0.0145，但 token 侧的变化说明 full-data 仍在高先验模型上产生了可测的分布收缩，只是这种收缩对应的分数收益小于 Base 家族。
+
+随机错误奖励设置在同一图中承担边界作用。它的 token entropy 上升到 11.5466，低置信 token 比例达到 1.0000，top-1 probability 降到 0.0021，说明错误奖励并不是让模型停留在初始状态，而是把生成分布推向高度不稳定区域。把这一点与 full-data 的稳定化方向并列观察，可以更清楚地区分三类现象：有效奖励下的校准、数据预算扩大后的进一步改善，以及错误奖励导致的分布崩解。
+
+因此，七组聚合 token 诊断支持一个更强的结论：one-shot 与 full-data 的差异主要体现为同一稳定化方向上的程度差异，而不是完全不同的行为机制。Base 家族的 full-data 设置将 one-shot 的收益继续向上推进；Instruct 家族的 full-data 设置则在高起点附近继续做小幅收缩。这个结果使 full-data 对照不再只是“分数天花板”，而是成为验证行为解释是否可扩展到更大数据预算的重要证据。
 
 \begin{figure}[H]
     \centering
@@ -313,7 +337,7 @@ GRPO 的核心在于组内相对比较。对于同一条输入，训练阶段会
 
 \subsection{动态统计进一步强化了上述判断}
 
-训练与验证阶段的动态统计把前面的静态结果推进到了过程层面。与只看最终 checkpoint 不同，这些统计同时记录了训练期的 \texttt{actor/entropy} 和验证期的聚合 token 指标，因此能更直接地区分“真正变得更稳定的策略”和“仅在终点分数上略占优势的策略”。表~\ref{tab:dynamic-summary} 汇总了五组设置从起点到终点的核心变化。
+训练与验证阶段的动态统计把前面的静态结果推进到了过程层面。与只看最终 checkpoint 不同，这些统计同时记录了训练期的 \texttt{actor/entropy} 和验证期的聚合 token 指标，因此能更直接地区分“真正变得更稳定的策略”和“仅在终点分数上略占优势的策略”。表~\ref{tab:dynamic-summary} 汇总了五组诊断设置从起点到终点的核心变化。
 
 \begin{table}[H]
     \centering
@@ -335,7 +359,7 @@ GRPO 的核心在于组内相对比较。对于同一条输入，训练阶段会
     \end{tabularx}
     \begin{tablenotes}[flushleft]
         \footnotesize
-        \item 注：起点取第一个有值的训练或验证检查点，终点取最终验证检查点。验证 token 指标来自聚合 token diagnostics，每个检查点分析 64 个样本；五组设置的覆盖率均约为 1.6\%。
+        \item 注：起点取第一个有值的训练或验证检查点，终点取最终验证检查点。验证 token 指标来自聚合 token diagnostics，每个检查点分析 64 个样本；五组诊断设置的覆盖率均约为 1.6\%。
     \end{tablenotes}
     \end{threeparttable}
 \end{table}
@@ -343,7 +367,7 @@ GRPO 的核心在于组内相对比较。对于同一条输入，训练阶段会
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{actor-entropy-static.png}
-    \caption{五组设置训练期 \texttt{actor/entropy} 变化，包含全尺度视图与局部放大视图。}
+    \caption{五组诊断设置训练期 \texttt{actor/entropy} 变化，包含全尺度视图与局部放大视图。}
     \label{fig:actor-entropy-curves}
 \end{figure}
 
@@ -378,7 +402,7 @@ Instruct 家族则呈现出另一种模式。\texttt{Instruct n=8} 的 \texttt{a
 
 本文还纳入了一份 token 级诊断分析。它并不覆盖全部主结果设置，而是聚焦于固定题目上的完整轨迹子集。结合当前配置，更准确的理解应当是：每个检查点、每个设置最多有 64 个样本参与 token diagnostics 统计，但只有 8 条样本保留完整 token 轨迹，而且每条记录只保留前约 96 个 token。因此，这部分材料更适合作为“机制补充证据”，而不宜被直接外推为“对全部 500 题均成立的统计结论”。
 
-尽管覆盖范围有限，这批 token 轨迹仍然具有较高价值。原因在于，它确实保留了 token 位置级的 \texttt{logprob}、\texttt{entropy}、\texttt{top1\_prob} 和 top-k mass 等信息，可以更直接地检验“训练是否在早期 token 组织上做了校正”。需要同时指出的是，本文还额外拥有五组设置共享的聚合 token 摘要曲线，因此 token 证据已经分成两层：一层是 64-sample 聚合统计，用于支持整体方向；另一层是固定题目的完整轨迹，用于展示局部机制。
+尽管覆盖范围有限，这批 token 轨迹仍然具有较高价值。原因在于，它确实保留了 token 位置级的 \texttt{logprob}、\texttt{entropy}、\texttt{top1\_prob} 和 top-k mass 等信息，可以更直接地检验“训练是否在早期 token 组织上做了校正”。需要同时指出的是，本文还额外拥有七组主结果设置共享的聚合 token 摘要曲线，因此 token 证据已经分成两层：一层是覆盖七组设置的 64-sample 聚合统计，用于支持整体方向和 matched full-data 对照；另一层是固定题目的完整轨迹，用于展示局部机制。
 
 \subsubsection{直接观察：Base 变化大，Instruct 变化小}
 
@@ -465,20 +489,67 @@ Instruct 家族则呈现出另一种模式。\texttt{Instruct n=8} 的 \texttt{a
 
 \subsubsection{按正确性分组的分布分离}
 
-为检验分布收缩是否真正对应更高的任务成功率，本文在保留 token-diagnostics 摘要的 validation records 上按响应正确性分组，比较 mean token entropy 与 mean top-1 probability。图~\ref{fig:correct-wrong-support-panel} 汇总了四个非坍缩设置在 final checkpoint 的 64-sample 摘要统计，并沿训练过程跟踪了 \texttt{Base n=1}。结论方向高度一致：正确响应系统性位于更“收缩”的一侧，即 entropy 更低、top-1 probability 更高。
+为检验分布收缩是否真正对应更高的任务成功率，本文在保留 token-diagnostics 摘要的 validation records 上按响应正确性分组，比较 mean token entropy 与 mean top-1 probability。图~\ref{fig:correct-wrong-support-panel} 汇总了六个非坍缩设置在 final checkpoint 的 64-sample 摘要统计，并进一步跟踪 Base 与 Instruct 家族中 one-shot/full-data matched pairs 的正确性分组差距。结论方向高度一致：正确响应系统性位于更“收缩”的一侧，即 entropy 更低、top-1 probability 更高。
 
-从 final checkpoint 的跨设置比较看，这种分离在四个非坍缩条件下均可观测。具体而言，\texttt{Base n=8} 的正确组与错误组 mean token entropy 分别为 0.165 和 0.237，\texttt{Base n=1} 为 0.159 和 0.570，\texttt{Base weak-reg.} 为 0.152 和 0.172，\texttt{Instruct n=8} 为 0.087 和 0.499；对应的 mean top-1 probability 则分别为 0.939/0.925、0.941/0.878、0.945/0.940 和 0.968/0.925。尽管不同条件下的分离幅度并不相同，但方向完全一致。这说明正文中反复出现的 entropy 收缩和置信度集中并非与任务无关的表面现象，而是与最终解题成功率稳定相关。
+从 final checkpoint 的跨设置比较看，这种分离在六个非坍缩条件下均可观测。具体而言，\texttt{Base n=8} 的正确组与错误组 mean token entropy 分别为 0.165 和 0.237，\texttt{Base full-data} 为 0.162 和 0.209，\texttt{Base n=1} 为 0.159 和 0.570，\texttt{Base weak-reg.} 为 0.152 和 0.172，\texttt{Instruct n=8} 为 0.087 和 0.499，\texttt{Instruct full-data} 为 0.074 和 0.163；对应的 mean top-1 probability 分别为 0.939/0.925、0.940/0.929、0.941/0.878、0.945/0.940、0.968/0.925 和 0.972/0.967。尽管不同条件下的分离幅度并不相同，但方向完全一致。这说明正文中反复出现的 entropy 收缩和置信度集中并非与任务无关的表面现象，而是与最终解题成功率稳定相关。
 
-训练过程中的分组统计进一步表明，这一关系并非只出现在终点 checkpoint。\texttt{Base n=1} 在 \texttt{step 0} 时，正确组与错误组的 mean token entropy 已呈现 0.353 与 0.880 的明显差异；到 final checkpoint，该差异对应为 0.159 与 0.570。与此相应，mean top-1 probability 从 \texttt{step 0} 的 0.895/0.822 提升到 final checkpoint 的 0.941/0.878。换言之，正确性分组下的分布分离贯穿训练过程，而不是某个局部 traced subset 的偶然现象。随机错误奖励设置由于 final checkpoint 已无正确响应，因此未纳入该图。
+训练过程中的分组统计进一步表明，这一关系并非只出现在终点 checkpoint。图~\ref{fig:correct-wrong-support-panel} 下排把 matched one-shot/full-data pairs 的分组差距画成曲线：entropy gap 定义为错误组减正确组，top-1 gap 定义为正确组减错误组。对于 Base 家族，\texttt{Base n=8} 与 \texttt{Base full-data} 在 \texttt{step 0} 共享相同差距，final checkpoint 的 entropy gap 分别为 0.072 和 0.047，top-1 gap 分别为 0.0149 和 0.0105；对于 Instruct 家族，\texttt{Instruct n=8} 与 \texttt{Instruct full-data} 的 final entropy gap 分别为 0.412 和 0.089，top-1 gap 分别为 0.0429 和 0.0047。换言之，正确性分组下的分布分离贯穿 one-shot 与 full-data 对照，而不是某个局部 traced subset 的偶然现象。随机错误奖励设置由于 final checkpoint 已无正确响应，因此未纳入该图。
 
 本节从两个层次回答机制问题：宏观行为指标展示整体稳定化方向，token 级轨迹则说明这种变化也能在生成内部结构中观察到。因此，这部分证据并不是额外堆叠的图表，而是在不同粒度上支撑同一个“快速行为校准”解释。
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{correct-wrong-support-panel.png}
-    \caption{按正确性分组的 token 分布统计。上排比较四个非坍缩设置在 final checkpoint 的正确组与错误组；下排展示 \texttt{Base n=1} 在训练过程中的同类分组统计。}
+    \caption{按正确性分组的 token 分布统计。上排比较六个非坍缩设置在 final checkpoint 的正确组与错误组；下排展示 Base 与 Instruct 家族中 one-shot/full-data matched pairs 的正确性分组差距随训练变化。}
     \label{fig:correct-wrong-support-panel}
 \end{figure}
+
+\begin{table}[H]
+    \centering
+    \caption{final checkpoint 上按正确性分组的 token 分布摘要}
+    \label{tab:correct-wrong-final-summary}
+    \scriptsize
+    \setlength{\tabcolsep}{3pt}
+    \begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{0.22\textwidth}ccccc}
+        \toprule
+        设置 & 正确/错误样本 & 熵 C/W & top-1 C/W & EOS C/W & tail C/W \\
+        \midrule
+        Base n=8 & 47/17 & 0.165/0.237 & 0.939/0.925 & 0.002/0.001 & 0.957/0.866 \\
+        Base full-data & 51/13 & 0.162/0.209 & 0.940/0.929 & 0.003/0.002 & 0.944/0.885 \\
+        Base n=1 & 45/19 & 0.159/0.570 & 0.941/0.878 & 0.003/0.011 & 0.949/0.785 \\
+        Base weak-reg. & 51/13 & 0.152/0.172 & 0.945/0.940 & 0.002/0.001 & 0.958/0.889 \\
+        Instruct n=8 & 57/7 & 0.087/0.499 & 0.968/0.925 & 0.002/0.002 & 0.973/0.830 \\
+        Instruct full-data & 57/7 & 0.074/0.163 & 0.972/0.967 & 0.002/0.002 & 0.978/0.877 \\
+        \bottomrule
+    \end{tabularx}
+\end{table}
+
+表~\ref{tab:correct-wrong-final-summary} 以数字形式补充图~\ref{fig:correct-wrong-support-panel}。其中 C/W 分别表示正确组与错误组。可以看到，六个非坍缩设置都满足正确组 entropy 低于错误组、正确组 top-1 probability 高于错误组这一方向性关系。这个结果很重要，因为它把“分布收缩”从全局均值现象推进到了按正确性分组的内部比较：模型并非只是整体上变得更尖锐，而是正确响应更集中地落在低熵、高 top-1 的区域。
+
+\begin{table}[H]
+    \centering
+    \caption{matched one-shot/full-data pairs 的正确性分组差距}
+    \label{tab:correct-wrong-gap-summary}
+    \small
+    \begin{tabular}{lcccc}
+        \toprule
+        设置 & step 0 熵差 & final 熵差 & step 0 top-1 差 & final top-1 差 \\
+        \midrule
+        Base n=8 & 0.603 & 0.072 & 0.0833 & 0.0149 \\
+        Base full-data & 0.603 & 0.047 & 0.0833 & 0.0105 \\
+        Instruct n=8 & 0.095 & 0.412 & 0.0021 & 0.0429 \\
+        Instruct full-data & 0.095 & 0.089 & 0.0021 & 0.0047 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+表~\ref{tab:correct-wrong-gap-summary} 则强调训练过程中的 matched 对照。熵差定义为错误组减正确组，top-1 差定义为正确组减错误组，因此正值表示正确响应更低熵、更高置信。Base 家族中，one-shot 与 full-data 在初始 checkpoint 上共享完全相同的分组差距，说明二者起点可比；训练结束后，full-data 的错误组相对不再那么分散，熵差从 0.603 收窄到 0.047，而 one-shot 收窄到 0.072。Instruct 家族也共享相同起点，但 \texttt{Instruct n=8} 的 final 熵差更大，主要是因为错误样本数量少且错误响应更分散；\texttt{Instruct full-data} 的错误组则更接近正确组，体现出高先验模型在 full-data 下更一致的输出形态。
+
+这些分组统计使 token 级论证更接近正式论文中的机制证据。它们既不把少数完整 trace 过度外推为全验证集结论，也没有只停留在全局均值。相反，它们在 64-sample 聚合 token diagnostics 的范围内，直接检验了正确性与局部分布形态之间的对应关系。结合主分数、终点行为指标和 fixed-prompt trace，可以得到更稳健的解释：有效奖励训练提升分数的同时，也把成功响应推向更低熵、更高置信的生成区域；full-data 进一步提高上限，但总体仍遵循同一类校准机制。
+
+\IfFileExists{sections/full_token_ckpt_analysis_cn.tex}{%
+\input{sections/full_token_ckpt_analysis_cn.tex}
+}{}
 
 \section{小组规模与奖励信号分析}
 
@@ -517,14 +588,14 @@ Instruct 家族则呈现出另一种模式。\texttt{Instruct n=8} 的 \texttt{a
 
 \subsection{收益的阶段分布}
 
-仅知道 final score 较高，还不足以说明训练过程是否健康。更有解释力的问题是收益的阶段来源：主要来自前期快速提升，还是来自后期缓慢累积。图~\ref{fig:phase-gain-breakdown} 把五组设置的主分数增量拆成三个阶段：\texttt{0$\rightarrow$36}、\texttt{36$\rightarrow$96} 和 \texttt{96$\rightarrow$180}。这种拆法虽然是经验性的，但足够把“起步纠偏”“中段巩固”和“后期波动”区分开来。
+仅知道 final score 较高，还不足以说明训练过程是否健康。更有解释力的问题是收益的阶段来源：主要来自前期快速提升，还是来自后期缓慢累积。图~\ref{fig:phase-gain-breakdown} 把七组主结果设置的主分数增量拆成三个阶段：\texttt{0$\rightarrow$36}、\texttt{36$\rightarrow$96} 和 \texttt{96$\rightarrow$180}。这种拆法虽然是经验性的，但足够把“起步纠偏”“中段巩固”和“后期波动”区分开来。
 
 Base 正常奖励设置的主要收益集中在前两个阶段，尤其是 \texttt{0$\rightarrow$36} 的快速提升最为明显。这与本文强调的“快速校准”一致：模型先被迅速移出初始的高熵、长拖尾状态，然后在中段继续巩固正确轨道；最后阶段的收益更有限，主要体现为小范围高位波动。相比之下，Instruct 设置几乎没有可观的阶段性增益，说明其训练并不是一次明显的结构性重排，而更接近高位附近的局部调整。随机错误奖励设置则沿完全相反方向演化，其坍缩主要发生在训练前中期。
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{phase-gain-breakdown.png}
-    \caption{五组设置主分数增量的阶段性分解。}
+    \caption{七组主结果设置主分数增量的阶段性分解。}
     \label{fig:phase-gain-breakdown}
 \end{figure}
 
@@ -537,20 +608,20 @@ Base 正常奖励设置的主要收益集中在前两个阶段，尤其是 \text
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{best-final-gap.png}
-    \caption{五组设置的最佳 checkpoint 与最终 checkpoint 对比。}
+    \caption{七组主结果设置的最佳 checkpoint 与最终 checkpoint 对比。}
     \label{fig:best-final-gap}
 \end{figure}
 
 \subsection{终点行为排序的补充证据}
 
-图~\ref{fig:final-behavior-ranking} 对五组设置的若干终点行为指标做了统一排序，包括最终 token entropy、低置信 token 比例、top-1 probability 和响应长度。相比逐个在正文中报数字，这种图更容易看出整体格局。它表明 Base 家族内部虽然都能获得较高收益，但不同设置的“收敛风格”并不完全相同：弱正则化设置表现出更强的收缩，标准 \texttt{n=8} 设置更为稳健，\texttt{n=1} 则在最终熵与低置信比例上都落后于 \texttt{n=8}，而随机错误奖励设置则远离所有正常收敛区间。
+图~\ref{fig:final-behavior-ranking} 对七组主结果设置的若干终点行为指标做了统一排序，包括最终 token entropy、低置信 token 比例、top-1 probability 和响应长度。相比逐个在正文中报数字，这种图更容易看出整体格局。它表明 Base 家族内部虽然都能获得较高收益，但不同设置的“收敛风格”并不完全相同：\texttt{Base full-data} 在长度和低置信比例上进一步改善，弱正则化设置表现出更强的收缩，标准 \texttt{n=8} 设置更为稳健，\texttt{n=1} 则在最终熵与低置信比例上都落后于 \texttt{n=8}，而随机错误奖励设置则远离所有正常收敛区间。Instruct 家族中，full-data 进一步降低 entropy 和低置信比例，但分数增量仍明显小于 Base 家族。
 
 该排序图说明论文分析不能只依赖单一 reward。若只看 final score，弱正则化设置与标准 \texttt{n=8} 设置十分接近；但终点 token 指标并排观察后可以发现，它们在收缩强度、闭合方式和输出长度上并不相同。与此同时，随机错误奖励设置清楚展示了奖励被破坏后的崩解形态。这个对照说明，主分数与行为分布的联合分析比单个汇总数字更具有解释力。
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{final-behavior-ranking.png}
-    \caption{五组设置终点行为指标排序图。}
+    \caption{七组主结果设置终点行为指标排序图。}
     \label{fig:final-behavior-ranking}
 \end{figure}
 
@@ -558,20 +629,20 @@ Base 正常奖励设置的主要收益集中在前两个阶段，尤其是 \text
 
 \subsubsection{收益提升与校准量的同步关系}
 
-正文已经分别讨论了主分数、行为指标和 token 补充材料。进一步需要检验的是，这些变化是否只是在方向上相同，还是在设置层面上也呈现同步耦合。图~\ref{fig:gain-calibration-coupling} 将五组设置的主分数增益，分别与四类动态量的变化幅度并排展示：训练期 \texttt{actor entropy} 的变化量、验证期 token entropy 的变化量、低置信 token 比例的变化量，以及验证响应长度的变化量。
+正文已经分别讨论了主分数、行为指标和 token 补充材料。进一步需要检验的是，这些变化是否只是在方向上相同，还是在设置层面上也呈现同步耦合。图~\ref{fig:gain-calibration-coupling} 将七组主结果设置的主分数增益，分别与四类动态量的变化幅度并排展示：训练期 \texttt{actor entropy} 的变化量、验证期 token entropy 的变化量、低置信 token 比例的变化量，以及验证响应长度的变化量。其中 \texttt{actor entropy} 受训练日志字段覆盖限制，full-data 两组主要通过验证期聚合 token 指标进入该图。
 
 该图将“快速校准”从一种合理解释进一步推进为更严格的经验模式。Base 正常奖励设置并不只是 reward 提升更大，它们同时也对应更大的 entropy 收缩、更大的低置信 token 减少，以及更明显的长度压缩。Instruct 设置则整体落在另一侧：分数提升小，动态收缩也小。更关键的是，\texttt{Base random-reward} 落在图中的完全反方向，表现为 reward 下降、熵上升、低置信比例上升以及长度拉长。这种设置层面的同步关系表明，“收益”和“分布稳定化”并不是彼此独立的两条观察，而是在同一批结果中共同出现。
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{gain-calibration-coupling.png}
-    \caption{五组设置的主分数增益与四类关键动态量变化幅度的耦合关系。}
+    \caption{七组主结果设置的主分数增益与四类关键动态量变化幅度的耦合关系。训练期 \texttt{actor entropy} 面板按日志可用性显示设置点。}
     \label{fig:gain-calibration-coupling}
 \end{figure}
 
 \subsubsection{终点性能与终点稳定性的共同前沿}
 
-另一个重要维度是终点分数与终点分布稳定性之间的关系。图~\ref{fig:endpoint-frontier-panel} 将最终验证分数分别与最终 token entropy、最终低置信 token 比例放在同一张图中。虽然只有五个设置点，但这种前沿式展示仍然很有价值，因为它把“效果更好”和“分布更稳”压缩到了同一个坐标系里。
+另一个重要维度是终点分数与终点分布稳定性之间的关系。图~\ref{fig:endpoint-frontier-panel} 将最终验证分数分别与最终 token entropy、最终低置信 token 比例放在同一张图中。七组设置点使这种前沿式展示更有价值，因为它把“效果更好”和“分布更稳”压缩到了同一个坐标系里，并允许直接观察 one-shot 与 full-data 的终点位置差异。
 
 Base 家族内部基本呈现出清晰趋势：最终分数更高的设置，通常也对应更低的 entropy 与更低的低置信 token 比例。\texttt{Base n=1} 在这两个坐标上都明显落后于 \texttt{Base n=8}，因此它的劣势不是只体现在某一条 reward 曲线上，而是体现在终点分布质量本身。Instruct 家族则落在另一块区域：它们整体分数更高，但内部变化幅度有限，说明其收益空间本来就不大。这种分区形态进一步表明，模型先验强弱与分布稳定化程度共同决定了最终性能所处的位置。
 
@@ -594,11 +665,11 @@ Base 家族内部基本呈现出清晰趋势：最终分数更高的设置，通
 
 \subsection{当前限制}
 
-当前限制也较为明确。第一，\texttt{n=1} 与 \texttt{n=8} 的同口径比较仍是单次训练结果，尚未形成多 seed 稳健性证据。第二，随机错误奖励设置目前只覆盖 Base 家族，尚缺与之匹配的 Instruct 结果。第三，当前诊断支持“快速校准”解释，但还不能完全分离校准与跨题型、跨难度的知识获得；更直接的后续测试应按题目难度或知识领域分层，检验收益是较均匀地出现，还是集中在特定知识区域。第四，全量数据结果目前被定位为经验上界参考，而不是与表~\ref{tab:main-results} 完全同口径、同诊断覆盖的比较项。第五，token diagnostics 虽然覆盖到每个检查点的 64 个诊断样本，但完整 token 轨迹只对其中 8 条样本落盘，因此宏观结论仍应主要建立在逐样本验证均值上，而不是依赖少量固定题目的 token 轨迹。
+当前限制也较为明确。第一，\texttt{n=1} 与 \texttt{n=8} 的同口径比较仍是单次训练结果，尚未形成多 seed 稳健性证据。第二，随机错误奖励设置目前只覆盖 Base 家族，尚缺与之匹配的 Instruct 结果。第三，当前诊断支持“快速校准”解释，但还不能完全分离校准与跨题型、跨难度的知识获得；更直接的后续测试应按题目难度或知识领域分层，检验收益是较均匀地出现，还是集中在特定知识区域。第四，full-data 结果已经纳入主分数、终点行为指标和正确性分组 token 摘要，但训练期 \texttt{actor entropy} 与固定题目完整轨迹仍未形成七组完全对称覆盖。第五，token diagnostics 虽然覆盖到每个检查点的 64 个诊断样本，但完整 token 轨迹只对其中 8 条样本落盘，因此宏观结论仍应主要建立在逐样本验证均值上，而不是依赖少量固定题目的 token 轨迹。
 
 \subsection{外推边界}
 
-这些限制并不改变主结论，但限定了它的外推范围。当前证据足以支持“Base 模型在 1-shot GRPO 下出现显著收益并伴随行为分布稳定化”，但不宜进一步声称 group size 差异已经具备多 seed 级别的稳健性，也不宜把 Base 家族中的随机错误奖励结论直接外推到 Instruct 家族。类似地，全量数据结果适合作为经验上界参考，而不是与五组主结果完全同口径的横向比较项。
+这些限制并不改变主结论，但限定了它的外推范围。当前证据足以支持“Base 模型在 1-shot GRPO 下出现显著收益并伴随行为分布稳定化”，但不宜进一步声称 group size 差异已经具备多 seed 级别的稳健性，也不宜把 Base 家族中的随机错误奖励结论直接外推到 Instruct 家族。类似地，full-data 已经能够与 one-shot 进行同口径主结果和聚合 token 指标比较，但完整轨迹与训练期 actor 指标仍应被视为覆盖范围较窄的补充证据。
 
 \subsection{当前证据链汇总}
 
@@ -616,7 +687,7 @@ Base 家族内部基本呈现出清晰趋势：最终分数更高的设置，通
         结论判断 & 主要证据 & 仍需保留的边界 \\
         \midrule
         1-shot GRPO 对 Base 数学推理模型有效 & 主分数曲线、Base 正常奖励设置约 0.20 的绝对提升、行为指标同步改善 & 仍需更多 seed 检验其跨随机初始化与采样噪声的稳定性 \\
-        1-shot 低数据收益低于全量数据经验上界 & Base/Instruct 全量数据结果均高于对应 1-shot 结果，Base final 差距约 0.0300，Instruct final 差距约 0.0143 & 全量数据结果目前是经验上界参考，不属于表~\ref{tab:main-results} 的同口径比较项 \\
+        1-shot 低数据收益低于 matched full-data 结果 & Base/Instruct full-data 结果均高于对应 one-shot baseline，Base final 差距约 0.0373，Instruct final 差距约 0.0145；聚合 token 指标与正确性分组统计也已纳入 full-data 对照 & 训练期 actor 指标和完整 token 轨迹仍不是七组完全对称覆盖 \\
         收益更符合快速校准而非知识注入 & response length 缩短、entropy 下降、low-conf 降低、top-1 与 EOS 上升、固定题目轨迹证据支持 & 当前诊断尚不能完全区分校准与跨题型、跨难度知识获得 \\
         group-relative signal 对最佳结果有帮助 & \texttt{n=1} 在 matched validation protocol 下稳定落后于 \texttt{n=8} & 目前仍是单次训练结果，尚缺多 seed 复验 \\
         奖励破坏会破坏训练收益与分布稳定化 & \texttt{Base random-reward} 中 score 坍缩、entropy 爆炸、low-conf 饱和、EOS 与 top-1 置信度崩解 & 该设置属于极端错误信号对照，不是纯无信号消融；且当前仅在 Base 家族上完成验证 \\
@@ -624,9 +695,54 @@ Base 家族内部基本呈现出清晰趋势：最终分数更高的设置，通
     \end{tabularx}
 \end{table}
 
+\section{统一机制解释}
+
+\subsection{从分数提升到分布稳定化}
+
+综合七组实验可以看到，本文的核心现象并不是某一条分数曲线单独上升，而是一组指标在同一方向上共同移动。对于 Base 家族，正常奖励设置下的 score 提升、输出缩短、entropy 降低、低置信 token 减少和 top-1 probability 上升同时出现；对于 Instruct 家族，起点本身已经更稳定，后续训练主要表现为幅度较小的局部收缩；对于随机错误奖励设置，几乎所有行为指标都朝相反方向发展。这种对称结构使“快速校准”成为比“单纯知识注入”更合适的解释。
+
+如果训练主要是在单个样本中提取新的数学知识，那么更直接的预期是模型在与该样本相近的问题上获得收益，但并不必然伴随全局响应长度、EOS 行为和 token entropy 的系统变化。当前结果却显示，收益和分布变化高度耦合：模型不仅答对更多题，而且更少生成冗长、低置信和拖尾式的响应。换言之，训练似乎在改变模型如何使用已有推理能力，而不只是增加某个新的知识片段。
+
+这一点在 Base 模型上最明显。\texttt{Base n=8} 与 \texttt{Base weak-reg.} 的 final score 接近，但它们的终点分布并不完全相同。弱正则化设置更强烈地压低 entropy 并提高 top-1 probability，而标准 \texttt{n=8} 设置的收缩更温和。这说明最终分数相近并不等价于机制完全相同。相反，两个设置可能达到类似正确率，却对应不同的置信度组织方式和不同的收敛风格。因此，本文反复把 score 与 token 指标并列，是为了避免把复杂的训练过程压缩成单个 reward 数字。
+
+\subsection{full-data 对照的解释位置}
+
+两组 full-data 实验使这种解释更稳固。它们不是外部参考，也不是单独的“更强 baseline”，而是在相同验证口径和训练日程下扩大数据预算的 matched 对照。Base 家族中，full-data 将 final score 从 one-shot 的 0.5733 推高到 0.6105，同时保持更短输出和更低低置信比例。Instruct 家族中，full-data 将 final score 从 0.6873 推高到 0.7018，并进一步降低 entropy 与低置信 token 比例。两类模型方向一致，但幅度不同。
+
+这个结果对主结论有两层含义。第一，1-shot GRPO 的收益是真实而有意义的，因为它在极低数据预算下已经复现了 full-data 方向上的大部分行为变化。第二，1-shot 并没有达到同日程下的 full-data 上限，尤其是在 Base 家族中仍有明显差距。因此，更准确的表述不是“一个样本足以完全替代 full-data”，而是“一个样本已经足以触发与 full-data 同方向的校准过程，但数据预算扩大仍能提高最终上限”。
+
+从 token 角度看，full-data 的价值同样不是只体现在分数上。\texttt{Base full-data} 的 response length、low-confidence ratio 和 top-1 probability 都优于 \texttt{Base n=8}，说明更多数据确实带来了更稳定的输出形态；\texttt{Instruct full-data} 相对 \texttt{Instruct n=8} 的改善幅度较小，但在 entropy 和低置信 token 上仍可观察到进一步收缩。这支持一个更细的解释：数据预算扩大主要提高了校准过程的充分性，而不是改变了校准过程的方向。
+
+\subsection{group size 与奖励结构的作用}
+
+\texttt{Base n=1} 的结果说明，group-relative signal 不是收益存在的绝对前提，但会影响收益质量。在相同验证口径下，\texttt{n=1} 仍然带来明显提升，说明单样本奖励本身已经包含可利用的优化信号；但它稳定低于 \texttt{n=8}，并且在 final entropy、low-confidence ratio 和 top-1 probability 上也更弱。这表明 group size 的作用不只是提高分数，而是帮助模型更充分地完成分布收缩。
+
+从 GRPO 的机制看，这一点是合理的。较大的 rollout group 提供更多同题候选之间的相对比较，使优化过程能够更精细地区分“同样看似合理但置信度、闭合性和答案质量不同”的轨迹。当 group size 降为 1 时，训练仍能利用奖励方向，但失去了组内相对排序的部分信息。因此，\texttt{n=1} 的收益存在并不推翻 group-relative learning 的价值；相反，它表明奖励信号和组内比较可能是两种互补因素。
+
+随机错误奖励设置则从另一个方向限定了解释边界。该设置不是“没有信号”，而是系统性注入错误信号。结果显示，模型并没有保持初始能力，也没有复现正常奖励设置下的收益，而是在分数和 token 分布上同步崩解。这说明训练流程本身不足以解释收益；如果奖励结构被破坏，同样的优化过程会把模型推向错误方向。也因此，本文把随机错误奖励定位为奖励完整性检验，而不是温和的无信号消融。
+
+\subsection{正确性分组证据的作用}
+
+正确性分组分析进一步连接了宏观分数与微观 token 分布。若仅观察全局均值，可能存在一种质疑：entropy 降低和 top-1 probability 上升只是训练副产品，并不一定与答题成功有关。按正确性分组后可以看到，正确响应在六个非坍缩设置中都具有更低 entropy 和更高 top-1 probability。这说明分布收缩不是与任务无关的表面变化，而是与最终正确性稳定相关。
+
+同时，正确性分组也提醒我们不要过度简化“低 entropy = 好”的判断。随机错误奖励设置同样可能在某些局部位置表现出确定性，但整体却是错误确定性和分布崩解。因此，本文采用的是联合判断：有效校准应当同时满足 score 提升、低置信 token 减少、合理长度压缩、EOS 行为稳定和正确性分组优势，而不是只看某一个 token 指标。这个联合标准能避免把病态坍缩误读为“更自信”。
+
+从这个角度看，full-data 的加入增强了正确性分组分析的说服力。Base 与 Instruct 的 full-data 设置都保留了正确组低熵、高 top-1 的方向性关系，说明该现象不局限于 one-shot 条件。尤其是 \texttt{Instruct full-data}，其错误组也相对更集中，表明高先验模型在 full-data 训练后不仅正确响应更稳定，错误响应的形态也更加收敛。这种现象为后续错误类型分析提供了线索：模型失败可能不再主要表现为漫游式低置信输出，而是表现为较稳定但答案路径错误的输出。
+
+\subsection{当前证据的整体边界}
+
+尽管证据链已经较完整，当前结论仍应保持适当边界。首先，\texttt{n=1} 与 \texttt{n=8} 的比较仍是单次训练结果，不能替代多 seed 稳健性评估。其次，full-data 虽然已纳入聚合 token diagnostics，但固定题目完整轨迹仍不是七组完全对称覆盖。再次，本文的验证集聚合指标可以支持行为校准解释，但还不能完全排除某些题型或难度区间上的知识获得。因此，最稳妥的结论应限定在当前实验范围内。
+
+在这一范围内，七组实验共同支持如下机制图景：可验证奖励使模型更倾向于生成短而稳定、低熵且高置信的推理轨迹；这种变化在 Base 家族中表现为显著性能跃迁，在 Instruct 家族中表现为高起点附近的小幅 refinement；扩大数据预算可以进一步提高上限，但不会改变主要方向；削弱 group-relative signal 会降低收敛质量；破坏奖励结构则会使分布稳定化过程反向崩解。这个图景比单独报告 final score 更有解释力，也更接近论文层面的机制结论。
+
+面向后续研究，最直接的扩展是把当前诊断从“设置层面对照”推进到“题目层面解释”。例如，可以按题目难度、知识点类型、初始模型是否已能答对、以及训练后是否发生正确性翻转，对验证集进行分层。若收益主要来自校准，那么改善应当较广泛地出现在原本接近可解但输出不稳定的题目上；若收益主要来自知识获得，则改善可能更集中于少数特定题型。当前实验尚未完成这种粒度的拆分，因此本文把“快速校准”作为最受当前证据支持的解释，而不是排他性的因果结论。
+
+另一个值得补充的方向是多 seed 与多样本控制。当前 \texttt{n=1} 与 \texttt{n=8} 的同口径比较已经足以说明 group size 会影响收敛质量，但还不足以估计这种差距的方差。类似地，full-data 与 one-shot 的差距在 Base 和 Instruct 家族上都存在，但其数值大小仍可能受到采样噪声、checkpoint 选择和训练批次顺序影响。因此，若要把本文结论提升为更强的统计声明，后续应优先补充多 seed 复验，并报告每个设置在 best checkpoint 与 final checkpoint 上的均值和置信区间。
+
+\clearpage
 \section{结论}
 
-本文围绕 1-shot GRPO 在数学推理任务中的作用机制，构建了一个由五组关键设置和一组全量数据上界参考共同组成的证据框架。主结果表明，在 \ModelBase{} 上，1-shot GRPO 可以带来接近 0.20 的显著分数提升，并伴随响应长度缩短、尾部置信度上升、token entropy 下降、低置信 token 减少以及结束行为更果断等一系列同步变化；而在 \ModelInstruct{} 上，训练效应则明显更接近高位微调。全量数据参考进一步说明，Base 家族对训练范式与奖励结构更为敏感，Instruct 家族的绝对收益整体更温和，同时 1-shot 结果虽有意义但仍低于全量数据经验上界。
+本文围绕 1-shot GRPO 在数学推理任务中的作用机制，构建了一个由七组主结果设置、七组聚合行为诊断和更窄粒度 token 轨迹证据共同组成的证据框架。主结果表明，在 \ModelBase{} 上，1-shot GRPO 可以带来接近 0.20 的显著分数提升，并伴随响应长度缩短、尾部置信度上升、token entropy 下降、低置信 token 减少以及结束行为更果断等一系列同步变化；而在 \ModelInstruct{} 上，训练效应则明显更接近高位微调。Matched full-data 对照进一步说明，Base 家族对数据预算扩展更为敏感，Instruct 家族的绝对收益整体更温和，同时 1-shot 结果虽有意义但仍低于同口径 full-data 结果。
 
 综合主结果、动态指标、token 级补充证据与随机错误奖励设置，本文认为当前最稳妥的结论有三点。第一，1-shot GRPO 对 Base 数学推理模型是有效的。第二，这种收益更适合被解释为快速校准，而非知识注入；不过，完全分离二者仍需要按题目难度或知识领域分层的后续评估。第三，group-relative signal 与奖励结构都会影响最终收敛上限：将训练 group size 从 8 降到 1 会削弱但不会消除收益，而一旦奖励信号被系统性破坏，模型不仅不会复现正常奖励条件下的收益，反而会在分数与行为分布上同步崩解。当前仍需保留的边界在于，\texttt{n=1} 与 \texttt{n=8} 的同口径比较仍是单次训练结果，随机错误奖励设置也尚未扩展到 Instruct 家族。在这些边界内，现有证据已经支持将 1-shot GRPO 理解为一种主要作用于分布稳定化与行为校准的低数据强化学习机制。
 
@@ -647,8 +763,8 @@ Instruct 模型在 \texttt{step 0} 已经具备较高的数学推理先验，因
 \tightparagraph{关于随机错误奖励设置的补充说明}
 Base 随机错误奖励设置直接采用错误奖励构造破坏性监督。结果显示，模型在该设置下不仅无法复现正常奖励条件下的收益，反而出现分数坍缩、熵爆炸、长度异常增长与停止行为失稳。这说明正文中的收益确实依赖于有意义的训练信号，而不是训练流程本身的偶然产物。
 
-\tightparagraph{关于全量数据参考结果的补充说明}
-除正文主结果外，全量数据与格式约束结果也提供了一组有价值的补充参照。它们虽然不宜并入表~\ref{tab:main-results}，但能够增强论文对“训练模式差异”和“奖励结构差异”的讨论。表~\ref{tab:full-data-reference-runs-cn} 汇总了其中最具代表性的几条参考结果。整体上看，Base 家族中 \texttt{full} 训练明显强于 \texttt{1-shot}；Instruct 家族中也存在同方向差异，但绝对幅度更小。与此同时，一个格式约束主导参考仅从 0.3630 提升到 0.4490，明显弱于常规奖励路径，这使其适合作为正文外的辅助参照。
+\tightparagraph{关于旧版全量数据与格式约束参考的补充说明}
+正文已经纳入 matched full-data 主结果。这里保留的是更早一批全量数据与格式约束参考结果，用于提供历史对照与补充背景，而不再承担正文主结论的主要证据角色。表~\ref{tab:full-data-reference-runs-cn} 汇总了其中最具代表性的几条参考结果。整体上看，Base 家族中 \texttt{full} 训练明显强于 \texttt{1-shot}；Instruct 家族中也存在同方向差异，但绝对幅度更小。与此同时，一个格式约束主导参考仅从 0.3630 提升到 0.4490，明显弱于常规奖励路径，因此更适合作为正文外的辅助材料。
 
 \begin{table}[H]
     \centering
@@ -671,7 +787,7 @@ Base 随机错误奖励设置直接采用错误奖励构造破坏性监督。结
     \end{tabular}
 \end{table}
 
-这些结果更适合作为附录层面的参考材料，而不应与正文主结果表直接合并，原因在于训练文件范围与记录覆盖并不完全一致。更稳妥的写法是把它们作为“与主结论同向的补充证据”：一方面，\texttt{full} 普遍优于 \texttt{1-shot}；另一方面，格式约束较强的参考设置只能带来有限改善，这与正文中“奖励结构和组内比较信号都会影响最终上限”的主线是一致的。对应可视化已在正文图~\ref{fig:full-data-reference-main} 展示，附录因此只保留紧凑的数字参考，避免重复排版同一批图。
+这些旧版结果更适合作为附录层面的参考材料，而不应与正文的 matched full-data 主结果混为一谈。更稳妥的写法是把它们作为“与主结论同向的补充证据”：一方面，\texttt{full} 普遍优于 \texttt{1-shot}；另一方面，格式约束较强的参考设置只能带来有限改善，这与正文中“奖励结构和组内比较信号都会影响最终上限”的主线是一致的。附录因此只保留紧凑的数字参考，避免正文同时承载两套不同口径的 full-data 叙事。
 
 \begin{thebibliography}{99}
 \bibitem{wang2025oneshotrlvr}

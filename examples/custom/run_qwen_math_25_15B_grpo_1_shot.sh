@@ -12,7 +12,10 @@ fi
 set -x
 
 # 可选：如需 WandB / SwanLab，请在外部环境中显式导出对应 API Key。
-ray stop
+MANAGE_RAY_CLUSTER=${MANAGE_RAY_CLUSTER:-true}
+if [ "${MANAGE_RAY_CLUSTER}" = "true" ]; then
+    ray stop
+fi
 # 基础路径与实验信息（来自 YAML）
 HOME_DIR=${HOME_DIR:-"/root/rl"}
 project_name='verl_grpo_dsr_sub_baseline'
@@ -91,11 +94,21 @@ if [ ! -x "$RAY_CMD" ]; then
     exit 1
 fi
 
-# 检查 Ray 是否运行，如果没有则启动（仅对本机 head 进行自动启动）
+# 显式锁定训练入口 python，避免 screen 默认落到 base 环境时 `python3` 指向错误。
+PYTHON_CMD=$(which python3 || true)
+if [ -z "$PYTHON_CMD" ] || [ ! -x "$PYTHON_CMD" ]; then
+    PYTHON_CMD="/home/vipuser/miniconda3/envs/verl/bin/python3"
+fi
+
+if [ ! -x "$PYTHON_CMD" ]; then
+    echo "Error: python3 command not found. Please ensure the verl environment is available."
+    exit 1
+fi
+
+# 检查 Ray 是否运行；允许外部预先启动常驻 head。
 if ! "$RAY_CMD" status --address "${RAY_GCS_ADDRESS}" > /dev/null 2>&1; then
-    if [ "${_ray_head_host}" = "127.0.0.1" ] || [ "${_ray_head_host}" = "localhost" ]; then
+    if [ "${MANAGE_RAY_CLUSTER}" = "true" ] && { [ "${_ray_head_host}" = "127.0.0.1" ] || [ "${_ray_head_host}" = "localhost" ]; }; then
         echo "Ray is not running at ${RAY_GCS_ADDRESS}. Starting local Ray cluster..."
-        # 清理可能存在的残留进程
         "$RAY_CMD" stop --force || true
         "$RAY_CMD" start --head --port 6379 --dashboard-host 0.0.0.0 --dashboard-port 8265 --num-gpus "${N_GPUS}" --disable-usage-stats
         if [ -z "${RAY_DASHBOARD_ADDRESS:-}" ] || [ "${RAY_DASHBOARD_ADDRESS}" = "http://127.0.0.1:8265" ] || [ "${RAY_DASHBOARD_ADDRESS}" = "http://localhost:8265" ]; then
@@ -106,8 +119,8 @@ if ! "$RAY_CMD" status --address "${RAY_GCS_ADDRESS}" > /dev/null 2>&1; then
         fi
     else
         echo "Error: cannot reach Ray cluster at ${RAY_GCS_ADDRESS}."
-        echo "- If your head node is ${_ray_head_host}, start Ray there (ensure dashboard listens on 0.0.0.0:8265)."
-        echo "- Then set: RAY_GCS_ADDRESS='${_ray_head_host}:6379' and RAY_DASHBOARD_ADDRESS='http://${_ray_head_host}:8265'"
+        echo "- Start Ray first and keep it alive, then rerun this launcher."
+        echo "- Expected dashboard: ${RAY_DASHBOARD_ADDRESS}"
         exit 1
     fi
 else
@@ -235,6 +248,7 @@ fi
 critic_warmup=0
 log_val_generations=1
 enable_val_diagnostics=${ENABLE_VAL_DIAGNOSTICS:-true}
+val_before_train=${VAL_BEFORE_TRAIN:-true}
 rollout_calculate_log_probs=${ROLLOUT_CALCULATE_LOG_PROBS:-${enable_val_diagnostics}}
 val_diag_tail_tokens=${VAL_DIAG_TAIL_TOKENS:-32}
 val_diag_max_tokens_default=96
@@ -336,6 +350,7 @@ export REF_PARAM_OFFLOAD=${ref_param_offload@Q}
 export ENABLE_PAPER_STYLE_VIZ=${enable_paper_style_viz@Q}
 export LOGGER=${logger@Q}
 export ENABLE_VAL_DIAGNOSTICS=${enable_val_diagnostics@Q}
+export VAL_BEFORE_TRAIN=${val_before_train@Q}
 export ROLLOUT_CALCULATE_LOG_PROBS=${rollout_calculate_log_probs@Q}
 export VAL_DIAG_TAIL_TOKENS=${val_diag_tail_tokens@Q}
 export VAL_DIAG_MAX_TOKENS=${val_diag_max_tokens@Q}
@@ -423,7 +438,7 @@ fi
 
 submission_output=$("$RAY_CMD" job submit --no-wait --address="${RAY_DASHBOARD_ADDRESS}" --runtime-env="${RESOLVED_RUNTIME_ENV}" \
     --working-dir "${WORKING_DIR}" \
-    -- env VERL_FILE_LOGGER_ROOT="${METRICS_DIR}" python3 -m verl.trainer.main_ppo \
+    -- env VERL_FILE_LOGGER_ROOT="${METRICS_DIR}" "${PYTHON_CMD}" -m verl.trainer.main_ppo \
     data.train_files="${TRAIN_FILE}" \
     data.val_files="${VAL_FILES}" \
     data.filter_overlong_prompts=${filter_overlong_prompts} \
@@ -467,6 +482,7 @@ submission_output=$("$RAY_CMD" job submit --no-wait --address="${RAY_DASHBOARD_A
     trainer.n_gpus_per_node=${N_GPUS} \
     trainer.nnodes="${NNODES}" \
     trainer.critic_warmup=${critic_warmup} \
+    trainer.val_before_train=${val_before_train} \
     trainer.log_val_generations=${log_val_generations} \
     trainer.save_freq=${save_freq} \
     trainer.test_freq=${test_freq} \

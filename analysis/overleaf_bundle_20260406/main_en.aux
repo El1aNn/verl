@@ -62,23 +62,23 @@
 \@writefile{toc}{\contentsline {section}{\numberline {3}Study Setting}{3}{section.3}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Models and data}{3}{subsection.3.1}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Result matrix}{4}{subsection.3.2}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Headline results across the five key settings\relax }}{4}{table.caption.2}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Headline score comparison across the seven main settings\relax }}{4}{table.caption.2}\protected@file@percent }
 \providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
-\newlabel{tab:en-main-results}{{1}{4}{Headline results across the five key settings\relax }{table.caption.2}{}}
+\newlabel{tab:en-main-results}{{1}{4}{Headline score comparison across the seven main settings\relax }{table.caption.2}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Evaluation granularity and token-diagnostic coverage}{4}{subsection.3.3}\protected@file@percent }
 \citation{wang2025oneshotrlvr}
 \citation{deepscaler2025}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.4}Full-data empirical ceiling references}{5}{subsection.3.4}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces Full-data results as empirical ceiling references for 1-shot training\relax }}{5}{table.caption.4}\protected@file@percent }
-\newlabel{tab:en-full-ceiling-reference}{{2}{5}{Full-data results as empirical ceiling references for 1-shot training\relax }{table.caption.4}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Initial, final, and best validation rewards for full-data and format-constrained reference results. In both model families, \texttt  {full} training generally exceeds \texttt  {1-shot}, while the format-constrained Base reference remains much weaker than the standard reward-based path.\relax }}{6}{figure.caption.6}\protected@file@percent }
-\newlabel{fig:en-full-data-reference-main}{{1}{6}{Initial, final, and best validation rewards for full-data and format-constrained reference results. In both model families, \texttt {full} training generally exceeds \texttt {1-shot}, while the format-constrained Base reference remains much weaker than the standard reward-based path.\relax }{figure.caption.6}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.4}Matched full-data comparisons}{5}{subsection.3.4}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces Matched one-shot vs. full-data score gaps\relax }}{6}{table.caption.4}\protected@file@percent }
+\newlabel{tab:en-full-ceiling-reference}{{2}{6}{Matched one-shot vs. full-data score gaps\relax }{table.caption.4}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Initial, final, and best validation scores for the matched one-shot/full-data pairs in the Base and Instruct families. Expanding the data budget improves both families, but the increment is much larger for the Base family.\relax }}{6}{figure.caption.6}\protected@file@percent }
+\newlabel{fig:en-full-data-reference-main}{{1}{6}{Initial, final, and best validation scores for the matched one-shot/full-data pairs in the Base and Instruct families. Expanding the data budget improves both families, but the increment is much larger for the Base family.\relax }{figure.caption.6}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {4}Main Results}{6}{section.4}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.1}The broad picture}{6}{subsection.4.1}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Validation score trajectories for all five settings. The Base settings with meaningful reward rise strongly, whereas the random-reward setting collapses and the Instruct setting remains in a high but narrow band.\relax }}{7}{figure.caption.7}\protected@file@percent }
-\newlabel{fig:en-all-score}{{2}{7}{Validation score trajectories for all five settings. The Base settings with meaningful reward rise strongly, whereas the random-reward setting collapses and the Instruct setting remains in a high but narrow band.\relax }{figure.caption.7}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Zoomed validation-score views for the Base, Instruct, and random-reward settings.\relax }}{7}{figure.caption.8}\protected@file@percent }
-\newlabel{fig:en-score-detail-panel}{{3}{7}{Zoomed validation-score views for the Base, Instruct, and random-reward settings.\relax }{figure.caption.8}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Validation score trajectories for the seven main settings. The matched full-data curves sit above their one-shot counterparts in both model families, while the Base random-reward condition collapses.\relax }}{7}{figure.caption.7}\protected@file@percent }
+\newlabel{fig:en-all-score}{{2}{7}{Validation score trajectories for the seven main settings. The matched full-data curves sit above their one-shot counterparts in both model families, while the Base random-reward condition collapses.\relax }{figure.caption.7}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Zoomed validation-score views for the Base family, the Instruct family, and the random-reward control.\relax }}{7}{figure.caption.8}\protected@file@percent }
+\newlabel{fig:en-score-detail-panel}{{3}{7}{Zoomed validation-score views for the Base family, the Instruct family, and the random-reward control.\relax }{figure.caption.8}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Base-model gains are large and repeatable}{8}{subsection.4.2}\protected@file@percent }
 \@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Base-family score trajectories. The family exhibits a pronounced early learning phase followed by higher-level fluctuation.\relax }}{8}{figure.caption.9}\protected@file@percent }
 \newlabel{fig:en-base-score}{{4}{8}{Base-family score trajectories. The family exhibits a pronounced early learning phase followed by higher-level fluctuation.\relax }{figure.caption.9}{}}
@@ -87,89 +87,130 @@
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.3}The Instruct model starts strong and moves little}{9}{subsection.4.3}\protected@file@percent }
 \@writefile{toc}{\contentsline {section}{\numberline {5}Behavioral Evidence: Aggregate and Token-Level Views}{10}{section.5}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {5.1}Base-family behavioral changes}{10}{subsection.5.1}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces Final behavioral metrics for the five settings\relax }}{10}{table.caption.11}\protected@file@percent }
-\newlabel{tab:en-behavior-results}{{3}{10}{Final behavioral metrics for the five settings\relax }{table.caption.11}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces Validation response-length trajectories for the Base-family settings, shown with full-scale and zoomed views.\relax }}{10}{figure.caption.13}\protected@file@percent }
-\newlabel{fig:en-base-length}{{6}{10}{Validation response-length trajectories for the Base-family settings, shown with full-scale and zoomed views.\relax }{figure.caption.13}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces Validation token-entropy trajectories for the Base-family settings, shown with full-scale and zoomed views.\relax }}{11}{figure.caption.14}\protected@file@percent }
-\newlabel{fig:en-base-entropy}{{7}{11}{Validation token-entropy trajectories for the Base-family settings, shown with full-scale and zoomed views.\relax }{figure.caption.14}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {8}{\ignorespaces Low-confidence-token trajectories for the Base-family settings, shown with full-scale and zoomed views.\relax }}{11}{figure.caption.15}\protected@file@percent }
-\newlabel{fig:en-base-lowconf}{{8}{11}{Low-confidence-token trajectories for the Base-family settings, shown with full-scale and zoomed views.\relax }{figure.caption.15}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {9}{\ignorespaces Final-EOS-probability trajectories for the Base-family settings, shown with full-scale and zoomed views.\relax }}{11}{figure.caption.16}\protected@file@percent }
-\newlabel{fig:en-base-eos}{{9}{11}{Final-EOS-probability trajectories for the Base-family settings, shown with full-scale and zoomed views.\relax }{figure.caption.16}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {10}{\ignorespaces Tail-confidence trajectories for the Base-family settings, shown with full-scale and zoomed views.\relax }}{12}{figure.caption.17}\protected@file@percent }
-\newlabel{fig:en-base-tailconf}{{10}{12}{Tail-confidence trajectories for the Base-family settings, shown with full-scale and zoomed views.\relax }{figure.caption.17}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {11}{\ignorespaces Mean top-1-probability trajectories for the Base-family settings, shown with full-scale and zoomed views.\relax }}{12}{figure.caption.18}\protected@file@percent }
-\newlabel{fig:en-base-top1}{{11}{12}{Mean top-1-probability trajectories for the Base-family settings, shown with full-scale and zoomed views.\relax }{figure.caption.18}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {12}{\ignorespaces Fine-grained behavioral dynamics for the four non-collapse conditions.\relax }}{13}{figure.caption.19}\protected@file@percent }
-\newlabel{fig:en-behavior-detail-noncollapse}{{12}{13}{Fine-grained behavioral dynamics for the four non-collapse conditions.\relax }{figure.caption.19}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.2}Trajectory-level dynamic summaries}{13}{subsection.5.2}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces Dynamic summary of training and validation diagnostics (start $\rightarrow $ final)\relax }}{14}{table.caption.20}\protected@file@percent }
-\newlabel{tab:en-dynamic-summary}{{4}{14}{Dynamic summary of training and validation diagnostics (start $\rightarrow $ final)\relax }{table.caption.20}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {13}{\ignorespaces Training-time \texttt  {actor/entropy} trajectories for the five settings, shown with full-scale and zoomed views.\relax }}{14}{figure.caption.22}\protected@file@percent }
-\newlabel{fig:en-actor-entropy}{{13}{14}{Training-time \texttt {actor/entropy} trajectories for the five settings, shown with full-scale and zoomed views.\relax }{figure.caption.22}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {14}{\ignorespaces Matched-protocol comparison between \texttt  {Base n=8} and \texttt  {Base n=1} across six dynamics.\relax }}{15}{figure.caption.23}\protected@file@percent }
-\newlabel{fig:en-n1-vs-n8}{{14}{15}{Matched-protocol comparison between \texttt {Base n=8} and \texttt {Base n=1} across six dynamics.\relax }{figure.caption.23}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.3}Implications of weak regularization}{16}{subsection.5.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.4}The Instruct-family regime}{16}{subsection.5.4}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.5}Token-level supplementary evidence}{16}{subsection.5.5}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.5.1}Scope and limitations of the token-level trace set}{16}{subsubsection.5.5.1}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {15}{\ignorespaces Fixed-prompt traced outputs across training checkpoints. The figure visualizes how prefix behavior and stopping structure evolve.\relax }}{17}{figure.caption.24}\protected@file@percent }
-\newlabel{fig:en-token-steps}{{15}{17}{Fixed-prompt traced outputs across training checkpoints. The figure visualizes how prefix behavior and stopping structure evolve.\relax }{figure.caption.24}{}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.5.2}Fixed-prompt trace evidence}{17}{subsubsection.5.5.2}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {5}{\ignorespaces Final-checkpoint token-level summary on the fixed prompt\relax }}{17}{table.caption.26}\protected@file@percent }
-\newlabel{tab:en-token-final}{{5}{17}{Final-checkpoint token-level summary on the fixed prompt\relax }{table.caption.26}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {16}{\ignorespaces Token-level metrics across checkpoints. The figure is narrow in scope but informative about confidence structure and entropy reduction.\relax }}{18}{figure.caption.25}\protected@file@percent }
-\newlabel{fig:en-token-metrics}{{16}{18}{Token-level metrics across checkpoints. The figure is narrow in scope but informative about confidence structure and entropy reduction.\relax }{figure.caption.25}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {6}{\ignorespaces Token-level deltas from step 0 to the final checkpoint on the fixed prompt\relax }}{18}{table.caption.27}\protected@file@percent }
-\newlabel{tab:en-token-delta}{{6}{18}{Token-level deltas from step 0 to the final checkpoint on the fixed prompt\relax }{table.caption.27}{}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.5.3}Prefix-level reorganization}{18}{subsubsection.5.5.3}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {17}{\ignorespaces Prefix-region curves at the final checkpoint. The figure shows that the training effect is already visible early in the generated trajectory, not only near the final answer.\relax }}{19}{figure.caption.28}\protected@file@percent }
-\newlabel{fig:en-prefix-curves-main}{{17}{19}{Prefix-region curves at the final checkpoint. The figure shows that the training effect is already visible early in the generated trajectory, not only near the final answer.\relax }{figure.caption.28}{}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.5.4}Local contraction from the initial to final checkpoint}{19}{subsubsection.5.5.4}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {18}{\ignorespaces Token-level deltas from the initial to final checkpoint.\relax }}{20}{figure.caption.29}\protected@file@percent }
-\newlabel{fig:en-token-delta-main}{{18}{20}{Token-level deltas from the initial to final checkpoint.\relax }{figure.caption.29}{}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.5.5}Correctness-conditioned distribution separation}{20}{subsubsection.5.5.5}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {19}{\ignorespaces Correctness-conditioned token-distribution statistics. The top row compares final-checkpoint correct and wrong responses; the bottom row tracks the same grouped statistics over training for \texttt  {Base n=1}.\relax }}{21}{figure.caption.30}\protected@file@percent }
-\newlabel{fig:en-correct-wrong-support-panel}{{19}{21}{Correctness-conditioned token-distribution statistics. The top row compares final-checkpoint correct and wrong responses; the bottom row tracks the same grouped statistics over training for \texttt {Base n=1}.\relax }{figure.caption.30}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {6}Group Size, Reward Signal, and Validity Risks}{21}{section.6}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {6.1}Interpreting the \texttt  {n=1} group-size setting}{21}{subsection.6.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {6.2}Random-reward setting}{22}{subsection.6.2}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {7}{\ignorespaces Endpoint behavior of the random-reward setting\relax }}{22}{table.caption.31}\protected@file@percent }
-\newlabel{tab:en-random-reward-endpoint}{{7}{22}{Endpoint behavior of the random-reward setting\relax }{table.caption.31}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {7}Training Dynamics and Evidence Synthesis}{22}{section.7}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {7.1}Phase distribution of gains}{22}{subsection.7.1}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {20}{\ignorespaces Stage-wise decomposition of score gains across the five settings.\relax }}{23}{figure.caption.32}\protected@file@percent }
-\newlabel{fig:en-phase-gain-breakdown}{{20}{23}{Stage-wise decomposition of score gains across the five settings.\relax }{figure.caption.32}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {7.2}Separating the best and final checkpoints}{23}{subsection.7.2}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {21}{\ignorespaces Comparison between the best and final checkpoints across the five settings.\relax }}{24}{figure.caption.33}\protected@file@percent }
-\newlabel{fig:en-best-final-gap}{{21}{24}{Comparison between the best and final checkpoints across the five settings.\relax }{figure.caption.33}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {7.3}Final-behavior ranking as supplementary evidence}{24}{subsection.7.3}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {22}{\ignorespaces Final-behavior ranking across the five settings.\relax }}{25}{figure.caption.34}\protected@file@percent }
-\newlabel{fig:en-final-behavior-ranking}{{22}{25}{Final-behavior ranking across the five settings.\relax }{figure.caption.34}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {7.4}Cross-metric coupling}{25}{subsection.7.4}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {7.4.1}Coupling between gains and calibration metrics}{25}{subsubsection.7.4.1}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {23}{\ignorespaces Coupling between validation score gain and four key dynamic changes.\relax }}{26}{figure.caption.35}\protected@file@percent }
-\newlabel{fig:en-gain-calibration-coupling}{{23}{26}{Coupling between validation score gain and four key dynamic changes.\relax }{figure.caption.35}{}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {7.4.2}Joint frontier of final performance and stability}{27}{subsubsection.7.4.2}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {24}{\ignorespaces Joint frontier view of final score and final stability metrics.\relax }}{27}{figure.caption.36}\protected@file@percent }
-\newlabel{fig:en-endpoint-frontier-panel}{{24}{27}{Joint frontier view of final score and final stability metrics.\relax }{figure.caption.36}{}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {7.4.3}Role of the cross-metric figures}{27}{subsubsection.7.4.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {8}Discussion}{28}{section.8}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {8.1}Main supporting evidence}{28}{subsection.8.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {8.2}Remaining limitations}{28}{subsection.8.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {8.3}Practical implications}{28}{subsection.8.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {9}Conclusion}{29}{section.9}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces Final behavioral metrics for the seven main-result settings\relax }}{10}{table.caption.11}\protected@file@percent }
+\newlabel{tab:en-behavior-results}{{3}{10}{Final behavioral metrics for the seven main-result settings\relax }{table.caption.11}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces Aggregate token-behavior comparison across the seven main-result settings.\relax }}{11}{figure.caption.13}\protected@file@percent }
+\newlabel{fig:en-behavior-detail-main-settings}{{6}{11}{Aggregate token-behavior comparison across the seven main-result settings.\relax }{figure.caption.13}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces Validation response-length trajectories for the Base-family settings, shown with full-scale and zoomed views.\relax }}{12}{figure.caption.14}\protected@file@percent }
+\newlabel{fig:en-base-length}{{7}{12}{Validation response-length trajectories for the Base-family settings, shown with full-scale and zoomed views.\relax }{figure.caption.14}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {8}{\ignorespaces Validation token-entropy trajectories for the Base-family settings, shown with full-scale and zoomed views.\relax }}{12}{figure.caption.15}\protected@file@percent }
+\newlabel{fig:en-base-entropy}{{8}{12}{Validation token-entropy trajectories for the Base-family settings, shown with full-scale and zoomed views.\relax }{figure.caption.15}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {9}{\ignorespaces Low-confidence-token trajectories for the Base-family settings, shown with full-scale and zoomed views.\relax }}{12}{figure.caption.16}\protected@file@percent }
+\newlabel{fig:en-base-lowconf}{{9}{12}{Low-confidence-token trajectories for the Base-family settings, shown with full-scale and zoomed views.\relax }{figure.caption.16}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {10}{\ignorespaces Final-EOS-probability trajectories for the Base-family settings, shown with full-scale and zoomed views.\relax }}{13}{figure.caption.17}\protected@file@percent }
+\newlabel{fig:en-base-eos}{{10}{13}{Final-EOS-probability trajectories for the Base-family settings, shown with full-scale and zoomed views.\relax }{figure.caption.17}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {11}{\ignorespaces Tail-confidence trajectories for the Base-family settings, shown with full-scale and zoomed views.\relax }}{13}{figure.caption.18}\protected@file@percent }
+\newlabel{fig:en-base-tailconf}{{11}{13}{Tail-confidence trajectories for the Base-family settings, shown with full-scale and zoomed views.\relax }{figure.caption.18}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {12}{\ignorespaces Mean top-1-probability trajectories for the Base-family settings, shown with full-scale and zoomed views.\relax }}{13}{figure.caption.19}\protected@file@percent }
+\newlabel{fig:en-base-top1}{{12}{13}{Mean top-1-probability trajectories for the Base-family settings, shown with full-scale and zoomed views.\relax }{figure.caption.19}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {13}{\ignorespaces Fine-grained behavioral dynamics for the four non-collapse conditions.\relax }}{14}{figure.caption.20}\protected@file@percent }
+\newlabel{fig:en-behavior-detail-noncollapse}{{13}{14}{Fine-grained behavioral dynamics for the four non-collapse conditions.\relax }{figure.caption.20}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.2}Trajectory-level dynamic summaries}{15}{subsection.5.2}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces Dynamic summary of training and validation diagnostics (start $\rightarrow $ final)\relax }}{15}{table.caption.21}\protected@file@percent }
+\newlabel{tab:en-dynamic-summary}{{4}{15}{Dynamic summary of training and validation diagnostics (start $\rightarrow $ final)\relax }{table.caption.21}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {14}{\ignorespaces Training-time \texttt  {actor/entropy} trajectories for the five diagnostic settings, shown with full-scale and zoomed views.\relax }}{15}{figure.caption.23}\protected@file@percent }
+\newlabel{fig:en-actor-entropy}{{14}{15}{Training-time \texttt {actor/entropy} trajectories for the five diagnostic settings, shown with full-scale and zoomed views.\relax }{figure.caption.23}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {15}{\ignorespaces Matched-protocol comparison between \texttt  {Base n=8} and \texttt  {Base n=1} across six dynamics.\relax }}{16}{figure.caption.24}\protected@file@percent }
+\newlabel{fig:en-n1-vs-n8}{{15}{16}{Matched-protocol comparison between \texttt {Base n=8} and \texttt {Base n=1} across six dynamics.\relax }{figure.caption.24}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.3}Implications of weak regularization}{17}{subsection.5.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.4}The Instruct-family regime}{17}{subsection.5.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.5}Token-level supplementary evidence}{17}{subsection.5.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.5.1}Scope and limitations of the token-level trace set}{17}{subsubsection.5.5.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {16}{\ignorespaces Fixed-prompt traced outputs across training checkpoints. The figure visualizes how prefix behavior and stopping structure evolve.\relax }}{18}{figure.caption.25}\protected@file@percent }
+\newlabel{fig:en-token-steps}{{16}{18}{Fixed-prompt traced outputs across training checkpoints. The figure visualizes how prefix behavior and stopping structure evolve.\relax }{figure.caption.25}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.5.2}Fixed-prompt trace evidence}{18}{subsubsection.5.5.2}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {5}{\ignorespaces Final-checkpoint token-level summary on the fixed prompt\relax }}{18}{table.caption.27}\protected@file@percent }
+\newlabel{tab:en-token-final}{{5}{18}{Final-checkpoint token-level summary on the fixed prompt\relax }{table.caption.27}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {17}{\ignorespaces Token-level metrics across checkpoints. The figure is narrow in scope but informative about confidence structure and entropy reduction.\relax }}{19}{figure.caption.26}\protected@file@percent }
+\newlabel{fig:en-token-metrics}{{17}{19}{Token-level metrics across checkpoints. The figure is narrow in scope but informative about confidence structure and entropy reduction.\relax }{figure.caption.26}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {6}{\ignorespaces Token-level deltas from step 0 to the final checkpoint on the fixed prompt\relax }}{19}{table.caption.28}\protected@file@percent }
+\newlabel{tab:en-token-delta}{{6}{19}{Token-level deltas from step 0 to the final checkpoint on the fixed prompt\relax }{table.caption.28}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.5.3}Prefix-level reorganization}{19}{subsubsection.5.5.3}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {18}{\ignorespaces Prefix-region curves at the final checkpoint. The figure shows that the training effect is already visible early in the generated trajectory, not only near the final answer.\relax }}{20}{figure.caption.29}\protected@file@percent }
+\newlabel{fig:en-prefix-curves-main}{{18}{20}{Prefix-region curves at the final checkpoint. The figure shows that the training effect is already visible early in the generated trajectory, not only near the final answer.\relax }{figure.caption.29}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.5.4}Local contraction from the initial to final checkpoint}{20}{subsubsection.5.5.4}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {19}{\ignorespaces Token-level deltas from the initial to final checkpoint.\relax }}{21}{figure.caption.30}\protected@file@percent }
+\newlabel{fig:en-token-delta-main}{{19}{21}{Token-level deltas from the initial to final checkpoint.\relax }{figure.caption.30}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.5.5}Correctness-conditioned distribution separation}{21}{subsubsection.5.5.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.6}Offline full-token checkpoint audit}{22}{subsection.5.6}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {7}{\ignorespaces Offline full-token audit across saved checkpoints\relax }}{22}{table.caption.31}\protected@file@percent }
+\newlabel{tab:en-full-token-ckpt-audit}{{7}{22}{Offline full-token audit across saved checkpoints\relax }{table.caption.31}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {8}{\ignorespaces EOS behavior in the offline full-token audit (raw ratios $\times 10^4$)\relax }}{23}{table.caption.32}\protected@file@percent }
+\newlabel{tab:en-full-token-eos-summary}{{8}{23}{EOS behavior in the offline full-token audit (raw ratios $\times 10^4$)\relax }{table.caption.32}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {9}{\ignorespaces Sample-level correct/wrong grouping in the offline full-token audit\relax }}{24}{table.caption.33}\protected@file@percent }
+\newlabel{tab:en-full-token-correct-wrong-sample-summary}{{9}{24}{Sample-level correct/wrong grouping in the offline full-token audit\relax }{table.caption.33}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {20}{\ignorespaces Representative word-level entropy trajectory across saved checkpoints. Each displayed word or formula fragment is drawn from the generated response, with warmer backgrounds indicating higher token entropy.\relax }}{25}{figure.caption.34}\protected@file@percent }
+\newlabel{fig:en-trajectory-text-entropy-math500-18}{{20}{25}{Representative word-level entropy trajectory across saved checkpoints. Each displayed word or formula fragment is drawn from the generated response, with warmer backgrounds indicating higher token entropy.\relax }{figure.caption.34}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {21}{\ignorespaces Offline full-token audit: validation score and response length across saved checkpoints.\relax }}{26}{figure.caption.35}\protected@file@percent }
+\newlabel{fig:en-full-token-score-length}{{21}{26}{Offline full-token audit: validation score and response length across saved checkpoints.\relax }{figure.caption.35}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {22}{\ignorespaces Offline full-token audit: token entropy, low-confidence mass, tail confidence, and chosen-token probability across saved checkpoints.\relax }}{26}{figure.caption.36}\protected@file@percent }
+\newlabel{fig:en-full-token-confidence-panel}{{22}{26}{Offline full-token audit: token entropy, low-confidence mass, tail confidence, and chosen-token probability across saved checkpoints.\relax }{figure.caption.36}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {23}{\ignorespaces Offline full-token audit: EOS behavior, top-1 probability, and top-k mass across saved checkpoints.\relax }}{27}{figure.caption.37}\protected@file@percent }
+\newlabel{fig:en-full-token-eos-topk-panel}{{23}{27}{Offline full-token audit: EOS behavior, top-1 probability, and top-k mass across saved checkpoints.\relax }{figure.caption.37}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {24}{\ignorespaces Final-checkpoint full-token statistics by relative response position. The x-axis bins generated tokens into response-position deciles.\relax }}{27}{figure.caption.38}\protected@file@percent }
+\newlabel{fig:en-full-token-position-final}{{24}{27}{Final-checkpoint full-token statistics by relative response position. The x-axis bins generated tokens into response-position deciles.\relax }{figure.caption.38}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {25}{\ignorespaces Final-checkpoint full-token statistics grouped by response correctness.\relax }}{27}{figure.caption.39}\protected@file@percent }
+\newlabel{fig:en-full-token-correctness-final}{{25}{27}{Final-checkpoint full-token statistics grouped by response correctness.\relax }{figure.caption.39}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {26}{\ignorespaces Correctness-conditioned token-distribution statistics. The top row compares final-checkpoint correct and wrong responses across the six non-collapse settings; the bottom row tracks correctness-conditioned gaps over training for the matched one-shot/full-data pairs in the Base and Instruct families.\relax }}{28}{figure.caption.40}\protected@file@percent }
+\newlabel{fig:en-correct-wrong-support-panel}{{26}{28}{Correctness-conditioned token-distribution statistics. The top row compares final-checkpoint correct and wrong responses across the six non-collapse settings; the bottom row tracks correctness-conditioned gaps over training for the matched one-shot/full-data pairs in the Base and Instruct families.\relax }{figure.caption.40}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {10}{\ignorespaces Final-checkpoint correctness-conditioned token summaries\relax }}{28}{table.caption.41}\protected@file@percent }
+\newlabel{tab:en-correct-wrong-final-summary}{{10}{28}{Final-checkpoint correctness-conditioned token summaries\relax }{table.caption.41}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {11}{\ignorespaces Correctness-conditioned gaps for matched one-shot/full-data pairs\relax }}{29}{table.caption.42}\protected@file@percent }
+\newlabel{tab:en-correct-wrong-gap-summary}{{11}{29}{Correctness-conditioned gaps for matched one-shot/full-data pairs\relax }{table.caption.42}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {6}Group Size, Reward Signal, and Validity Risks}{29}{section.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.1}Interpreting the \texttt  {n=1} group-size setting}{29}{subsection.6.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.2}Random-reward setting}{29}{subsection.6.2}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {12}{\ignorespaces Endpoint behavior of the random-reward setting\relax }}{30}{table.caption.43}\protected@file@percent }
+\newlabel{tab:en-random-reward-endpoint}{{12}{30}{Endpoint behavior of the random-reward setting\relax }{table.caption.43}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {7}Training Dynamics and Evidence Synthesis}{30}{section.7}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.1}Phase distribution of gains}{30}{subsection.7.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {27}{\ignorespaces Stage-wise decomposition of score gains across the seven main-result settings.\relax }}{31}{figure.caption.44}\protected@file@percent }
+\newlabel{fig:en-phase-gain-breakdown}{{27}{31}{Stage-wise decomposition of score gains across the seven main-result settings.\relax }{figure.caption.44}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.2}Separating the best and final checkpoints}{31}{subsection.7.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {28}{\ignorespaces Comparison between the best and final checkpoints across the seven main-result settings.\relax }}{32}{figure.caption.45}\protected@file@percent }
+\newlabel{fig:en-best-final-gap}{{28}{32}{Comparison between the best and final checkpoints across the seven main-result settings.\relax }{figure.caption.45}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.3}Final-behavior ranking as supplementary evidence}{32}{subsection.7.3}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {29}{\ignorespaces Final-behavior ranking across the seven main-result settings.\relax }}{33}{figure.caption.46}\protected@file@percent }
+\newlabel{fig:en-final-behavior-ranking}{{29}{33}{Final-behavior ranking across the seven main-result settings.\relax }{figure.caption.46}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.4}Cross-metric coupling}{33}{subsection.7.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {7.4.1}Coupling between gains and calibration metrics}{33}{subsubsection.7.4.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {30}{\ignorespaces Coupling between validation score gain and four key dynamic changes across the seven main-result settings. The training-time actor-entropy panel follows log-field availability.\relax }}{35}{figure.caption.47}\protected@file@percent }
+\newlabel{fig:en-gain-calibration-coupling}{{30}{35}{Coupling between validation score gain and four key dynamic changes across the seven main-result settings. The training-time actor-entropy panel follows log-field availability.\relax }{figure.caption.47}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {7.4.2}Joint frontier of final performance and stability}{35}{subsubsection.7.4.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {31}{\ignorespaces Joint frontier view of final score and final stability metrics.\relax }}{36}{figure.caption.48}\protected@file@percent }
+\newlabel{fig:en-endpoint-frontier-panel}{{31}{36}{Joint frontier view of final score and final stability metrics.\relax }{figure.caption.48}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {7.4.3}Role of the cross-metric figures}{36}{subsubsection.7.4.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {8}Discussion}{37}{section.8}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {8.1}Main supporting evidence}{37}{subsection.8.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {8.2}Remaining limitations}{37}{subsection.8.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {8.3}Practical implications}{37}{subsection.8.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {9}Conclusion}{37}{section.9}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {A}Legacy Full-Data and Format-Constrained References}{39}{appendix.A}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {13}{\ignorespaces Summary of representative full-data and format-constrained reference results\relax }}{39}{table.caption.49}\protected@file@percent }
+\newlabel{tab:en-full-data-reference-runs}{{13}{39}{Summary of representative full-data and format-constrained reference results\relax }{table.caption.49}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {B}Metric Reading Guide}{39}{appendix.B}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {14}{\ignorespaces How to read the behavioral metrics used in the paper\relax }}{40}{table.caption.50}\protected@file@percent }
+\newlabel{tab:en-metric-reading-guide}{{14}{40}{How to read the behavioral metrics used in the paper\relax }{table.caption.50}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {C}End-State Behavioral Summary for the Five Key Settings}{40}{appendix.C}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {15}{\ignorespaces Final behavioral endpoints across the five diagnostic settings\relax }}{41}{table.caption.51}\protected@file@percent }
+\newlabel{tab:en-appendix-endpoints}{{15}{41}{Final behavioral endpoints across the five diagnostic settings\relax }{table.caption.51}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {D}Matched \texttt  {n=1} versus \texttt  {n=8}: A Compact Side-by-Side View}{42}{appendix.D}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {32}{\ignorespaces Matched comparison between \texttt  {Base n=8} and \texttt  {Base n=1} across score, response length, token entropy, low-confidence ratio, top-1 probability, and actor entropy.\relax }}{42}{figure.caption.53}\protected@file@percent }
+\newlabel{fig:en-appendix-aligned-n1n8}{{32}{42}{Matched comparison between \texttt {Base n=8} and \texttt {Base n=1} across score, response length, token entropy, low-confidence ratio, top-1 probability, and actor entropy.\relax }{figure.caption.53}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {E}Supplementary Comparison Among the Non-Collapse Settings}{44}{appendix.E}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {33}{\ignorespaces Supplementary comparison among the four non-collapse settings on token entropy, low-confidence ratio, final EOS probability, and top-1 probability.\relax }}{44}{figure.caption.54}\protected@file@percent }
+\newlabel{fig:en-appendix-main-settings-panel}{{33}{44}{Supplementary comparison among the four non-collapse settings on token entropy, low-confidence ratio, final EOS probability, and top-1 probability.\relax }{figure.caption.54}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {F}Correctness-Conditioned Entropy on the Traced Subset}{46}{appendix.F}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {34}{\ignorespaces Final-step token entropy by correctness on the traced eight-question subset from \texttt  {Base n=1}.\relax }}{46}{figure.caption.55}\protected@file@percent }
+\newlabel{fig:en-appendix-correct-wrong-entropy}{{34}{46}{Final-step token entropy by correctness on the traced eight-question subset from \texttt {Base n=1}.\relax }{figure.caption.55}{}}
 \bibcite{wang2025oneshotrlvr}{1}
 \bibcite{deepscaler2025}{2}
 \bibcite{deepseekr1}{3}
-\@writefile{toc}{\contentsline {section}{\numberline {A}Full-Data Reference Results}{30}{appendix.A}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {8}{\ignorespaces Summary of representative full-data and format-constrained reference results\relax }}{30}{table.caption.37}\protected@file@percent }
-\newlabel{tab:en-full-data-reference-runs}{{8}{30}{Summary of representative full-data and format-constrained reference results\relax }{table.caption.37}{}}
 \bibcite{kimi15}{4}
 \bibcite{ppo}{5}
 \bibcite{deepseekmath}{6}
 \bibcite{math}{7}
+\@writefile{toc}{\contentsline {section}{\numberline {G}Interpretation Boundaries for the Appendix Evidence}{47}{appendix.G}\protected@file@percent }
 \bibcite{qwen}{8}
 \bibcite{openmathinstruct1}{9}
 \bibcite{openmathinstruct2}{10}
@@ -185,4 +226,4 @@
 \bibcite{s1scaling2025}{20}
 \bibcite{limo2025}{21}
 \bibcite{limr2025}{22}
-\gdef \@abspage@last{36}
+\gdef \@abspage@last{53}

@@ -29,11 +29,11 @@
 \pagenumbering{Roman}
 
 \begin{abstract}
-This paper studies 1-shot GRPO for mathematical reasoning under an extremely low-data reinforcement-learning regime. Motivated by recent evidence that verifiable reward can remain effective with a single training example \cite{wang2025oneshotrlvr}, it asks what kind of generation behavior changes when the data budget is so small. The analysis compares five result settings across \ModelBase{} and \ModelInstruct{} and combines validation accuracy with diagnostics for length, confidence, entropy, and stopping behavior.
+This paper studies 1-shot GRPO for mathematical reasoning under an extremely low-data reinforcement-learning regime. Motivated by recent evidence that verifiable reward can remain effective with a single training example \cite{wang2025oneshotrlvr}, it asks what kind of generation behavior changes when the data budget is so small. The primary comparison covers seven settings across \ModelBase{} and \ModelInstruct{}, and all seven settings are included in the aggregate behavioral and token-diagnostic analysis; training-time actor entropy, fixed-prompt traces, and a saved-checkpoint full-token audit are used according to their available coverage. The analysis combines validation accuracy with diagnostics for length, confidence, entropy, and stopping behavior.
 
 The main finding is a strong asymmetry across model families. The Base model gains roughly 0.20 validation score under meaningful reward supervision, while the Instruct model moves only slightly from an already strong starting point. Reducing the training group size from \texttt{n=8} to \texttt{n=1} weakens but does not remove the gain, and reward corruption causes the Base model to collapse rather than reproduce the meaningful-reward improvement. Across the successful Base settings, training also shortens outputs, lowers entropy, reduces low-confidence token mass, raises tail confidence, and makes stopping behavior sharper.
 
-These results support a direct interpretation: in this setting, 1-shot GRPO primarily acts as a fast behavioral calibration mechanism for the Base math model. The paper contributes a matched comparison of group size and reward validity, a multi-metric account of distributional stabilization, and full-data reference results that position the low-data gains below a larger-data empirical ceiling.
+These results support a direct interpretation: in this setting, 1-shot GRPO primarily acts as a fast behavioral calibration mechanism for the Base math model. The paper contributes a matched comparison of group size and reward validity, a multi-metric account of distributional stabilization, matched full-data comparisons that place the low-data gains against a larger-budget training regime under the same schedule and validation protocol, and a saved-checkpoint audit that recomputes full-response token statistics from fresh inference.
 \end{abstract}
 
 \noindent\textbf{Keywords:} \ReportKeywordsEN
@@ -92,11 +92,11 @@ The analyzed settings are designed to isolate a small number of variables. Most 
 
 \subsection{Result matrix}
 
-Table~\ref{tab:en-main-results} summarizes the primary metrics for the five key settings.
+Table~\ref{tab:en-main-results} summarizes the primary metrics for seven settings, listed directly in the table. The two full-data runs share the same validation set, \texttt{rollout\_n=8}, batch size, and \texttt{test\_freq} as their one-shot counterparts; the main difference is that the training file expands from \texttt{pi1\_one\_ans.parquet} to \texttt{train.parquet}.
 
 \begin{table}[H]
     \centering
-    \caption{Headline results across the five key settings}
+    \caption{Headline score comparison across the seven main settings}
     \label{tab:en-main-results}
     \begin{threeparttable}
     \begin{tabular}{lccccc}
@@ -104,39 +104,44 @@ Table~\ref{tab:en-main-results} summarizes the primary metrics for the five key 
         Setting & initial & final & gain & best checkpoint & best score \\
         \midrule
         Base n=8 & 0.3745 & 0.5733 & +0.1988 & 156 & 0.5753 \\
+        Base full-data\tnote{b} & 0.3745 & 0.6105 & +0.2360 & 180 & 0.6105 \\
         Base n=1\tnote{a} & 0.3630 & 0.5470 & +0.1840 & 174 & 0.5590 \\
         Base weak-reg. & 0.3745 & 0.5747 & +0.2002 & 174 & 0.5765 \\
-        Base random-reward\tnote{b} & 0.3630 & 0.0003 & -0.3628 & 0 & 0.3630 \\
+        Base random-reward\tnote{c} & 0.3630 & 0.0003 & -0.3628 & 0 & 0.3630 \\
         Instruct n=8 & 0.6837 & 0.6873 & +0.0035 & 162 & 0.6995 \\
+        Instruct full-data\tnote{b} & 0.6837 & 0.7018 & +0.0180 & 144 & 0.7063 \\
         \bottomrule
     \end{tabular}
     \begin{tablenotes}[flushleft]
         \footnotesize
         \item[a] \texttt{Base n=1} uses the same \texttt{val\_rollout\_n=8} protocol as \texttt{Base n=8}, so each validation checkpoint also has about 4000 records.
-        \item[b] \texttt{Base random-reward} uses random wrong rewards and acts as a reward-corruption setting rather than a no-reward setting.
+        \item[b] The two full-data runs share the same validation protocol and training schedule as the corresponding one-shot baselines; the main difference is the training file.
+        \item[c] \texttt{Base random-reward} uses random wrong rewards and acts as a reward-corruption setting rather than a no-reward setting.
     \end{tablenotes}
     \end{threeparttable}
 \end{table}
 
-The table already reveals the central asymmetry of the project. The Base settings improve substantially, whereas the Instruct setting moves only slightly. It also reveals an important secondary pattern: several best checkpoints occur before the final checkpoint, indicating that the training dynamics become noisy in the later stage rather than continuing to improve monotonically.
+The table already reveals three central patterns. First, the successful Base one-shot settings improve by about 0.20 in absolute validation score. Second, the matched full-data runs increase the endpoint further, but much more strongly for the Base family than for the Instruct family. Third, several best checkpoints occur before the final checkpoint, indicating that the training dynamics become noisy in the later stage rather than continuing to improve monotonically.
 
 \subsection{Evaluation granularity and token-diagnostic coverage}
 
-All five settings cover validation steps from 0 to 180 with a stride of 6. Each setting uses roughly 4000 validation records per analyzed checkpoint. This matched protocol is most important for \texttt{Base n=1} and \texttt{Base random-reward}, because these settings and \texttt{Base n=8} share the same validation granularity and are therefore much more directly comparable.
+All seven main-result settings cover validation steps from 0 to 180 with a stride of 6. Each setting uses roughly 4000 validation records per analyzed checkpoint. This matched protocol is especially important for the pairs \texttt{Base n=8}/\texttt{Base full-data} and \texttt{Instruct n=8}/\texttt{Instruct full-data}, because these pairs share the same validation granularity and training schedule and therefore isolate the effect of training-data budget more directly.
 
-Token diagnostics introduce another granularity issue. The more precise statement is that up to 64 samples per checkpoint participate in token-level diagnostic statistics, but only 8 of those samples additionally retain the full \texttt{token\_diagnostics} trace. In the main \texttt{n=8} settings, those 8 complete traces usually correspond to 8 rollouts of the same fixed prompt. This is sufficient for mechanism-oriented inspection, but not sufficient for claiming full task-level token statistics over the entire benchmark. The aggregate diagnostics further confirm that the analyzed-sample count stays at 64 throughout the five settings; the analyzed-sample fraction is about 1.6\%.
+The later analysis uses a layered diagnostic protocol. Aggregate behavioral metrics and token diagnostics cover all seven main-result settings, so the two full-data runs enter not only the score comparison but also endpoint token metrics, correctness-conditioned grouping, and matched one-shot/full-data token comparisons. Training-time \texttt{actor entropy} still primarily covers the five low-data and control conditions because it depends on training-log fields, and fixed-prompt full traces remain a narrower retained subset. More precisely, up to 64 samples per checkpoint participate in aggregated token-level diagnostics, while 8 samples retain the full \texttt{token\_diagnostics} trace. In the main \texttt{n=8} settings, those 8 complete traces usually correspond to 8 rollouts of the same fixed prompt. The full traces are therefore mechanism-oriented evidence rather than benchmark-wide token statistics.
 
-\subsection{Full-data empirical ceiling references}
+To address this limitation, the final analysis includes a saved-checkpoint full-token audit for the Base full-data run. The audit reloads checkpoints at steps 0, 60, 120, and 180, regenerates four responses for each of 32 held-out test problems, and computes token diagnostics for every generated token in the response. Its purpose is not to replace the full validation curve, which remains the primary score-level evidence, but to test whether the token-level stabilization story remains visible when the analysis moves from retained 96-token prefixes to complete generated sequences.
 
-Beyond the main result table, the paper also draws on a set of full-data and format-constrained reference results. These results are not merged directly into the main result table because the training-file scope and logging coverage are not fully identical. They are nevertheless important because they provide an empirical upper bound for the low-data results. In the Base family, \texttt{full} training rises from 0.3630 to 0.6053 and clearly exceeds \texttt{1-shot} at 0.5753. In the Instruct family, \texttt{full} also exceeds \texttt{1-shot}, but the absolute gap is much smaller. At the same time, a format-constrained Base reference rises only from 0.3630 to 0.4490, remaining far weaker than the standard reward-based path.
+\subsection{Matched full-data comparisons}
 
-Here, \texttt{full} follows the 1-shot RLVR paper's data terminology and denotes training on the 1209-example DSR-sub instance pool randomly sampled from DeepScaleR-Preview-Dataset; \texttt{1-shot} denotes training on the selected example \(\pi_1\) from the same DSR-sub pool \cite{wang2025oneshotrlvr,deepscaler2025}.
+The matched full-data runs make it possible to compare one-shot and larger-budget training under the same schedule. In the Base family, \texttt{Base full-data} rises from 0.3745 to 0.6105 and exceeds \texttt{Base n=8} by 0.0373 at the final checkpoint and by 0.0353 at the best checkpoint. In the Instruct family, \texttt{Instruct full-data} also exceeds \texttt{Instruct n=8}, but the gap is much smaller: 0.0145 at the final checkpoint and 0.0068 at the best checkpoint.
 
-These reference results serve a different role from the main result table. The main table tests the claims under a matched protocol, while the full-data references position the low-data gains relative to a larger-data empirical ceiling. They therefore strengthen three claims at once: the Base family benefits much more than the Instruct family; \texttt{1-shot} training is meaningful but usually weaker than \texttt{full} training; and a weaker reward structure leads to substantially smaller gains.
+Here, \texttt{full-data} follows the 1-shot RLVR paper's data terminology and denotes training on the DSR-sub pool rather than on the selected one-shot example \(\pi_1\) \cite{wang2025oneshotrlvr,deepscaler2025}. Because these full-data runs keep \texttt{rollout\_n=8}, validation, batch size, and \texttt{test\_freq} matched with the corresponding one-shot baselines, they can be treated as data-budget contrasts rather than as loosely related external references.
+
+These matched comparisons complete the main result narrative in three ways. They confirm that the Base family remains more sensitive than the Instruct family when the data budget increases, they show that 1-shot training is meaningful but still weaker than full-data training under the same schedule, and they place the magnitude of the one-shot gains in a directly comparable larger-budget context.
 
 \begin{table}[H]
     \centering
-    \caption{Full-data results as empirical ceiling references for 1-shot training}
+    \caption{Matched one-shot vs. full-data score gaps}
     \label{tab:en-full-ceiling-reference}
     \small
     \begin{threeparttable}
@@ -144,49 +149,49 @@ These reference results serve a different role from the main result table. The m
         \toprule
         Model family & 1-shot final & full final & final gap & best gap \\
         \midrule
-        Base & 0.5753 & 0.6053 & +0.0300 & +0.0333 \\
-        Instruct & 0.6928 & 0.7070 & +0.0143 & +0.0085 \\
+        Base & 0.5733 & 0.6105 & +0.0373 & +0.0353 \\
+        Instruct & 0.6873 & 0.7018 & +0.0145 & +0.0068 \\
         \bottomrule
     \end{tabular}
     \begin{tablenotes}[flushleft]
         \footnotesize
-        \item Note: Gaps are computed as full-data results minus the corresponding 1-shot results. The table is used as an empirical ceiling reference, not as part of Table~\ref{tab:en-main-results}.
+        \item Note: Gaps are computed as full-data results minus the corresponding one-shot baselines. The compared pairs share the same validation protocol and training schedule; the main difference is the training-data budget.
     \end{tablenotes}
     \end{threeparttable}
 \end{table}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\textwidth]{full-data-reference-panel.png}
-    \caption{Initial, final, and best validation rewards for full-data and format-constrained reference results. In both model families, \texttt{full} training generally exceeds \texttt{1-shot}, while the format-constrained Base reference remains much weaker than the standard reward-based path.}
+    \includegraphics[width=\textwidth]{matched-full-data-panel.png}
+    \caption{Initial, final, and best validation scores for the matched one-shot/full-data pairs in the Base and Instruct families. Expanding the data budget improves both families, but the increment is much larger for the Base family.}
     \label{fig:en-full-data-reference-main}
 \end{figure}
 
-Table~\ref{tab:en-full-ceiling-reference} and Figure~\ref{fig:en-full-data-reference-main} therefore play a specific role in the paper: they are not sources of the main matched-protocol claims, but sources of upper-bound positioning. This distinction keeps the core claims anchored in Table~\ref{tab:en-main-results} while still showing that the broader empirical pattern is not confined to a single result table.
+Table~\ref{tab:en-full-ceiling-reference} and Figure~\ref{fig:en-full-data-reference-main} therefore serve as primary evidence for the data-budget comparison. They directly quantify how much performance remains available when the data budget is expanded under the same validation protocol and training cadence. The answer is clear in both families, but especially large in the Base family.
 
 \section{Main Results}
 
 \subsection{The broad picture}
 
-The overall picture is clear in both tabular and trajectory form: the Base family shows large gains and the Instruct family shows small gains. Figure~\ref{fig:en-all-score} visualizes this contrast directly.
+The overall picture is clear in both tabular and trajectory form: the Base family shows large gains, the Instruct family shows small gains, and the matched full-data runs extend both trajectories upward under the same schedule. Figure~\ref{fig:en-all-score} visualizes this contrast directly.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\textwidth]{score-all-static.png}
-    \caption{Validation score trajectories for all five settings. The Base settings with meaningful reward rise strongly, whereas the random-reward setting collapses and the Instruct setting remains in a high but narrow band.}
+    \includegraphics[width=\textwidth]{score-main-seven-settings.png}
+    \caption{Validation score trajectories for the seven main settings. The matched full-data curves sit above their one-shot counterparts in both model families, while the Base random-reward condition collapses.}
     \label{fig:en-all-score}
 \end{figure}
 
-Figure~\ref{fig:en-all-score} prevents a misleading interpretation of the final table. Final values alone would obscure the fact that the Base curves undergo a genuine phase transition from low to much higher performance, while the Instruct curves mostly oscillate within an already strong range. The scale and shape of improvement are therefore different in kind, not only in magnitude.
+Figure~\ref{fig:en-all-score} prevents a misleading interpretation of the final table. Final values alone would obscure the fact that the Base curves undergo a genuine phase transition from low to much higher performance, with \texttt{Base full-data} pushing the endpoint still higher, while the Instruct curves mostly oscillate within an already strong range even after the budget expansion to full-data. The scale and shape of improvement are therefore different in kind, not only in magnitude.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\textwidth]{score-detail-panel.png}
-    \caption{Zoomed validation-score views for the Base, Instruct, and random-reward settings.}
+    \includegraphics[width=\textwidth]{score-main-detail-panel.png}
+    \caption{Zoomed validation-score views for the Base family, the Instruct family, and the random-reward control.}
     \label{fig:en-score-detail-panel}
 \end{figure}
 
-Because the five settings occupy very different score ranges, the global figure is intentionally paired with a zoomed view. Figure~\ref{fig:en-score-detail-panel} resolves two distinctions more clearly. Among the successful Base conditions, \texttt{Base weak-reg.} and \texttt{Base n=8} remain very close, whereas \texttt{Base n=1} stays consistently lower. At the same time, \texttt{Instruct n=8} can be inspected on its own narrow high-score band, and \texttt{Base random-reward} can be read as a distinct collapse trajectory rather than as a curve compressed against zero.
+Because the seven settings occupy very different score ranges, the global figure is intentionally paired with a zoomed view. Figure~\ref{fig:en-score-detail-panel} resolves two distinctions more clearly. Within the Base family, \texttt{Base full-data} remains visibly above the successful one-shot conditions, while \texttt{Base n=1} stays consistently lower. Within the Instruct family, \texttt{Instruct full-data} is measurably better than \texttt{Instruct n=8}, but the gap remains narrow. The random-reward control can then be read separately as a collapse trajectory rather than as a curve compressed against zero.
 
 \subsection{Base-model gains are large and repeatable}
 
@@ -222,7 +227,7 @@ The Base-family gains are not just visible in score. They co-occur with a coordi
 
 \begin{table}[H]
     \centering
-    \caption{Final behavioral metrics for the five settings}
+    \caption{Final behavioral metrics for the seven main-result settings}
     \label{tab:en-behavior-results}
     \begin{threeparttable}
     \small
@@ -232,18 +237,31 @@ The Base-family gains are not just visible in score. They co-occur with a coordi
         Setting & len. & tail & low-conf & entropy & EOS & top-1 \\
         \midrule
         Base n=8 & 603.1 & 0.9331 & 0.0325 & 0.1839 & 0.9880 & 0.9354 \\
+        Base full-data & 536.0 & 0.9320 & 0.0308 & 0.1718 & 0.9549 & 0.9378 \\
         Base n=1 & 580.4 & 0.9003 & 0.0488 & 0.2811 & 0.9215 & 0.9227 \\
         Base weak-reg. & 578.6 & 0.9437 & 0.0294 & 0.1563 & 0.9738 & 0.9437 \\
         Base random-reward & 1192.4 & 0.0001 & 1.0000 & 11.5466 & 0.0009 & 0.0021 \\
         Instruct n=8 & 470.3 & 0.9571 & 0.0187 & 0.1322 & 0.9926 & 0.9634 \\
+        Instruct full-data & 452.7 & 0.9673 & 0.0115 & 0.0837 & 0.9983 & 0.9710 \\
         \bottomrule
     \end{tabularx}
     \begin{tablenotes}[flushleft]
         \footnotesize
-        \item Note: Short labels follow the five settings in Table~\ref{tab:en-main-results}. ``len.'' denotes response length; ``tail'', ``EOS'', and ``top-1'' denote tail confidence, final EOS probability, and mean top-1 probability.
+        \item Note: Short labels follow the seven main-result settings. ``len.'' denotes response length; ``tail'', ``EOS'', and ``top-1'' denote tail confidence, final EOS probability, and mean top-1 probability.
     \end{tablenotes}
-    \end{threeparttable}
+\end{threeparttable}
 \end{table}
+
+The seven-setting behavioral view makes the matched full-data runs part of the mechanism evidence rather than only score-level references. Figure~\ref{fig:en-behavior-detail-main-settings} places the key endpoint-sensitive token metrics in one frame. \texttt{Base full-data} reaches the strongest Base-family final score while also shortening responses, lowering low-confidence mass, lowering token entropy, and increasing top-1 probability relative to \texttt{Base n=8}. \texttt{Instruct full-data} shows the same direction of movement relative to \texttt{Instruct n=8}, but from a much stronger starting region and with a smaller score gain. Thus, expanding the data budget does not create a qualitatively different behavior profile; it extends the same stabilization pattern.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{behavior-detail-main-settings-panel.png}
+    \caption{Aggregate token-behavior comparison across the seven main-result settings.}
+    \label{fig:en-behavior-detail-main-settings}
+\end{figure}
+
+This view also clarifies why the random-reward control is analytically useful. It is not merely a weak version of the successful settings. Its entropy rises to 11.5466, its low-confidence ratio reaches 1.0000, and its mean top-1 probability falls to 0.0021. In other words, corrupted reward pushes the model into a qualitatively unstable token-distribution regime, whereas both one-shot and full-data meaningful-reward settings move toward shorter and more concentrated outputs.
 
 \begin{figure}[H]
     \centering
@@ -330,7 +348,7 @@ The dynamic summaries sharpen this interpretation because they move the evidence
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{actor-entropy-static.png}
-    \caption{Training-time \texttt{actor/entropy} trajectories for the five settings, shown with full-scale and zoomed views.}
+    \caption{Training-time \texttt{actor/entropy} trajectories for the five diagnostic settings, shown with full-scale and zoomed views.}
     \label{fig:en-actor-entropy}
 \end{figure}
 
@@ -343,7 +361,7 @@ The dynamic summaries sharpen this interpretation because they move the evidence
 
 The strongest signal is again the asymmetry between the Base and Instruct families. For \texttt{Base n=8}, \texttt{actor/entropy} drops from 0.346 to 0.116, validation token entropy drops from 0.660 to 0.202, the low-confidence ratio falls from 0.115 to 0.037, aggregated top-1 probability rises from 0.854 to 0.932, and validation response length contracts from 812.5 to 603.1. \texttt{Base weak-reg.} is even more aggressive, ending at 0.091 actor entropy, 0.156 validation token entropy, and 0.944 top-1 probability. This is stronger evidence than score alone for the claim that the Base-family gains come from stabilization and recalibration rather than from merely producing longer or more forceful outputs.
 
-\texttt{Base n=1} adds a sharper and more informative nuance. Under the matched validation protocol, it improves from 0.363 to 0.547, with a best score of 0.559 at step 174. Thus, reducing the training group size from 8 to 1 still leaves substantial learning signal, but the condition remains below \texttt{Base n=8} by about 0.026 at the final checkpoint and about 0.016 at the best checkpoint. Its final validation token entropy is 0.317, well above the 0.202 of \texttt{Base n=8} and the 0.156 of \texttt{Base weak-reg.}; its final low-confidence ratio is 0.051; and its final top-1 probability is only 0.921. Figure~\ref{fig:en-n1-vs-n8} shows that this is not a single-endpoint coincidence but a persistent gap across score, entropy, response length, and top-1 probability. Therefore, reducing group size to one does not prevent learning, but it weakens the quality of stabilization and distributional refinement.
+\texttt{Base n=1} provides a sharper and more informative nuance. Under the matched validation protocol, it improves from 0.363 to 0.547, with a best score of 0.559 at step 174. Thus, reducing the training group size from 8 to 1 still leaves substantial learning signal, but the condition remains below \texttt{Base n=8} by about 0.026 at the final checkpoint and about 0.016 at the best checkpoint. Its final validation token entropy is 0.317, well above the 0.202 of \texttt{Base n=8} and the 0.156 of \texttt{Base weak-reg.}; its final low-confidence ratio is 0.051; and its final top-1 probability is only 0.921. Figure~\ref{fig:en-n1-vs-n8} shows that this is not a single-endpoint coincidence but a persistent gap across score, entropy, response length, and top-1 probability. Therefore, reducing group size to one does not prevent learning, but it weakens the quality of stabilization and distributional refinement.
 
 The Instruct family shows the opposite pattern. \texttt{Instruct n=8} changes only modestly: \texttt{actor/entropy} falls from 0.118 to 0.062, validation length is nearly unchanged, and top-1 probability stays around 0.96. This is local refinement rather than structural reorganization. Once the prior is already strong, the current one-shot RL budget mainly smooths an already competent distribution instead of triggering a large behavioral transition.
 
@@ -363,7 +381,7 @@ The Instruct family already begins in a relatively low-entropy and high-confiden
 
 The token-diagnostics analysis uses a fixed prompt and a narrower trace set. Up to 64 samples per checkpoint contribute to the diagnostic statistics, but only 8 samples retain the full token trace, and each trace keeps only roughly the first 96 tokens. The token-level analysis should therefore be interpreted as mechanism-oriented evidence on a fixed trace set, not as a benchmark-wide token statistic.
 
-Even with that limitation, the token-level trace set is highly valuable because it captures quantities such as token entropy, log-probability, top-1 probability, and top-k mass at the token level. These are precisely the quantities needed to test whether training is reorganizing early-token behavior. The paper therefore uses two layers of token evidence: aggregate token-summary curves, which support broad directional claims, and fixed-prompt traces, which support finer-grained mechanism inspection.
+Even with that limitation, the token-level trace set is highly valuable because it captures quantities such as token entropy, log-probability, top-1 probability, and top-k mass at the token level. These are precisely the quantities needed to test whether training is reorganizing early-token behavior. The paper therefore uses two layers of token evidence: seven-setting aggregate token summaries, which support broad directional and matched full-data claims, and fixed-prompt traces, which support finer-grained mechanism inspection.
 
 \begin{figure}[H]
     \centering
@@ -446,20 +464,65 @@ This also helps frame \texttt{Base n=1} more carefully. The fixed-prompt trace s
 
 \subsubsection{Correctness-conditioned distribution separation}
 
-To test whether distributional contraction is genuinely related to task success, we group the validation records with retained token-diagnostics summaries by response correctness and compare mean token entropy with mean top-1 probability. Figure~\ref{fig:en-correct-wrong-support-panel} summarizes the final-checkpoint 64-sample diagnostics from the four non-collapse settings and tracks \texttt{Base n=1} through training. The main result is consistent: correct responses systematically occupy the more contracted side of the distribution, with lower entropy and higher top-1 concentration.
+To test whether distributional contraction is genuinely related to task success, we group the validation records with retained token-diagnostics summaries by response correctness and compare mean token entropy with mean top-1 probability. Figure~\ref{fig:en-correct-wrong-support-panel} summarizes the final-checkpoint 64-sample diagnostics from the six non-collapse settings and tracks correctness-conditioned gaps for the matched one-shot/full-data pairs in both model families. The main result is consistent: correct responses systematically occupy the more contracted side of the distribution, with lower entropy and higher top-1 concentration.
 
-This separation is visible across all four non-collapse conditions at the final checkpoint. For \texttt{Base n=8}, the mean token entropy of the correct and wrong groups is 0.165 and 0.237; for \texttt{Base n=1}, 0.159 and 0.570; for \texttt{Base weak-reg.}, 0.152 and 0.172; and for \texttt{Instruct n=8}, 0.087 and 0.499. The corresponding mean top-1 probabilities are 0.939/0.925, 0.941/0.878, 0.945/0.940, and 0.968/0.925. The magnitude of the separation varies by condition, but its direction is unchanged. The contraction and confidence concentration documented throughout the paper are therefore not merely cosmetic properties of the token distribution; they are stably associated with successful problem solving.
+This separation is visible across all six non-collapse conditions at the final checkpoint. The correct/wrong mean token entropies are 0.165/0.237 for \texttt{Base n=8}, 0.162/0.209 for \texttt{Base full-data}, 0.159/0.570 for \texttt{Base n=1}, 0.152/0.172 for \texttt{Base weak-reg.}, 0.087/0.499 for \texttt{Instruct n=8}, and 0.074/0.163 for \texttt{Instruct full-data}. The corresponding mean top-1 probabilities are 0.939/0.925, 0.940/0.929, 0.941/0.878, 0.945/0.940, 0.968/0.925, and 0.972/0.967. The magnitude of the separation varies by condition, but its direction is unchanged. The contraction and confidence concentration documented throughout the paper are therefore not merely cosmetic properties of the token distribution; they are stably associated with successful problem solving.
 
-The checkpoint-wise grouped statistics further show that this relationship is not confined to the terminal checkpoint. In \texttt{Base n=1}, the correct and wrong groups already differ at \texttt{step 0}, with mean token entropy 0.353 versus 0.880, and this pattern persists to the final checkpoint, where the corresponding values are 0.159 and 0.570. Over the same interval, mean top-1 probability moves from 0.895/0.822 at \texttt{step 0} to 0.941/0.878 at the final checkpoint. In other words, the correctness-conditioned distribution gap persists throughout training rather than emerging only in a small traced subset at the end. \texttt{Base random-reward} is excluded from this figure because it has no correct responses at the final checkpoint.
+The checkpoint-wise grouped statistics further show that this relationship is not confined to the terminal checkpoint. In the bottom row of Figure~\ref{fig:en-correct-wrong-support-panel}, the entropy gap is defined as wrong minus correct, and the top-1 gap is defined as correct minus wrong. For the Base family, \texttt{Base n=8} and \texttt{Base full-data} share the same initial gap at \texttt{step 0}; at the final checkpoint, their entropy gaps are 0.072 and 0.047, and their top-1 gaps are 0.0149 and 0.0105. For the Instruct family, \texttt{Instruct n=8} and \texttt{Instruct full-data} end with entropy gaps of 0.412 and 0.089 and top-1 gaps of 0.0429 and 0.0047. The correctness-conditioned distribution gap therefore persists across matched one-shot/full-data comparisons rather than emerging only in a small traced subset at the end. \texttt{Base random-reward} is excluded from this figure because it has no correct responses at the final checkpoint.
 
 This section answers the mechanism question at two levels. Aggregate behavioral metrics show the broad stabilization pattern, while token-level traces show that the same change is visible inside generated trajectories. The evidence therefore supports the calibration account without requiring the reader to treat each diagnostic as an isolated result.
+
+\IfFileExists{sections/full_token_ckpt_analysis_en.tex}{%
+\input{sections/full_token_ckpt_analysis_en.tex}
+}{}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{correct-wrong-support-panel.png}
-    \caption{Correctness-conditioned token-distribution statistics. The top row compares final-checkpoint correct and wrong responses; the bottom row tracks the same grouped statistics over training for \texttt{Base n=1}.}
+    \caption{Correctness-conditioned token-distribution statistics. The top row compares final-checkpoint correct and wrong responses across the six non-collapse settings; the bottom row tracks correctness-conditioned gaps over training for the matched one-shot/full-data pairs in the Base and Instruct families.}
     \label{fig:en-correct-wrong-support-panel}
 \end{figure}
+
+\begin{table}[H]
+    \centering
+    \caption{Final-checkpoint correctness-conditioned token summaries}
+    \label{tab:en-correct-wrong-final-summary}
+    \scriptsize
+    \setlength{\tabcolsep}{3pt}
+    \begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{0.22\textwidth}ccccc}
+        \toprule
+        Setting & C/W samples & entropy C/W & top-1 C/W & EOS C/W & tail C/W \\
+        \midrule
+        Base n=8 & 47/17 & 0.165/0.237 & 0.939/0.925 & 0.002/0.001 & 0.957/0.866 \\
+        Base full-data & 51/13 & 0.162/0.209 & 0.940/0.929 & 0.003/0.002 & 0.944/0.885 \\
+        Base n=1 & 45/19 & 0.159/0.570 & 0.941/0.878 & 0.003/0.011 & 0.949/0.785 \\
+        Base weak-reg. & 51/13 & 0.152/0.172 & 0.945/0.940 & 0.002/0.001 & 0.958/0.889 \\
+        Instruct n=8 & 57/7 & 0.087/0.499 & 0.968/0.925 & 0.002/0.002 & 0.973/0.830 \\
+        Instruct full-data & 57/7 & 0.074/0.163 & 0.972/0.967 & 0.002/0.002 & 0.978/0.877 \\
+        \bottomrule
+    \end{tabularx}
+\end{table}
+
+Table~\ref{tab:en-correct-wrong-final-summary} gives the numerical counterpart of Figure~\ref{fig:en-correct-wrong-support-panel}. C/W denotes correct and wrong response groups. All six non-collapse settings show the same direction: correct responses have lower token entropy and higher mean top-1 probability than wrong responses. This moves the calibration argument beyond global averages. The model is not only becoming sharper overall; successful responses are more concentrated in the low-entropy and high-confidence region.
+
+\begin{table}[H]
+    \centering
+    \caption{Correctness-conditioned gaps for matched one-shot/full-data pairs}
+    \label{tab:en-correct-wrong-gap-summary}
+    \small
+    \begin{tabular}{lcccc}
+        \toprule
+        Setting & step-0 entropy gap & final entropy gap & step-0 top-1 gap & final top-1 gap \\
+        \midrule
+        Base n=8 & 0.603 & 0.072 & 0.0833 & 0.0149 \\
+        Base full-data & 0.603 & 0.047 & 0.0833 & 0.0105 \\
+        Instruct n=8 & 0.095 & 0.412 & 0.0021 & 0.0429 \\
+        Instruct full-data & 0.095 & 0.089 & 0.0021 & 0.0047 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+Table~\ref{tab:en-correct-wrong-gap-summary} focuses on the matched pairs. The entropy gap is wrong minus correct, and the top-1 gap is correct minus wrong, so positive values indicate that correct responses are lower-entropy and higher-confidence. The Base one-shot and full-data settings share the same initial gap, confirming that their starting points are comparable. By the final checkpoint, both preserve a positive gap, while full-data produces a more compact wrong-response group. The Instruct pair also shares the same initial gap, but \texttt{Instruct full-data} ends with a much smaller entropy gap than \texttt{Instruct n=8}, consistent with a stronger prior and more uniform endpoint behavior.
 
 \section{Group Size, Reward Signal, and Validity Risks}
 
@@ -505,7 +568,7 @@ The pattern is consistent with the paper's main interpretation. In the Base fami
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{phase-gain-breakdown.png}
-    \caption{Stage-wise decomposition of score gains across the five settings.}
+    \caption{Stage-wise decomposition of score gains across the seven main-result settings.}
     \label{fig:en-phase-gain-breakdown}
 \end{figure}
 
@@ -518,20 +581,20 @@ This distinction matters for interpretation. The training process looks less lik
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{best-final-gap.png}
-    \caption{Comparison between the best and final checkpoints across the five settings.}
+    \caption{Comparison between the best and final checkpoints across the seven main-result settings.}
     \label{fig:en-best-final-gap}
 \end{figure}
 
 \subsection{Final-behavior ranking as supplementary evidence}
 
-Figure~\ref{fig:en-final-behavior-ranking} ranks the five settings by several final behavioral metrics: token entropy, low-confidence ratio, top-1 probability, and response length. Compared with reporting these numbers separately, the ranking view makes the global structure easier to see. It shows, for example, that the Base-family meaningful-reward settings can end with similar rewards while still exhibiting noticeably different convergence styles. \texttt{Base weak-reg.} shows stronger contraction, \texttt{Base n=8} is more moderate, \texttt{Base n=1} remains visibly worse than \texttt{n=8} on final entropy and low-confidence mass, and \texttt{Base random-reward} lies far outside the convergence region of the non-collapse settings.
+Figure~\ref{fig:en-final-behavior-ranking} ranks the seven main-result settings by several final behavioral metrics: token entropy, low-confidence ratio, top-1 probability, and response length. Compared with reporting these numbers separately, the ranking view makes the global structure easier to see. It shows, for example, that the Base-family meaningful-reward settings can end with similar rewards while still exhibiting noticeably different convergence styles. \texttt{Base full-data} improves length and low-confidence mass further, \texttt{Base weak-reg.} shows stronger contraction, \texttt{Base n=8} is more moderate, \texttt{Base n=1} remains visibly worse than \texttt{n=8} on final entropy and low-confidence mass, and \texttt{Base random-reward} lies far outside the convergence region of the non-collapse settings. In the Instruct family, full-data further reduces entropy and low-confidence mass, although the score gain remains much smaller than in the Base family.
 
 The paper should therefore not rely on reward alone. Several Base-family settings cluster very closely in final score, but the ranking plot shows that their endpoint distributions are not interchangeable. The same is true in a different way for the Instruct family: small reward differences can coexist with visibly different token-entropy structure. Together, these observations strengthen the broader methodological point of the paper: the strongest evidence comes from reading score and behavior together rather than reducing everything to a single summary metric.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{final-behavior-ranking.png}
-    \caption{Final-behavior ranking across the five settings.}
+    \caption{Final-behavior ranking across the seven main-result settings.}
     \label{fig:en-final-behavior-ranking}
 \end{figure}
 
@@ -539,20 +602,20 @@ The paper should therefore not rely on reward alone. Several Base-family setting
 
 \subsubsection{Coupling between gains and calibration metrics}
 
-The preceding sections separately discuss score trajectories, behavioral endpoints, and token-level supplementary evidence. A stricter test is whether those observations only point in the same direction, or whether they also co-vary at the condition level. Figure~\ref{fig:en-gain-calibration-coupling} addresses this issue by plotting the score gain of each setting against four dynamic change magnitudes: the reduction in training-time actor entropy, the reduction in validation token entropy, the reduction in low-confidence token ratio, and the reduction in validation response length.
+The preceding sections separately discuss score trajectories, behavioral endpoints, and token-level supplementary evidence. A stricter test is whether those observations only point in the same direction, or whether they also co-vary at the condition level. Figure~\ref{fig:en-gain-calibration-coupling} addresses this issue by plotting the score gain of the seven main-result settings against four dynamic change magnitudes: the reduction in training-time actor entropy, the reduction in validation token entropy, the reduction in low-confidence token ratio, and the reduction in validation response length. The actor-entropy panel follows training-log availability, whereas the validation-token panels include the full-data runs.
 
-Figure~\ref{fig:en-gain-calibration-coupling} turns the calibration interpretation into a tighter empirical pattern. The Base-family settings are not only the settings with larger score gains; they are also the settings with larger entropy contraction, larger removal of low-confidence mass, and larger shortening of outputs. \texttt{Instruct n=8} occupies a different region altogether: it improves only slightly and exhibits far smaller contraction. This coupling is more informative than listing endpoint numbers separately, because it shows that the gain and the stabilization process appear together in the same settings.
+Figure~\ref{fig:en-gain-calibration-coupling} turns the calibration interpretation into a tighter empirical pattern. The Base-family settings are not only the settings with larger score gains; they are also the settings with larger entropy contraction, larger removal of low-confidence mass, and larger shortening of outputs. The full-data runs extend this pattern by showing that a larger training budget moves the endpoint upward while preserving the same broad relationship between reward gain and distributional stabilization. This coupling is more informative than listing endpoint numbers separately, because it shows that the gain and the stabilization process appear together in the same settings.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{gain-calibration-coupling.png}
-    \caption{Coupling between validation score gain and four key dynamic changes.}
+    \caption{Coupling between validation score gain and four key dynamic changes across the seven main-result settings. The training-time actor-entropy panel follows log-field availability.}
     \label{fig:en-gain-calibration-coupling}
 \end{figure}
 
 \subsubsection{Joint frontier of final performance and stability}
 
-It is also useful to ask whether the settings with better final reward are the same settings that end in more stable output distributions. Figure~\ref{fig:en-endpoint-frontier-panel} places final validation score in a shared coordinate system with two endpoint stability metrics: final token entropy and final low-confidence ratio. Even with only five settings, this frontier-style view is informative because it compresses ``better performance'' and ``more stable distribution'' into the same visual frame.
+It is also useful to ask whether the settings with better final reward are the same settings that end in more stable output distributions. Figure~\ref{fig:en-endpoint-frontier-panel} places final validation score in a shared coordinate system with two endpoint stability metrics: final token entropy and final low-confidence ratio. With all seven settings included, this frontier-style view also shows where the full-data runs sit relative to their one-shot counterparts.
 
 Within the Base family, the trend is fairly clear: the higher-scoring settings also tend to have lower entropy and lower low-confidence mass. \texttt{Base n=1} remains visibly behind \texttt{Base n=8} on both axes, so its weakness is not confined to a single reward curve; it is reflected in the endpoint distribution itself. The Instruct family occupies a different region: the final scores are higher, but the internal spread is small, which is consistent with a model that already starts in a relatively stable regime.
 
@@ -565,17 +628,17 @@ Within the Base family, the trend is fairly clear: the higher-scoring settings a
 
 \subsubsection{Role of the cross-metric figures}
 
-Together with the preceding sections, these figures strengthen the overall evidential structure. The first layer of evidence is the score improvement itself and the distinction between best and final checkpoints. The second layer is the dynamic change in behavior: length, entropy, top-1 probability, EOS behavior, and low-confidence mass. The third layer, added here, is the cross-metric coupling view, which puts those quantities back at the condition level and shows that they move together. This section therefore answers the timing-and-synthesis question: the gain appears early, enters a fluctuating high-score regime, and remains coupled with distributional stabilization across settings.
+Together with the preceding sections, these figures strengthen the overall evidential structure. The first layer of evidence is the score improvement itself and the distinction between best and final checkpoints. The second layer is the dynamic change in behavior: length, entropy, top-1 probability, EOS behavior, and low-confidence mass. The third layer is the cross-metric coupling view, which puts those quantities back at the condition level and shows that they move together. This section therefore answers the timing-and-synthesis question: the gain appears early, enters a fluctuating high-score regime, and remains coupled with distributional stabilization across settings.
 
 \section{Discussion}
 
 \subsection{Main supporting evidence}
 
-The strongest part of the evidence is the coherence of the Base-model pattern. Score rises sharply. Response length drops. Tail confidence rises. Low-confidence tokens become rarer. Entropy falls. EOS behavior becomes sharper. The token-level fixed-prompt traces independently show more stable early-token organization, and the full-data reference results point in the same direction. Read together, these observations make behavioral calibration the best-supported explanation under the current scope.
+The strongest part of the evidence is the coherence of the Base-model pattern. Score rises sharply. Response length drops. Tail confidence rises. Low-confidence tokens become rarer. Entropy falls. EOS behavior becomes sharper. The token-level fixed-prompt traces independently show more stable early-token organization, the offline checkpoint audit extends that view to complete generated responses on a held-out subset, and the matched full-data comparisons point in the same direction. Read together, these observations make behavioral calibration the best-supported explanation under the current scope.
 
 \subsection{Remaining limitations}
 
-Four issues remain unresolved. First, the group-size result needs replication across multiple seeds. Second, the random-reward setting has not yet been matched by an Instruct-family counterpart. Third, the current diagnostics support a calibration account, but they do not fully separate calibration from knowledge acquisition across problem domains or difficulty levels. A stronger follow-up would stratify held-out problems by difficulty or topic and test whether gains are uniform, as expected under broad calibration, or concentrated in specific knowledge regions. Fourth, the full-data references are empirical upper-bound references rather than fully matched comparison items with the same diagnostic coverage.
+Four issues remain unresolved. First, the group-size result needs replication across multiple seeds. Second, the random-reward setting has not yet been matched by an Instruct-family counterpart. Third, the current diagnostics support a calibration account, but they do not fully separate calibration from knowledge acquisition across problem domains or difficulty levels. A stronger follow-up would stratify held-out problems by difficulty or topic and test whether gains are uniform, as expected under broad calibration, or concentrated in specific knowledge regions. Fourth, the offline checkpoint audit reduces the earlier 96-token-prefix limitation, but it is still a subset audit and still covers only the checkpoints that were saved for this run; training-time \texttt{actor entropy}, fixed-prompt traces, and full-token offline inference therefore remain complementary rather than perfectly symmetric evidence sources.
 
 \subsection{Practical implications}
 
@@ -583,16 +646,16 @@ The practical implication is clear: under severe data constraints, 1-shot GRPO c
 
 \section{Conclusion}
 
-This paper characterizes the effect of 1-shot GRPO on mathematical reasoning using five key settings, dynamic behavioral diagnostics, token-level supplementary evidence, and a set of full-data references used as empirical upper bounds. Across these sources, the overall picture is consistent. The Base model benefits substantially, the Instruct model changes only slightly, and the successful Base settings exhibit a coordinated transition toward shorter, lower-entropy, higher-confidence, and more decisive outputs. The full-data references further clarify that 1-shot training captures a meaningful part of the attainable gain but should not be treated as equivalent to training with a larger data budget.
+This paper characterizes the effect of 1-shot GRPO on mathematical reasoning using seven main-result settings, seven-setting aggregate behavioral diagnostics, narrower token-trace evidence, a saved-checkpoint full-token audit, and matched one-shot/full-data contrasts. Across these sources, the overall picture is consistent. The Base model benefits substantially, the Instruct model changes only slightly, and the successful Base settings exhibit a coordinated transition toward shorter, lower-entropy, higher-confidence, and more decisive outputs. The matched full-data comparisons further clarify that 1-shot training captures a meaningful part of the attainable gain but does not close the gap to a larger data budget under the same schedule.
 
-Within that evidence framework, three conclusions are the most defensible. First, 1-shot GRPO is effective for the Base math model under the present low-data regime. Second, the gain is better explained as rapid calibration than as the injection of additional mathematical knowledge, while a difficulty- or topic-stratified evaluation would be needed to fully separate those mechanisms. Third, both group-relative signal and reward integrity matter for the final regime: reducing the training group size from 8 to 1 weakens but does not remove the gain, whereas corrupting the reward signal causes the model to collapse in both score and behavioral stability. The remaining caveats are equally clear. The \texttt{n=1} versus \texttt{n=8} comparison is still single-seed rather than multi-seed, and the random-reward setting has not yet been matched by an Instruct-family counterpart. Within those limits, the current evidence supports interpreting 1-shot GRPO primarily as a low-data stabilization and calibration mechanism for Base mathematical reasoning.
+Within that evidence framework, three conclusions are the most defensible. First, 1-shot GRPO is effective for the Base math model under the present low-data regime. Second, the gain is better explained as rapid calibration than as broad mathematical knowledge acquisition, while a difficulty- or topic-stratified evaluation would be needed to fully separate those mechanisms. Third, both group-relative signal and reward integrity matter for the final regime: reducing the training group size from 8 to 1 weakens but does not remove the gain, whereas corrupting the reward signal causes the model to collapse in both score and behavioral stability. The remaining caveats are equally clear. The \texttt{n=1} versus \texttt{n=8} comparison is still single-seed rather than multi-seed, and the random-reward setting has not yet been matched by an Instruct-family counterpart. Within those limits, the current evidence supports interpreting 1-shot GRPO primarily as a low-data stabilization and calibration mechanism for Base mathematical reasoning.
 
 \clearpage
 \appendix
 
-\section{Full-Data Reference Results}
+\section{Legacy Full-Data and Format-Constrained References}
 
-Besides the five settings analyzed in the main body, the full-data and format-constrained reference results are useful for supplementary comparison. They should not be merged directly into the main result table because the training-file scope and logging coverage are not fully identical. Even so, they are valuable as appendix-level evidence because they reinforce the same broad pattern: in both model families, \texttt{full} training is stronger than \texttt{1-shot}, and a format-constrained reference for the Base family is much weaker than the standard reward-based path.
+The main body includes the matched full-data runs as part of the primary comparison. The appendix section below preserves a legacy set of full-data and format-constrained reference results for historical comparison and supplementary context. They are therefore useful as appendix-level background rather than as primary evidence for the main claims.
 
 \begin{table}[H]
     \centering
@@ -616,6 +679,114 @@ Besides the five settings analyzed in the main body, the full-data and format-co
 \end{table}
 
 The table serves a narrow but useful purpose. It shows that the main paper narrative is not confined to the main result table alone: the Base family benefits more strongly in absolute score, \texttt{full} training tends to outperform \texttt{1-shot}, and a more heavily format-constrained reference remains substantially weaker. The corresponding visualization is already shown in Figure~\ref{fig:en-full-data-reference-main}; the appendix therefore avoids repeating the same figures and uses this section only as a compact numerical reference. These results should be used as supplementary reference evidence rather than as part of the matched-protocol primary comparison.
+
+\section{Metric Reading Guide}
+
+The main text deliberately reads score and behavior together rather than treating any single auxiliary diagnostic as decisive. That choice is especially important under a low-data RL regime, where the same scalar outcome can be reached through very different generation patterns. Table~\ref{tab:en-metric-reading-guide} therefore records how each diagnostic is interpreted in this paper and where its limits remain. The appendix-level guide is useful because several later figures compare settings in multiple metric spaces at once.
+
+\begin{table}[H]
+    \centering
+    \caption{How to read the behavioral metrics used in the paper}
+    \label{tab:en-metric-reading-guide}
+    \scriptsize
+    \setlength{\tabcolsep}{4pt}
+    \renewcommand{\arraystretch}{1.18}
+    \begin{tabular}{>{\raggedright\arraybackslash}p{2.5cm}>{\raggedright\arraybackslash}p{2.2cm}>{\raggedright\arraybackslash}p{4.2cm}>{\raggedright\arraybackslash}p{4.4cm}}
+        \toprule
+        Metric & Typical favorable movement & What it reflects & Main caveat \\
+        \midrule
+        Validation score & higher & Task-level correctness on held-out mathematical problems & Score alone does not reveal whether the model improved by better calibration, shorter search, or some other behavioral route. \\
+        Response length & lower & Less wandering and earlier commitment once the answer path is stabilized & Shorter outputs are only favorable when score is preserved or improved; otherwise they can reflect premature stopping. \\
+        Answer-tail confidence & higher & More confidence around the answer-bearing tail of the response & Tail confidence is informative only when paired with correctness, because confident wrong answers remain possible. \\
+        Low-confidence token ratio & lower & Less probability mass spent on highly uncertain token decisions & The absolute level depends on prompt difficulty, so cross-setting comparisons are more informative than any universal threshold. \\
+        Mean token entropy & lower & Sharper next-token distributions and less diffuse local uncertainty & Lower entropy can also appear under pathological collapse, which is why the random-reward case must be read jointly with score and EOS behavior. \\
+        Final EOS probability & higher & Clearer stopping behavior near the end of generation & A sharp EOS signal is only useful when it accompanies correct or improved answers rather than truncated failure. \\
+        Mean top-1 probability & higher & Stronger concentration on the most likely next token & High top-1 mass by itself does not distinguish correct confidence from confidently wrong behavior. \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+Three reading rules follow from Table~\ref{tab:en-metric-reading-guide}. First, no single diagnostic is treated as a stand-alone success criterion apart from held-out score. Second, the most persuasive evidence comes from coordinated movement across metrics, such as shorter responses together with lower entropy and fewer low-confidence tokens. Third, the reward-corruption setting is informative precisely because it separates benign entropy contraction from pathological collapse: in that setting, entropy is not merely low or high in isolation, but coupled to vanishing score, saturated low-confidence mass, and near-zero EOS/top-1 probability.
+
+\section{End-State Behavioral Summary for the Five Key Settings}
+
+The main body emphasizes trajectories because the path into the final regime is central to the paper's interpretation. For quick appendix-level reference, however, it is also useful to collect the endpoint behavior of the five diagnostic settings in one place. Table~\ref{tab:en-appendix-endpoints} plays that role and can be read as the numerical companion to the main trajectory figures.
+
+\begin{table}[H]
+    \centering
+    \caption{Final behavioral endpoints across the five diagnostic settings}
+    \label{tab:en-appendix-endpoints}
+    \scriptsize
+    \setlength{\tabcolsep}{3.2pt}
+    \renewcommand{\arraystretch}{1.15}
+    \begin{threeparttable}
+    \begin{tabular}{lccccccc}
+        \toprule
+        Setting & score & length & tail conf. & low-conf. & entropy & EOS & top-1 \\
+        \midrule
+        Base n=8 & 0.5733 & 603.1 & 0.9331 & 0.0325 & 0.1839 & 0.9880 & 0.9354 \\
+        Base n=1 & 0.5470 & 580.4 & 0.9003 & 0.0488 & 0.2811 & 0.9215 & 0.9227 \\
+        Base weak-reg. & 0.5747 & 578.6 & 0.9437 & 0.0294 & 0.1563 & 0.9738 & 0.9437 \\
+        Base random-reward & 0.0003 & 1192.4 & 0.0001 & 1.0000 & 11.5466 & 0.0009 & 0.0021 \\
+        Instruct n=8 & 0.6873 & 470.3 & 0.9571 & 0.0187 & 0.1322 & 0.9926 & 0.9634 \\
+        \bottomrule
+    \end{tabular}
+    \begin{tablenotes}[flushleft]
+        \footnotesize
+        \item Note: Length is measured in tokens. The behavioral metrics are validation-time endpoints and should be interpreted jointly with score rather than as stand-alone optimization targets.
+    \end{tablenotes}
+    \end{threeparttable}
+\end{table}
+
+The table compresses the paper's central comparison into a reader-friendly endpoint view. The successful Base settings cluster in a relatively narrow region of low entropy, low low-confidence mass, and high EOS/top-1 probability, while \texttt{Base random-reward} lies far outside that region. \texttt{Instruct n=8} finishes with the strongest endpoint profile overall, but its gain from initialization remains small. That contrast is exactly why the paper treats starting prior and gain scale as separate interpretive dimensions.
+
+\clearpage
+\section{Matched \texttt{n=1} versus \texttt{n=8}: A Compact Side-by-Side View}
+
+The main text already argues that the \texttt{n=1} group-size setting remains useful but does not fully match \texttt{n=8}. Figure~\ref{fig:en-appendix-aligned-n1n8} makes that comparison easier to inspect by placing the matched score curve beside five core behavioral trajectories. It is included in the appendix because the point is comparative rather than foundational: the paper's main claim does not depend on this compact view, but the view helps the reader inspect the shape of the difference directly.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth,height=0.82\textheight,keepaspectratio]{aligned-n1-vs-n8-panel.png}
+    \caption{Matched comparison between \texttt{Base n=8} and \texttt{Base n=1} across score, response length, token entropy, low-confidence ratio, top-1 probability, and actor entropy.}
+    \label{fig:en-appendix-aligned-n1n8}
+\end{figure}
+
+The compact panel supports two observations that are easy to miss when each metric is read separately. First, \texttt{n=1} is not merely lower at the end; it also contracts more slowly in entropy and low-confidence mass during the early and middle phases of training. Second, the gap is not uniform across diagnostics. Final response length is not dramatically worse for \texttt{n=1}, but token entropy, low-confidence ratio, and top-1 probability remain consistently weaker, which fits the interpretation that the group-relative signal mainly strengthens distributional stabilization rather than simply shortening answers.
+
+\clearpage
+\section{Supplementary Comparison Among the Non-Collapse Settings}
+
+The non-collapse settings are easy to summarize too coarsely if one only says that they all converge to a ``stable'' region. Figure~\ref{fig:en-appendix-main-settings-panel} expands that point by comparing the four non-collapse settings on four endpoint-sensitive metrics: token entropy, low-confidence ratio, final EOS probability, and top-1 probability. Unlike the main body's broader trajectory coverage, this panel is meant as a compact appendix-level synthesis for readers who want to inspect how similar or dissimilar the successful regimes really are.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth,height=0.78\textheight,keepaspectratio]{behavior-detail-main-settings-panel.png}
+    \caption{Supplementary comparison among the four non-collapse settings on token entropy, low-confidence ratio, final EOS probability, and top-1 probability.}
+    \label{fig:en-appendix-main-settings-panel}
+\end{figure}
+
+This comparison reinforces a narrow but important point. The three successful Base settings do not converge to an identical endpoint distribution even when their final scores are close. The weak-regularization setting is the sharpest among them, \texttt{Base n=8} is slightly more moderate, and \texttt{Base n=1} remains visibly looser on entropy and low-confidence mass. The Instruct setting occupies the sharpest region overall, which is consistent with the paper's main interpretation that it begins from a stronger prior and therefore has less behavioral slack to correct.
+
+\clearpage
+\section{Correctness-Conditioned Entropy on the Traced Subset}
+
+One natural question is whether the token-level evidence only says that different settings behave differently, or whether correct and wrong responses also separate within a single setting. Figure~\ref{fig:en-appendix-correct-wrong-entropy} gives a small but concrete answer for the traced subset available in \texttt{Base n=1}. It plots final-step token entropy by correctness over eight traced MATH500 questions. The figure is intentionally placed in the appendix because the sample is too small to carry a main claim on its own, yet it is still useful as a directionally consistent piece of evidence.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth,height=0.68\textheight,keepaspectratio]{correct-vs-wrong-entropy.png}
+    \caption{Final-step token entropy by correctness on the traced eight-question subset from \texttt{Base n=1}.}
+    \label{fig:en-appendix-correct-wrong-entropy}
+\end{figure}
+
+Within this traced subset, correct responses end with lower mean token entropy than wrong responses. That is exactly the ordering predicted by the calibration account, but the appendix keeps the evidential weight proportional to the sample size: the figure is best read as supportive micro-evidence rather than as a substitute for the aggregate metrics in the main body.
+
+\section{Interpretation Boundaries for the Appendix Evidence}
+
+The appendix also clarifies two scope boundaries that matter when reading the supplementary material. First, the reward-corruption condition should be interpreted as an extreme wrong-signal control rather than a clean no-signal baseline. Its value is therefore causal rather than symmetric: it shows that meaningful reward integrity matters, but it does not by itself estimate what would happen under a perfectly neutral reward ablation. Second, the legacy full-data references are retained for historical context, not to replace the matched one-shot/full-data comparisons that now anchor the main score-level conclusions.
+
+Those boundaries help explain why the appendix contains both richer comparison material and repeated caveats. The appendix figures and tables are meant to improve readability, not to expand the strength of the core claims beyond what the matched main settings support. In that sense, the appendix is best understood as interpretive scaffolding: it makes the score, calibration, group-size, and reward-integrity story easier to inspect in detail while preserving the same evidential hierarchy as the main text.
 
 \begin{thebibliography}{99}
 \bibitem{wang2025oneshotrlvr}

@@ -1,0 +1,48 @@
+This is BibTeX, Version 0.99d (TeX Live 2022/dev/Debian)
+Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
+The top-level auxiliary file: slide.aux
+The style file: plainnat.bst
+Database file #1: ref.bib
+Warning--empty journal in wang2025oneshot
+You've used 7 entries,
+            2773 wiz_defined-function locations,
+            628 strings with 9873 characters,
+and the built_in function-call counts, 15584 in all, are:
+= -- 1026
+> -- 2432
+< -- 2
++ -- 812
+- -- 804
+* -- 1728
+:= -- 2707
+add.period$ -- 25
+call.type$ -- 7
+change.case$ -- 288
+chr.to.int$ -- 6
+cite$ -- 15
+duplicate$ -- 146
+empty$ -- 249
+format.name$ -- 812
+if$ -- 2916
+int.to.chr$ -- 2
+int.to.str$ -- 1
+missing$ -- 2
+newline$ -- 46
+num.names$ -- 28
+pop$ -- 593
+preamble$ -- 1
+purify$ -- 281
+quote$ -- 0
+skip$ -- 386
+stack$ -- 0
+substring$ -- 36
+swap$ -- 33
+text.length$ -- 1
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 77
+warning$ -- 1
+while$ -- 22
+width$ -- 0
+write$ -- 99
+(There was 1 warning)

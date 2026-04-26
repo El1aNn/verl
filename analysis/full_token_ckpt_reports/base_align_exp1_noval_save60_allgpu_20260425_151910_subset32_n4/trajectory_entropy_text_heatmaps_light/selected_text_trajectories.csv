@@ -1,0 +1,14 @@
+uid,case_uid,rollout_index,data_source,question,n_steps,steps,score_first,score_final,score_range,entropy_first,entropy_final,entropy_range,entropy_delta_final_minus_first,response_length_first,response_length_final,response_length_range,mixed_correctness,selection_score
+val::math500::18::c7d731882930870c::sample0,val::math500::18::c7d731882930870c,0,math500,"$\overline{BC}$ is parallel to the segment through $A$, and $AB = BC$. What is the number of degrees represented by $x$?
+
+[asy]
+draw((0,0)--(10,0));
+draw((0,3)--(10,3));
+draw((2,3)--(8,0));
+draw((2,3)--(4,0));
+label(""$A$"",(2,3),N);
+label(""$B$"",(4,0),S);
+label(""$C$"",(8,0),S);
+label(""$124^{\circ}$"",(2,3),SW);
+label(""$x^{\circ}$"",(4.5,3),S);
+[/asy] Let's think step by step and output the final answer within \boxed{}.",4,"0,60,120,180",0.0,1.0,1.0,4.657053616530894,0.25877879274970034,4.4384247929571075,-4.398274823781194,863.0,485.0,554.0,1,5.343824792957107

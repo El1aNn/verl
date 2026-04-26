@@ -8,17 +8,19 @@ ROOT = Path("/root/rl/verl/analysis/overleaf_bundle_20260406")
 DATA_DIR = ROOT / "data"
 FIG_DIR = ROOT / "figures"
 
-RUN_SUMMARY = pd.read_csv(DATA_DIR / "run-summary-v2.csv")
-STEP_DF = pd.read_csv(DATA_DIR / "step-metrics-long-v2.csv")
+RUN_SUMMARY = pd.read_csv(DATA_DIR / "run-summary-main-seven.csv")
+STEP_DF = pd.read_csv(DATA_DIR / "step-metrics-main-seven.csv")
 TRAIN_DF = pd.read_csv(DATA_DIR / "swanlab-training-curves-v2.csv")
 
 
 COLOR_MAP = {
     "Base baseline (n=8)": "#1F5F8B",
+    "Base full-data": "#0B3954",
     "Base small-group ablation (n=1)": "#C56A2D",
     "Base weak-regularization variant": "#2A7F62",
     "Base corrupted-reward control": "#AA3F39",
     "Instruct baseline (n=8)": "#2C7A7B",
+    "Instruct full-data": "#005F73",
 }
 
 CONTROL_LABEL = "Base corrupted-reward control"
@@ -33,10 +35,12 @@ NON_COLLAPSE_LABELS = [
 def _short_label(label: str) -> str:
     return (
         label.replace("Base baseline (n=8)", "Base n=8")
+        .replace("Base full-data", "Base full")
         .replace("Base small-group ablation (n=1)", "Base n=1")
         .replace("Base weak-regularization variant", "Base weak-reg")
         .replace("Base corrupted-reward control", "Base ctrl")
         .replace("Instruct baseline (n=8)", "Instr n=8")
+        .replace("Instruct full-data", "Instr full")
     )
 
 

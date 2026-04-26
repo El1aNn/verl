@@ -1,0 +1,13 @@
+uid,mode,path
+val::math500::29::b21de5e7f45f522c::sample2,normalized,figures/val_math500_29_b21de5e7f45f522c_sample2.normalized.entropy.png
+val::math500::29::b21de5e7f45f522c::sample2,raw,figures/val_math500_29_b21de5e7f45f522c_sample2.raw.entropy.png
+val::math500::18::c7d731882930870c::sample0,normalized,figures/val_math500_18_c7d731882930870c_sample0.normalized.entropy.png
+val::math500::18::c7d731882930870c::sample0,raw,figures/val_math500_18_c7d731882930870c_sample0.raw.entropy.png
+val::math500::19::bc0d44d3d5575105::sample1,normalized,figures/val_math500_19_bc0d44d3d5575105_sample1.normalized.entropy.png
+val::math500::19::bc0d44d3d5575105::sample1,raw,figures/val_math500_19_bc0d44d3d5575105_sample1.raw.entropy.png
+val::math500::20::3df80308e3f022b6::sample1,normalized,figures/val_math500_20_3df80308e3f022b6_sample1.normalized.entropy.png
+val::math500::20::3df80308e3f022b6::sample1,raw,figures/val_math500_20_3df80308e3f022b6_sample1.raw.entropy.png
+val::math500::9::cd5d9530ec3e4205::sample0,normalized,figures/val_math500_9_cd5d9530ec3e4205_sample0.normalized.entropy.png
+val::math500::9::cd5d9530ec3e4205::sample0,raw,figures/val_math500_9_cd5d9530ec3e4205_sample0.raw.entropy.png
+val::math500::3::2b78f19c3079ebc6::sample3,normalized,figures/val_math500_3_2b78f19c3079ebc6_sample3.normalized.entropy.png
+val::math500::3::2b78f19c3079ebc6::sample3,raw,figures/val_math500_3_2b78f19c3079ebc6_sample3.raw.entropy.png

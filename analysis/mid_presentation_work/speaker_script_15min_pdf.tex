@@ -1,0 +1,42 @@
+\documentclass[UTF8,12pt]{ctexart}
+
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{fontspec}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{markdown}
+
+\setmainfont{Noto Sans CJK SC}
+\setCJKmainfont{Noto Sans CJK SC}
+\setmonofont{DejaVu Sans Mono}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=black,
+  urlcolor=blue,
+  pdfauthor={Zihang Xu},
+  pdftitle={Final Project Speaker Script}
+}
+
+\ctexset{
+  section = {
+    format = {\Large\bfseries},
+    afterskip = 0.8em
+  },
+  subsection = {
+    format = {\large\bfseries},
+    afterskip = 0.6em
+  },
+  subsubsection = {
+    format = {\normalsize\bfseries},
+    afterskip = 0.4em
+  }
+}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.55em}
+\linespread{1.12}
+
+\begin{document}
+\markdownInput{speaker_script_15min.md}
+\end{document}

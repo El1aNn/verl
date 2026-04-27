@@ -45,7 +45,7 @@
 \subtitle{Controlled Experiments and Token-Level Evidence for 1-shot GRPO}
 \author[Zihang Xu]{Zihang Xu}
 \institute[CUHK-Shenzhen]{Data Science, The Chinese University of Hong Kong, Shenzhen}
-\date{Capstone Project Midterm Presentation}
+\date{Capstone Project Final Presentation}
 
 % ================= Document =================
 \begin{document}
@@ -196,7 +196,7 @@ Instruct full-data & 0.706 & 0.702 & Full-data Instruct reference \\
 \begin{frame}[shrink=4]{Full-Token Audit: Testing the Mechanism Directly}
 \small
 \begin{block}{Protocol}
-Base full-data checkpoints at steps 0, 60, 120, 180; 32 held-out problems; 4 sampled responses per problem; every generated token is scored.
+Base n=8 1-shot checkpoints at steps 0, 60, 120, 180; 32 held-out problems; 4 sampled responses per problem; every generated token is scored.
 \end{block}
 
 \begin{table}
@@ -240,12 +240,23 @@ Step & Score & Len. & Ent. & Low-conf. & Top-1 \\
 }
 
 % 13
+{
+\setbeamertemplate{navigation symbols}{}
+\begin{frame}[plain]
+\centering
+\makebox[\textwidth][c]{%
+\includegraphics[width=0.98\paperwidth,height=0.96\paperheight,keepaspectratio]{pic/trajectory-text-entropy-wrong-sine-fullslide.png}%
+}
+\end{frame}
+}
+
+% 14
 \begin{frame}{Mechanism Interpretation}
 \begin{block}{Why the Gain Looks Like Calibration}
 \begin{itemize}
     \item The gain is not produced by longer exploration: step 60 is much shorter than step 0.
     \item Step 60 and step 180 tie in score but differ behaviorally, so no single token metric explains everything.
-    \item At the final checkpoint, correct responses remain lower-entropy and higher top-1 than wrong responses.
+    \item At the final checkpoint, correct responses remain lower-entropy, while wrong traces can reveal high-entropy mistaken premises.
     \item EOS pressure drops after training and only partly rebounds at step 180, so the gain is not just early stopping.
 \end{itemize}
 \end{block}
@@ -253,56 +264,26 @@ Step & Score & Len. & Ent. & Low-conf. & Top-1 \\
 \takeaway{The mechanism is a coordinated shift in generation behavior: confidence, entropy, length, and stopping behavior move together.}
 \end{frame}
 
-% 14
-\begin{frame}{Where the Gain Appears in Training}
-\begin{figure}
-    \centering
-    \includegraphics[width=\linewidth,height=0.66\textheight,keepaspectratio]{pic/phase-gain-breakdown.png}
-    \caption{Early and late gain decomposition.}
-\end{figure}
-\small Most of the useful improvement appears early, consistent with activating and stabilizing existing behavior rather than learning a broad new skill from one sample.
-\end{frame}
-
 % 15
-\begin{frame}{Why Accuracy Alone Is Not Enough}
+\begin{frame}[shrink=6]{Source of the Gain: Reward Semantics Matter}
 \begin{figure}
     \centering
-    \includegraphics[width=\linewidth,height=0.62\textheight,keepaspectratio]{pic/endpoint-frontier-panel.png}
-\end{figure}
-\small A good endpoint is not only high score. It should also occupy a stable region of entropy, low-confidence mass, and response length.
-\end{frame}
-
-% 16
-\begin{frame}{Mechanism Evidence: Score Gain Couples With Calibration}
-\begin{figure}
-    \centering
-    \includegraphics[width=\linewidth,height=0.60\textheight,keepaspectratio]{pic/gain-calibration-coupling.png}
-    \caption{Score gain coupled with token-level calibration indicators.}
-\end{figure}
-\small Score improvement aligns with distributional stabilization across settings.
-\end{frame}
-
-% 17
-\begin{frame}[shrink=8]{Source of the Gain: Reward Semantics Matter}
-\begin{columns}
-\column{0.52\textwidth}
-\begin{figure}
-    \centering
-    \includegraphics[width=\linewidth,height=0.46\textheight,keepaspectratio]{pic/actor-entropy-static.png}
+    \includegraphics[width=\linewidth,height=0.70\textheight,keepaspectratio]{pic/actor-entropy-static-vertical.png}
 \end{figure}
 
-\column{0.48\textwidth}
+\vspace{-0.8em}
 \begin{block}{Reading}
+\scriptsize
 \begin{itemize}
+    \setlength{\itemsep}{0.15em}
     \item Successful runs reduce uncertainty without matching the corrupted-reward collapse.
     \item Random-reward training moves into an unstable distributional regime.
     \item Weak regularization remains competitive, so the story is not simply stronger entropy suppression.
 \end{itemize}
 \end{block}
-\end{columns}
 \end{frame}
 
-% 18
+% 16
 \begin{frame}{Answering the Three Questions}
 \begin{block}{1. Does 1-shot GRPO have a benefit?}
 Yes for the Base model: \texttt{Base n=8} reaches 0.603 best accuracy and 0.583 final accuracy.
@@ -313,43 +294,14 @@ It depends on meaningful reward semantics and grouped rollout comparison; full-d
 \end{block}
 
 \begin{block}{3. What is the mechanism?}
-The evidence points to behavioral calibration: shorter responses, lower entropy, higher top-1 probability, fewer low-confidence tokens, and better-calibrated correct traces.
+The evidence points to behavioral calibration: shorter responses, lower entropy, higher top-1 probability, fewer low-confidence tokens, and trace-level entropy around reasoning choices.
 \end{block}
 \end{frame}
 
-% 19
-\begin{frame}{Boundaries of the Claim}
-\begin{itemize}
-    \setlength{\itemsep}{0.65em}
-    \item Current results are single-run evidence for each setting; more seeds are needed.
-    \item The random-reward control is only matched for the Base family.
-    \item Token diagnostics are richer than score curves, but coverage is still uneven across evidence types.
-    \item The experiments focus on Qwen2.5-Math-1.5B and mathematical reasoning.
-\end{itemize}
-\takeaway{The claim is mechanistic and scoped: strong evidence for calibration in this setting, not a universal statement about all RLVR.}
-\end{frame}
-
-% 20
-\begin{frame}{Next Steps: Strengthening the Mechanism Claim}
-\begin{block}{Near-Term}
-\begin{itemize}
-    \item Replicate n=1 vs. n=8 and one-shot vs. full-data with multiple seeds.
-    \item Stratify held-out problems by difficulty and topic.
-    \item Expand full-token checkpoint audits to more settings.
-\end{itemize}
-\end{block}
-
-\begin{block}{Long-Term}
-Scale to larger math models and test whether behavioral calibration transfers to code and scientific QA.
-\end{block}
-\end{frame}
-
-% 21
+% 17
 \begin{frame}{Thank You}
 \begin{center}
     {\Huge Thank You} \\
-    \vspace{0.6cm}
-    \Large Questions and feedback are welcome.
 \end{center}
 \end{frame}
 

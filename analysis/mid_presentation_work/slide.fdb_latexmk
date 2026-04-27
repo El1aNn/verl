@@ -1,9 +1,9 @@
 # Fdb version 3
-["xdvipdfmx"] 1777216321 "slide.xdv" "slide.pdf" "slide" 1777216326
-  "slide.xdv" 1777216321 551672 7cbe45333dce36761d1c8c9dce39d537 "xelatex"
+["xdvipdfmx"] 1777306970 "slide.xdv" "slide.pdf" "slide" 1777306974
+  "slide.xdv" 1777306970 418196 0a8004c32e6c17abc33e321a8c9c4418 "xelatex"
   (generated)
   "slide.pdf"
-["xelatex"] 1777216320 "slide.tex" "slide.xdv" "slide" 1777216326
+["xelatex"] 1777306969 "slide.tex" "slide.xdv" "slide" 1777306974
   "/etc/texmf/web2c/texmf.cnf" 1775459646 475 c0e671620eb5563b2130f56340a5fde8 ""
   "/usr/share/texlive/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/adobe/zapfding/pzdr.tfm" 1136768653 1528 f853c4d1b4e0550255e02831fdc8496f ""
@@ -212,21 +212,19 @@
   "/usr/share/texmf/web2c/texmf.cnf" 1644012257 39432 7155514e09a3d69036fac785183a21c2 ""
   "/var/lib/texmf/web2c/xetex/xelatex.fmt" 1775459662 3720601 7c7496db3076e352032f8e269c618b0d ""
   "CUHKSZ.sty" 1776486580 3754 53a1093249b6fa1e2734c186ab8decd4 ""
-  "pic/actor-entropy-static.png" 1776515500 238519 ad2e10809abae0ce7003459416edebbf ""
+  "pic/actor-entropy-static-vertical.png" 1777304559 267160 b1f9d18ea839f8dd0cf9563c85518f8c ""
   "pic/behavior-detail-main-settings-panel.png" 1776515500 497002 00b8cf7e6f14b17d336f6d8d3b50ac8a ""
   "pic/correct-wrong-support-panel.png" 1776515500 593011 6de67e0ee42084d6ba7aadcfefced7d1 ""
-  "pic/endpoint-frontier-panel.png" 1776515500 253580 1d171607a488b3632e9984b0e68888cc ""
   "pic/full-token-confidence-panel.png" 1777183557 213772 92818c9ea07775765bd492559395ed49 ""
   "pic/full-token-score-length.png" 1777183557 107065 3e4b0d846c35e98ca6f9b9755809c41d ""
-  "pic/gain-calibration-coupling.png" 1776515500 482637 9294af25b5b5bdb299d3189a9ce5f16e ""
   "pic/matched-full-data-panel.png" 1776515500 111826 4917c182a07ea8fba1e9af803b63545a ""
-  "pic/phase-gain-breakdown.png" 1776515500 118048 78f4ab5c03cb934ed4a523b9300d989c ""
   "pic/score-main-seven-settings-with-zoom.png" 1777216285 278594 1e8dc0505d543e23eaa054f05751e8b3 ""
   "pic/trajectory-text-entropy-score1-fullslide.png" 1777212361 313351 cdd47ca8d95f03821ae5fd199860fe63 ""
-  "slide.aux" 1777216321 4455 fc7bb1821e0d8637a7ee28266e7f683b "xelatex"
-  "slide.nav" 1777216321 2132 9ecbcfc9f7de68c052dc9846a033acac "xelatex"
-  "slide.out" 1777216320 0 d41d8cd98f00b204e9800998ecf8427e "xelatex"
-  "slide.tex" 1777216308 13038 8bf39234230ac949c6d09cd360d0fe1b ""
+  "pic/trajectory-text-entropy-wrong-sine-fullslide.png" 1777303042 234771 6142f235dfbcd507a8f78d30331c244a ""
+  "slide.aux" 1777306970 3771 d72fb5096331401cb2e18b79a88fda5f "xelatex"
+  "slide.nav" 1777306970 1760 80a68e95556c790f6368970db289fcf5 "xelatex"
+  "slide.out" 1777306969 0 d41d8cd98f00b204e9800998ecf8427e "xelatex"
+  "slide.tex" 1777306936 10949 34a11d07f03cc6ad2180c7dc5a41e69a ""
   (generated)
   "slide.aux"
   "slide.log"
